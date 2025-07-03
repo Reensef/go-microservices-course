@@ -1,0 +1,31 @@
+type: object
+required:
+  - code
+  - message
+  - details
+properties:
+  code:
+    type: integer
+    description: HTTP-код ошибки
+    example: 422
+  message:
+    type: string
+    description: Сообщение об ошибке
+    example: "Validation Error"
+  details:
+    type: array
+    description: Детали ошибок валидации
+    items:
+      type: object
+      required:
+        - field
+        - message
+      properties:
+        field:
+          type: string
+          description: Имя поля которое не прошло валидацию
+          example: "user_uuid"
+        message:
+          type: string
+          description: Сообщение об ошибке для конкретного поля
+          example: "Field is required"

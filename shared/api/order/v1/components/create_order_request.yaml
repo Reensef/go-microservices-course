@@ -1,0 +1,13 @@
+type: object
+properties:
+  user_uuid:
+    type: string
+    description: UUID пользователя
+  part_uuids:
+    type: array
+    items:
+      type: string
+    description: Список UUID деталей
+required:
+  - user_uuid
+  - part_uuids
