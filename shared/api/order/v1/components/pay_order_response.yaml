@@ -1,0 +1,7 @@
+type: object
+properties:
+  transaction_uuid:
+    type: string
+    format: uuid
+    description: UUID транзакции
+    example: "9d8b6a8c-4e2e-4a8b-8c6a-8c4e2e4a8b8c"
