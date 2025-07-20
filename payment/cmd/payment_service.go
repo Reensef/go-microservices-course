@@ -4,10 +4,11 @@ import (
 	"context"
 	"log"
 
-	paymentV1 "github.com/Reensef/go-microservices-course/shared/pkg/proto/payment/v1"
 	"github.com/google/uuid"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
+
+	paymentV1 "github.com/Reensef/go-microservices-course/shared/pkg/proto/payment/v1"
 )
 
 // Реализует gRPC сервис для оплыты заказов
