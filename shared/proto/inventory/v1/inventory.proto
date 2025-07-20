@@ -3,10 +3,11 @@ syntax = "proto3";
 package inventory.v1;
 
 import "google/protobuf/timestamp.proto";
+import "validate/validate.proto";
 
 option go_package = "github.com/Reensef/go-microservices-course/shared/pkg/proto/inventory/v1;inventory_v1";
 
-// Определение сервиса InventoryService
+// Cервис для хранения информации о деталях
 service InventoryService {
     // Метод для получения детали по UUID
     rpc GetPart(GetPartRequest) returns (GetPartResponse);
@@ -17,7 +18,7 @@ service InventoryService {
 
 // Запрос для метода GetPart
 message GetPartRequest {
-    string uuid = 1; // Идентификатор детали
+    string uuid = 1 [(validate.rules).string.uuid = true];
 }
 
 // Ответ для метода GetPart
@@ -37,7 +38,7 @@ message ListPartsResponse {
 
 // Фильтр для метода ListParts
 message PartsFilter {
-    repeated string uuids = 1; // Список UUID'ов
+    repeated string uuids = 1 [(validate.rules).repeated.items.string.uuid = true]; // Список UUID'ов
     repeated string names = 2; // Список имён
     repeated Category categories = 3; // Список категорий
     repeated string manufacturer_countries = 4; // Список стран производителей
@@ -46,7 +47,7 @@ message PartsFilter {
 
 // Основная структура Part
 message Part {
-    string uuid = 1; // Уникальный идентификатор детали
+    string uuid = 1 [(validate.rules).string.uuid = true]; // Уникальный идентификатор детали
     string name = 2; // Название детали
     string description = 3; // Описание детали
     double price = 4; // Цена за единицу

@@ -1,4 +1,6 @@
 version: v2
+deps:
+  - buf.build/envoyproxy/protoc-gen-validate
 lint:
   use:
     - STANDARD
@@ -7,3 +9,5 @@ lint:
   except:
       - RPC_RESPONSE_STANDARD_NAME
       - RPC_REQUEST_RESPONSE_UNIQUE
+  ignore:
+    - validate/validate.proto

@@ -12,26 +12,63 @@ import (
 	"time"
 
 	orderV1 "github.com/Reensef/go-microservices-course/shared/pkg/openapi/order/v1"
+	inventoryV1 "github.com/Reensef/go-microservices-course/shared/pkg/proto/inventory/v1"
+	paymentV1 "github.com/Reensef/go-microservices-course/shared/pkg/proto/payment/v1"
 	"github.com/go-chi/chi/v5"
 	"github.com/go-chi/chi/v5/middleware"
+	"google.golang.org/grpc"
+	"google.golang.org/grpc/credentials/insecure"
 )
 
 const (
 	httpPort = "8080"
 	// Таймауты для HTTP-сервера
-	readHeaderTimeout = 5 * time.Second
-	shutdownTimeout   = 10 * time.Second
+	readHeaderTimeout       = 5 * time.Second
+	shutdownTimeout         = 10 * time.Second
+	inventoryServiceAddress = "localhost:50051"
+	paymenyServiceAddress   = "localhost:50052"
 )
 
 func main() {
 	storage := NewOrderStorage()
 
-	orderHandler := NewOrderHandler(storage)
+	inventoryServiceConn, err := grpc.NewClient(
+		inventoryServiceAddress,
+		grpc.WithTransportCredentials(insecure.NewCredentials()),
+	)
+	if err != nil {
+		log.Printf("failed to connect: %v\n", err)
+		return
+	}
+	defer func() {
+		if cerr := inventoryServiceConn.Close(); cerr != nil {
+			log.Printf("failed to close connect: %v\n", cerr)
+		}
+	}()
+	inventoryService := inventoryV1.NewInventoryServiceClient(inventoryServiceConn)
+
+	paymentServiceConn, err := grpc.NewClient(
+		paymenyServiceAddress,
+		grpc.WithTransportCredentials(insecure.NewCredentials()),
+	)
+	if err != nil {
+		log.Printf("failed to connect: %v\n", err)
+		return
+	}
+	defer func() {
+		if cerr := paymentServiceConn.Close(); cerr != nil {
+			log.Printf("failed to close connect: %v\n", cerr)
+		}
+	}()
+	paymentService := paymentV1.NewPaymentServiceClient(paymentServiceConn)
+
+	orderHandler := NewOrderHandler(storage, inventoryService, paymentService)
 
 	// Создаем OpenAPI сервер
 	orderServer, err := orderV1.NewServer(orderHandler)
 	if err != nil {
-		log.Fatalf("Error creating OpenAPI server: %v", err)
+		log.Printf("Error creating OpenAPI server: %v\n", err)
+		return
 	}
 
 	r := chi.NewRouter()

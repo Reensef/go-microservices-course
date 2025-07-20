@@ -1,0 +1,34 @@
+syntax = "proto3";
+
+package payment.v1;
+
+import "validate/validate.proto";
+
+option go_package = "github.com/Reensef/go-microservices-course/shared/pkg/proto/payment/v1;payment_v1";
+
+// Cервис для оплаты заказов
+service PaymentService {
+    // Метод для оплаты заказа
+    rpc PayOrder(PayOrderRequest) returns (PayOrderResponse);
+}
+
+// Запрос для метода PayOrder
+message PayOrderRequest {
+    string order_uuid = 1 [(validate.rules).string.uuid = true];
+    string user_uuid = 2 [(validate.rules).string.uuid = true];
+    PaymentMethod payment_method = 3;
+}
+
+// Ответ для метода PayOrder
+message PayOrderResponse {
+    string transaction_uuid = 1 [(validate.rules).string.uuid = true];
+}
+
+// Перечисление для типа оплаты
+enum PaymentMethod {
+    PAYMENT_METHOD_UNSPECIFIED = 0;
+    PAYMENT_METHOD_CARD = 1;
+    PAYMENT_METHOD_SBP = 2;
+    PAYMENT_METHOD_CREDIT_CARD = 3;
+    PAYMENT_METHOD_INVESTOR_MONEY = 4;
+}
