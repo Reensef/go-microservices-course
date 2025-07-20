@@ -5,17 +5,26 @@ import (
 	"net/http"
 
 	orderV1 "github.com/Reensef/go-microservices-course/shared/pkg/openapi/order/v1"
+	inventoryV1 "github.com/Reensef/go-microservices-course/shared/pkg/proto/inventory/v1"
+	paymentV1 "github.com/Reensef/go-microservices-course/shared/pkg/proto/payment/v1"
 	"github.com/google/uuid"
 )
 
 type OrderHandler struct {
-	storage *OrderStorage
+	storage          *OrderStorage
+	inventoryService inventoryV1.InventoryServiceClient
+	paymentService   paymentV1.PaymentServiceClient
 }
 
 // NewOrderHandler создает новый обработчик запросов к API погоды
-func NewOrderHandler(storage *OrderStorage) *OrderHandler {
+func NewOrderHandler(storage *OrderStorage,
+	inventoryService inventoryV1.InventoryServiceClient,
+	paymentService paymentV1.PaymentServiceClient,
+) *OrderHandler {
 	return &OrderHandler{
-		storage: storage,
+		storage:          storage,
+		inventoryService: inventoryService,
+		paymentService:   paymentService,
 	}
 }
 
@@ -34,7 +43,7 @@ func (o *OrderHandler) CancelOrder(
 	switch order.Status {
 	case orderV1.OrderStatusPENDINGPAYMENT:
 		order.Status = orderV1.OrderStatusCANCELED
-		
+
 		err := o.storage.UpdateOrder(order)
 		if err != nil {
 			return &orderV1.NotFoundError{
@@ -63,11 +72,47 @@ func (o *OrderHandler) CreateOrder(
 	ctx context.Context,
 	req *orderV1.CreateOrderRequest,
 ) (orderV1.CreateOrderRes, error) {
-	// Вызывает PaymentService.PayOrder, передаёт user_uuid, order_uuid
-	// payment_method. Получаетtransaction_uuid.
-	// Проверяет, что все детали существуют. Если хотя бы одной нет —
-	// возвращает ошибку.
+	reqPartUuids := req.GetPartUuids()
+	reqPartUuidStrings := make([]string, len(reqPartUuids))
+	for i, uuid := range reqPartUuids {
+		reqPartUuidStrings[i] = uuid.String()
+	}
+
+	resListParts, err := o.inventoryService.ListParts(ctx, &inventoryV1.ListPartsRequest{
+		Filter: &inventoryV1.PartsFilter{
+			Uuids: reqPartUuidStrings,
+		},
+	})
+
+	if err != nil {
+		return &orderV1.InternalServerError{
+			Code:    500,
+			Message: "Internal server error",
+		}, nil
+	}
+
+	for _, uuid := range reqPartUuidStrings {
+		exists := false
+		for _, part := range resListParts.GetParts() {
+			if part.GetUuid() == uuid {
+				exists = true
+				break
+			}
+		}
+		if !exists {
+			return &orderV1.NotFoundError{
+				Code:    404,
+				Message: "Part with UUID '" + uuid + "' not found",
+			}, nil
+		}
+
+	}
+
 	totalPrice := 0.0
+	for _, part := range resListParts.GetParts() {
+		totalPrice += part.GetPrice()
+	}
+
 	newOrder := &orderV1.OrderDto{
 		UserUUID:   req.UserUUID,
 		PartUuids:  req.PartUuids,
@@ -109,15 +154,27 @@ func (o *OrderHandler) PayOrder(
 		}, nil
 	}
 
-	// TODO: Вызывает PaymentService.PayOrder, передаёт user_uuid,
-	// order_uuid и payment_method. Получает transaction_uuid.
-	transactionUUID := uuid.New()
+	resPayOrder, err := o.paymentService.PayOrder(ctx, &paymentV1.PayOrderRequest{
+		OrderUuid: order.OrderUUID.String(),
+		UserUuid:  order.UserUUID.String(),
+	})
+	if err != nil {
+		return &orderV1.InternalServerError{
+			Code:    500,
+			Message: "Internal server error",
+		}, nil
+	}
+
+	transactionUUID, err := uuid.Parse(resPayOrder.TransactionUuid)
+	if err != nil {
+		return nil, err
+	}
 
 	order.TransactionUUID.SetTo(transactionUUID)
 	order.PaymentMethod.SetTo(req.PaymentMethod)
 	order.Status = orderV1.OrderStatusPAID
 
-	err := o.storage.UpdateOrder(order)
+	err = o.storage.UpdateOrder(order)
 	if err != nil {
 		return &orderV1.NotFoundError{
 			Code:    404,

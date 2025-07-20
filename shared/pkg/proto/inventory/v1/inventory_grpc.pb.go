@@ -27,7 +27,7 @@ const (
 //
 // For semantics around ctx use and closing/ending streaming RPCs, please refer to https://pkg.go.dev/google.golang.org/grpc/?tab=doc#ClientConn.NewStream.
 //
-// Определение сервиса InventoryService
+// Cервис для хранения информации о деталях
 type InventoryServiceClient interface {
 	// Метод для получения детали по UUID
 	GetPart(ctx context.Context, in *GetPartRequest, opts ...grpc.CallOption) (*GetPartResponse, error)
@@ -67,7 +67,7 @@ func (c *inventoryServiceClient) ListParts(ctx context.Context, in *ListPartsReq
 // All implementations must embed UnimplementedInventoryServiceServer
 // for forward compatibility.
 //
-// Определение сервиса InventoryService
+// Cервис для хранения информации о деталях
 type InventoryServiceServer interface {
 	// Метод для получения детали по UUID
 	GetPart(context.Context, *GetPartRequest) (*GetPartResponse, error)
