@@ -8,10 +8,10 @@ import (
 	"os/signal"
 	"syscall"
 
-	payment "github.com/Reensef/go-microservices-course/shared/pkg/proto/payment/v1"
-
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/reflection"
+
+	payment "github.com/Reensef/go-microservices-course/shared/pkg/proto/payment/v1"
 )
 
 const grpcPort = 50052

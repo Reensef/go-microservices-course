@@ -4,10 +4,11 @@ import (
 	"context"
 	"net/http"
 
+	"github.com/google/uuid"
+
 	orderV1 "github.com/Reensef/go-microservices-course/shared/pkg/openapi/order/v1"
 	inventoryV1 "github.com/Reensef/go-microservices-course/shared/pkg/proto/inventory/v1"
 	paymentV1 "github.com/Reensef/go-microservices-course/shared/pkg/proto/payment/v1"
-	"github.com/google/uuid"
 )
 
 type OrderHandler struct {
@@ -83,7 +84,6 @@ func (o *OrderHandler) CreateOrder(
 			Uuids: reqPartUuidStrings,
 		},
 	})
-
 	if err != nil {
 		return &orderV1.InternalServerError{
 			Code:    500,
@@ -125,7 +125,6 @@ func (o *OrderHandler) CreateOrder(
 		OrderUUID:  newOrder.OrderUUID,
 		TotalPrice: totalPrice,
 	}, nil
-
 }
 
 // Обрабатывает запрос на получение данных о заказе по UUID

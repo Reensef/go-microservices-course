@@ -8,10 +8,10 @@ import (
 	"os/signal"
 	"syscall"
 
-	inventory "github.com/Reensef/go-microservices-course/shared/pkg/proto/inventory/v1"
-
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/reflection"
+
+	inventory "github.com/Reensef/go-microservices-course/shared/pkg/proto/inventory/v1"
 )
 
 const grpcPort = 50051

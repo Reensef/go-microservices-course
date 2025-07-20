@@ -7,11 +7,12 @@ import (
 	"sync"
 	"time"
 
-	inventory "github.com/Reensef/go-microservices-course/shared/pkg/proto/inventory/v1"
 	"github.com/brianvoe/gofakeit/v7"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
 	"google.golang.org/protobuf/types/known/timestamppb"
+
+	inventory "github.com/Reensef/go-microservices-course/shared/pkg/proto/inventory/v1"
 )
 
 // Реализует gRPC сервис для хранения информации о деталях
@@ -128,15 +129,13 @@ func (s *inventoryService) ListParts(
 	result := make([]*inventory.Part, 0)
 
 	for _, part := range s.filterPartsByUuids(s.parts, filter.GetUuids()) {
-		if !s.filterPartByNames(part, filter.GetNames()) {
+		switch {
+		case !s.filterPartByNames(part, filter.GetNames()):
+		case !s.filterPartByCategories(part, filter.GetCategories()):
+		case !s.filterPartByManufacturerCountries(part, filter.GetManufacturerCountries()):
+		case !s.filterPartByTags(part, filter.GetTags()):
 			continue
-		} else if !s.filterPartByCategories(part, filter.GetCategories()) {
-			continue
-		} else if !s.filterPartByManufacturerCountries(part, filter.GetManufacturerCountries()) {
-			continue
-		} else if !s.filterPartByTags(part, filter.GetTags()) {
-			continue
-		} else {
+		default:
 			result = append(result, part)
 		}
 	}

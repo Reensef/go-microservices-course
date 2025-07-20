@@ -4,8 +4,9 @@ import (
 	"fmt"
 	"sync"
 
-	orderV1 "github.com/Reensef/go-microservices-course/shared/pkg/openapi/order/v1"
 	"github.com/google/uuid"
+
+	orderV1 "github.com/Reensef/go-microservices-course/shared/pkg/openapi/order/v1"
 )
 
 // Представляет потокобезопасное хранилище данных о заказах
