@@ -11,7 +11,10 @@ import (
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/reflection"
 
-	inventory "github.com/Reensef/go-microservices-course/shared/pkg/proto/inventory/v1"
+	inventoryApi "github.com/Reensef/go-microservices-course/inventory/internal/api/inventory/v1"
+	partRepository "github.com/Reensef/go-microservices-course/inventory/internal/repository/part"
+	inventoryService "github.com/Reensef/go-microservices-course/inventory/internal/service/inventory"
+	inventoryV1 "github.com/Reensef/go-microservices-course/shared/pkg/proto/inventory/v1"
 )
 
 const grpcPort = 50051
@@ -23,16 +26,16 @@ func main() {
 		return
 	}
 
-	// Создаем gRPC сервер
 	s := grpc.NewServer()
 
 	// Включаем рефлексию для отладки
 	reflection.Register(s)
 
-	// Регистрируем наш сервис
-	service := NewInventoryService()
+	repo := partRepository.NewRepository()
+	service := inventoryService.NewService(repo)
+	api := inventoryApi.NewAPI(service)
 
-	inventory.RegisterInventoryServiceServer(s, service)
+	inventoryV1.RegisterInventoryServiceServer(s, api)
 
 	go func() {
 		log.Printf("🚀 gRPC server listening on %d\n", grpcPort)

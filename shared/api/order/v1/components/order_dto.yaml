@@ -5,6 +5,9 @@ required:
   - details_uuid
   - total_price
   - status
+  - payment_method
+  - created_at
+  - updated_at
 
 properties:
   order_uuid:
@@ -33,3 +36,9 @@ properties:
     $ref: './enums/payment_method.yaml'
   status:
     $ref: './enums/order_status.yaml'
+  created_at:
+    type: string
+    format: date-time
+  updated_at:
+    type: string
+    format: date-time

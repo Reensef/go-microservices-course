@@ -1,0 +1,17 @@
+all: true
+dir: '{{.InterfaceDir}}/mocks'
+filename: "mock_{{ .InterfaceName | snakecase }}.go"
+force-file-write: true
+formatter: goimports
+include-auto-generated: false
+log-level: info
+structname: '{{.Mock}}{{.InterfaceName}}'
+pkgname: "mocks"
+recursive: true
+template: testify
+
+packages:
+  github.com/Reensef/go-microservices-course:
+    config:
+      exclude-subpkg-regex:
+        - /shared/

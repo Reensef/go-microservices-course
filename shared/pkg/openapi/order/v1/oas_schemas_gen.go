@@ -4,6 +4,7 @@ package order_v1
 
 import (
 	"fmt"
+	"time"
 
 	"github.com/go-faster/errors"
 	"github.com/google/uuid"
@@ -77,6 +78,7 @@ func (s *ConflictError) SetMessage(val string) {
 }
 
 func (*ConflictError) cancelOrderRes() {}
+func (*ConflictError) payOrderRes()    {}
 
 // Ref: #/components/schemas/create_order_request
 type CreateOrderRequest struct {
@@ -256,52 +258,6 @@ func (*NotFoundError) createOrderRes()    {}
 func (*NotFoundError) getOrderByUUIDRes() {}
 func (*NotFoundError) payOrderRes()       {}
 
-// NewOptPaymentMethod returns new OptPaymentMethod with value set to v.
-func NewOptPaymentMethod(v PaymentMethod) OptPaymentMethod {
-	return OptPaymentMethod{
-		Value: v,
-		Set:   true,
-	}
-}
-
-// OptPaymentMethod is optional PaymentMethod.
-type OptPaymentMethod struct {
-	Value PaymentMethod
-	Set   bool
-}
-
-// IsSet returns true if OptPaymentMethod was set.
-func (o OptPaymentMethod) IsSet() bool { return o.Set }
-
-// Reset unsets value.
-func (o *OptPaymentMethod) Reset() {
-	var v PaymentMethod
-	o.Value = v
-	o.Set = false
-}
-
-// SetTo sets value to v.
-func (o *OptPaymentMethod) SetTo(v PaymentMethod) {
-	o.Set = true
-	o.Value = v
-}
-
-// Get returns value and boolean that denotes whether value was set.
-func (o OptPaymentMethod) Get() (v PaymentMethod, ok bool) {
-	if !o.Set {
-		return v, false
-	}
-	return o.Value, true
-}
-
-// Or returns value if set, or given parameter if does not.
-func (o OptPaymentMethod) Or(d PaymentMethod) PaymentMethod {
-	if v, ok := o.Get(); ok {
-		return v
-	}
-	return d
-}
-
 // NewOptUUID returns new OptUUID with value set to v.
 func NewOptUUID(v uuid.UUID) OptUUID {
 	return OptUUID{
@@ -357,10 +313,12 @@ type OrderDto struct {
 	// Список UUID деталей.
 	PartUuids []uuid.UUID `json:"part_uuids"`
 	// Итоговая стоимость заказа.
-	TotalPrice      float64          `json:"total_price"`
-	TransactionUUID OptUUID          `json:"transaction_uuid"`
-	PaymentMethod   OptPaymentMethod `json:"payment_method"`
-	Status          OrderStatus      `json:"status"`
+	TotalPrice      float64       `json:"total_price"`
+	TransactionUUID OptUUID       `json:"transaction_uuid"`
+	PaymentMethod   PaymentMethod `json:"payment_method"`
+	Status          OrderStatus   `json:"status"`
+	CreatedAt       time.Time     `json:"created_at"`
+	UpdatedAt       time.Time     `json:"updated_at"`
 }
 
 // GetOrderUUID returns the value of OrderUUID.
@@ -389,13 +347,23 @@ func (s *OrderDto) GetTransactionUUID() OptUUID {
 }
 
 // GetPaymentMethod returns the value of PaymentMethod.
-func (s *OrderDto) GetPaymentMethod() OptPaymentMethod {
+func (s *OrderDto) GetPaymentMethod() PaymentMethod {
 	return s.PaymentMethod
 }
 
 // GetStatus returns the value of Status.
 func (s *OrderDto) GetStatus() OrderStatus {
 	return s.Status
+}
+
+// GetCreatedAt returns the value of CreatedAt.
+func (s *OrderDto) GetCreatedAt() time.Time {
+	return s.CreatedAt
+}
+
+// GetUpdatedAt returns the value of UpdatedAt.
+func (s *OrderDto) GetUpdatedAt() time.Time {
+	return s.UpdatedAt
 }
 
 // SetOrderUUID sets the value of OrderUUID.
@@ -424,13 +392,23 @@ func (s *OrderDto) SetTransactionUUID(val OptUUID) {
 }
 
 // SetPaymentMethod sets the value of PaymentMethod.
-func (s *OrderDto) SetPaymentMethod(val OptPaymentMethod) {
+func (s *OrderDto) SetPaymentMethod(val PaymentMethod) {
 	s.PaymentMethod = val
 }
 
 // SetStatus sets the value of Status.
 func (s *OrderDto) SetStatus(val OrderStatus) {
 	s.Status = val
+}
+
+// SetCreatedAt sets the value of CreatedAt.
+func (s *OrderDto) SetCreatedAt(val time.Time) {
+	s.CreatedAt = val
+}
+
+// SetUpdatedAt sets the value of UpdatedAt.
+func (s *OrderDto) SetUpdatedAt(val time.Time) {
+	s.UpdatedAt = val
 }
 
 func (*OrderDto) getOrderByUUIDRes() {}
