@@ -3,7 +3,6 @@ package main
 import (
 	"context"
 	"log"
-	"slices"
 	"sync"
 	"time"
 
@@ -112,125 +111,42 @@ func (s *inventoryService) ListParts(
 	ctx context.Context,
 	req *inventory.ListPartsRequest,
 ) (*inventory.ListPartsResponse, error) {
-	s.mu.Lock()
-	defer s.mu.Unlock()
+	s.mu.RLock()
+	defer s.mu.RUnlock()
+
+	parts := make([]*inventory.Part, 0, len(s.parts))
 
 	filter := req.GetFilter()
+
+	// Если нет фильтра, отдаем все
 	if filter == nil {
-		result := make([]*inventory.Part, 0)
 		for _, part := range s.parts {
-			result = append(result, part)
+			parts = append(parts, part)
 		}
 		return &inventory.ListPartsResponse{
-			Parts: result,
+			Parts: parts,
 		}, nil
 	}
 
-	result := make([]*inventory.Part, 0)
-
-	for _, part := range s.filterPartsByUuids(s.parts, filter.GetUuids()) {
-		switch {
-		case !s.filterPartByNames(part, filter.GetNames()):
-		case !s.filterPartByCategories(part, filter.GetCategories()):
-		case !s.filterPartByManufacturerCountries(part, filter.GetManufacturerCountries()):
-		case !s.filterPartByTags(part, filter.GetTags()):
-			continue
-		default:
-			result = append(result, part)
+	// Если есть фильтр по UUID, отбираем по ключу
+	uuids := filter.GetUuids()
+	if len(uuids) > 0 {
+		for _, uuid := range uuids {
+			if part, exists := s.parts[uuid]; exists {
+				if matchPartFilters(part, filter) {
+					parts = append(parts, part)
+				}
+			}
+		}
+	} else {
+		for _, part := range s.parts {
+			if matchPartFilters(part, filter) {
+				parts = append(parts, part)
+			}
 		}
 	}
 
 	return &inventory.ListPartsResponse{
-		Parts: result,
+		Parts: parts,
 	}, nil
-}
-
-func (s *inventoryService) filterPartsByUuids(
-	parts map[string]*inventory.Part,
-	uuids []string,
-) []*inventory.Part {
-	result := make([]*inventory.Part, 0)
-
-	if len(uuids) == 0 {
-		for _, p := range parts {
-			if p != nil {
-				result = append(result, p)
-			}
-		}
-		return result
-	}
-
-	for _, uuid := range uuids {
-		if parts[uuid] != nil {
-			result = append(result, parts[uuid])
-		}
-	}
-
-	return result
-}
-
-func (s *inventoryService) filterPartByNames(
-	part *inventory.Part,
-	names []string,
-) bool {
-	if part == nil {
-		return false
-	}
-
-	if len(names) == 0 {
-		return true
-	}
-
-	return slices.Contains(names, part.Name)
-}
-
-func (s *inventoryService) filterPartByCategories(
-	part *inventory.Part,
-	categories []inventory.Category,
-) bool {
-	if part == nil {
-		return false
-	}
-
-	if len(categories) == 0 {
-		return true
-	}
-
-	return slices.Contains(categories, part.Category)
-}
-
-func (s *inventoryService) filterPartByManufacturerCountries(
-	part *inventory.Part,
-	countries []string,
-) bool {
-	if part == nil {
-		return false
-	}
-
-	if len(countries) == 0 {
-		return true
-	}
-
-	return slices.Contains(countries, part.Manufacturer.Country)
-}
-
-func (s *inventoryService) filterPartByTags(
-	part *inventory.Part,
-	tags []string,
-) bool {
-	if part == nil {
-		return false
-	}
-
-	if len(tags) == 0 {
-		return true
-	}
-
-	for _, reqTag := range tags {
-		if slices.Contains(part.Tags, reqTag) {
-			return true
-		}
-	}
-
-	return false
 }

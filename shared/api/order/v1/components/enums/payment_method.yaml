@@ -1,6 +1,6 @@
 type: string
 enum:
-  - UNKNOWN
+  - UNSPECIFIED
   - CARD
   - SBP
   - CREDIT_CARD
