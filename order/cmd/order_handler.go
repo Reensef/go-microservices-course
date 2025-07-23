@@ -2,6 +2,7 @@ package main
 
 import (
 	"context"
+	"fmt"
 	"net/http"
 
 	"github.com/google/uuid"
@@ -37,7 +38,7 @@ func (o *OrderHandler) CancelOrder(
 	if order == nil {
 		return &orderV1.NotFoundError{
 			Code:    404,
-			Message: "Order by UUID '" + params.OrderUUID.String() + "' not found",
+			Message: fmt.Sprintf("Order by UUID '%s' not found", params.OrderUUID.String()),
 		}, nil
 	}
 
@@ -49,7 +50,7 @@ func (o *OrderHandler) CancelOrder(
 		if err != nil {
 			return &orderV1.NotFoundError{
 				Code:    404,
-				Message: "Order by UUID '" + params.OrderUUID.String() + "' not found",
+				Message: fmt.Sprintf("Order with UUID '%s' not found", params.OrderUUID.String()),
 			}, nil
 		}
 
@@ -57,7 +58,7 @@ func (o *OrderHandler) CancelOrder(
 	case orderV1.OrderStatusPAID:
 		return &orderV1.ConflictError{
 			Code:    409,
-			Message: "Order '" + params.OrderUUID.String() + "' is already paid",
+			Message: fmt.Sprintf("Order with UUID '%s' already paid", params.OrderUUID.String()),
 		}, nil
 	case orderV1.OrderStatusCANCELED:
 		return &orderV1.CancelOrderNoContent{}, nil
@@ -91,21 +92,18 @@ func (o *OrderHandler) CreateOrder(
 		}, nil
 	}
 
+	partUuids := map[string]bool{}
+	for _, part := range resListParts.GetParts() {
+		partUuids[part.GetUuid()] = true
+	}
+
 	for _, uuid := range reqPartUuidStrings {
-		exists := false
-		for _, part := range resListParts.GetParts() {
-			if part.GetUuid() == uuid {
-				exists = true
-				break
-			}
-		}
-		if !exists {
+		if !partUuids[uuid] {
 			return &orderV1.NotFoundError{
 				Code:    404,
-				Message: "Part with UUID '" + uuid + "' not found",
+				Message: fmt.Sprintf("Part with UUID '%s' not found", uuid),
 			}, nil
 		}
-
 	}
 
 	totalPrice := 0.0
@@ -133,7 +131,7 @@ func (o *OrderHandler) GetOrderByUUID(_ context.Context, params orderV1.GetOrder
 	if order == nil {
 		return &orderV1.NotFoundError{
 			Code:    404,
-			Message: "Order by UUID '" + params.OrderUUID.String() + "' not found",
+			Message: fmt.Sprintf("Order with UUID '%s' not found", params.OrderUUID.String()),
 		}, nil
 	}
 
@@ -149,11 +147,11 @@ func (o *OrderHandler) PayOrder(
 	if order == nil {
 		return &orderV1.NotFoundError{
 			Code:    404,
-			Message: "Order by uuid '" + params.OrderUUID.String() + "' not found",
+			Message: fmt.Sprintf("Order with UUID '%s' not found", params.OrderUUID.String()),
 		}, nil
 	}
 
-	resPayOrder, err := o.paymentService.PayOrder(ctx, &paymentV1.PayOrderRequest{
+	orderPaid, err := o.paymentService.PayOrder(ctx, &paymentV1.PayOrderRequest{
 		OrderUuid: order.OrderUUID.String(),
 		UserUuid:  order.UserUUID.String(),
 	})
@@ -164,9 +162,12 @@ func (o *OrderHandler) PayOrder(
 		}, nil
 	}
 
-	transactionUUID, err := uuid.Parse(resPayOrder.TransactionUuid)
+	transactionUUID, err := uuid.Parse(orderPaid.TransactionUuid)
 	if err != nil {
-		return nil, err
+		return &orderV1.InternalServerError{
+			Code:    500,
+			Message: "Internal server error",
+		}, nil
 	}
 
 	order.TransactionUUID.SetTo(transactionUUID)
@@ -175,9 +176,9 @@ func (o *OrderHandler) PayOrder(
 
 	err = o.storage.UpdateOrder(order)
 	if err != nil {
-		return &orderV1.NotFoundError{
-			Code:    404,
-			Message: "Order by uuid '" + params.OrderUUID.String() + "' not found",
+		return &orderV1.InternalServerError{
+			Code:    500,
+			Message: "Internal server error",
 		}, nil
 	}
 

@@ -523,7 +523,7 @@ func (*PayOrderResponse) payOrderRes() {}
 type PaymentMethod string
 
 const (
-	PaymentMethodUNKNOWN       PaymentMethod = "UNKNOWN"
+	PaymentMethodUNSPECIFIED   PaymentMethod = "UNSPECIFIED"
 	PaymentMethodCARD          PaymentMethod = "CARD"
 	PaymentMethodSBP           PaymentMethod = "SBP"
 	PaymentMethodCREDITCARD    PaymentMethod = "CREDIT_CARD"
@@ -533,7 +533,7 @@ const (
 // AllValues returns all PaymentMethod values.
 func (PaymentMethod) AllValues() []PaymentMethod {
 	return []PaymentMethod{
-		PaymentMethodUNKNOWN,
+		PaymentMethodUNSPECIFIED,
 		PaymentMethodCARD,
 		PaymentMethodSBP,
 		PaymentMethodCREDITCARD,
@@ -544,7 +544,7 @@ func (PaymentMethod) AllValues() []PaymentMethod {
 // MarshalText implements encoding.TextMarshaler.
 func (s PaymentMethod) MarshalText() ([]byte, error) {
 	switch s {
-	case PaymentMethodUNKNOWN:
+	case PaymentMethodUNSPECIFIED:
 		return []byte(s), nil
 	case PaymentMethodCARD:
 		return []byte(s), nil
@@ -562,8 +562,8 @@ func (s PaymentMethod) MarshalText() ([]byte, error) {
 // UnmarshalText implements encoding.TextUnmarshaler.
 func (s *PaymentMethod) UnmarshalText(data []byte) error {
 	switch PaymentMethod(data) {
-	case PaymentMethodUNKNOWN:
-		*s = PaymentMethodUNKNOWN
+	case PaymentMethodUNSPECIFIED:
+		*s = PaymentMethodUNSPECIFIED
 		return nil
 	case PaymentMethodCARD:
 		*s = PaymentMethodCARD
