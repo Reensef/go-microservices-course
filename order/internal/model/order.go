@@ -12,6 +12,7 @@ const (
 	OrderPaymentMethod_UNKNOWN = iota
 	OrderPaymentMethod_CARD
 	OrderPaymentMethod_CREDIT_CARD
+	OrderPaymentMethod_SBP
 	OrderPaymentMethod_INVESTOR_MONEY
 )
 
