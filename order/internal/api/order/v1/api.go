@@ -8,7 +8,7 @@ import (
 	orderV1 "github.com/Reensef/go-microservices-course/shared/pkg/openapi/order/v1"
 )
 
-// var _ orderV1.Handler = (*api)(nil)
+var _ orderV1.Handler = (*api)(nil)
 
 type api struct {
 	orderService service.OrderService

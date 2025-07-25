@@ -17,7 +17,7 @@ func (a *api) CreateOrder(
 	if errors.Is(err, model.ErrPartNotFound) {
 		return &orderV1.NotFoundError{
 			Code:    404,
-			Message: err.Error(),
+			Message: "part not found",
 		}, nil
 	} else if err != nil {
 		return &orderV1.InternalServerError{

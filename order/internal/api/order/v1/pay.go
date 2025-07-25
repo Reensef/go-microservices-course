@@ -2,8 +2,12 @@ package v1
 
 import (
 	"context"
+	"errors"
+	"fmt"
 
-	"github.com/google/uuid"
+	"github.com/Reensef/go-microservices-course/order/internal/api/order/v1/converter"
+	"github.com/Reensef/go-microservices-course/order/internal/model"
+	orderV1 "github.com/Reensef/go-microservices-course/shared/pkg/openapi/order/v1"
 )
 
 func (a *api) PayOrder(
@@ -11,44 +15,24 @@ func (a *api) PayOrder(
 	req *orderV1.PayOrderRequest,
 	params orderV1.PayOrderParams,
 ) (orderV1.PayOrderRes, error) {
-	order := o.storage.GetOrder(params.OrderUUID)
-	if order == nil {
+	transactionUUID, err := a.orderService.PayOrder(
+		ctx, params.OrderUUID,
+		converter.APIPaymentMethodToModel(req.PaymentMethod),
+	)
+
+	if errors.Is(err, model.ErrOrderNotFound) {
 		return &orderV1.NotFoundError{
 			Code:    404,
-			Message: "Order by uuid '" + params.OrderUUID.String() + "' not found",
+			Message: fmt.Sprintf("Order with UUID '%s' not found", params.OrderUUID.String()),
 		}, nil
-	}
-
-	resPayOrder, err := o.paymentService.PayOrder(ctx, &paymentV1.PayOrderRequest{
-		OrderUuid: order.OrderUUID.String(),
-		UserUuid:  order.UserUUID.String(),
-	})
-	if err != nil {
+	} else if err != nil {
 		return &orderV1.InternalServerError{
 			Code:    500,
 			Message: "Internal server error",
 		}, nil
 	}
 
-	transactionUUID, err := uuid.Parse(resPayOrder.TransactionUuid)
-	if err != nil {
-		return nil, err
-	}
-
-	order.TransactionUUID.SetTo(transactionUUID)
-	order.PaymentMethod.SetTo(req.PaymentMethod)
-	order.Status = orderV1.OrderStatusPAID
-
-	err = o.storage.UpdateOrder(order)
-	if err != nil {
-		return &orderV1.NotFoundError{
-			Code:    404,
-			Message: "Order by uuid '" + params.OrderUUID.String() + "' not found",
-		}, nil
-	}
-
-	response := &orderV1.PayOrderResponse{}
-	response.TransactionUUID.SetTo(transactionUUID)
-
-	return response, nil
+	return &orderV1.PayOrderResponse{
+		TransactionUUID: orderV1.NewOptUUID(transactionUUID),
+	}, nil
 }

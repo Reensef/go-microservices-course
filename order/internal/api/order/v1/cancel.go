@@ -3,6 +3,7 @@ package v1
 import (
 	"context"
 	"errors"
+	"fmt"
 
 	"github.com/Reensef/go-microservices-course/order/internal/model"
 	orderV1 "github.com/Reensef/go-microservices-course/shared/pkg/openapi/order/v1"
@@ -17,12 +18,12 @@ func (a *api) CancelOrder(
 	if errors.Is(err, model.ErrOrderNotFound) {
 		return &orderV1.NotFoundError{
 			Code:    404,
-			Message: "Order by UUID '" + params.OrderUUID.String() + "' not found",
+			Message: fmt.Sprintf("Order by UUID '%s' not found", params.OrderUUID.String()),
 		}, nil
 	} else if errors.Is(err, model.ErrOrderAlreadyPaid) {
 		return &orderV1.ConflictError{
 			Code:    409,
-			Message: "Order '" + params.OrderUUID.String() + "' is already paid",
+			Message: fmt.Sprintf("Order with UUID '%s' already paid", params.OrderUUID.String()),
 		}, nil
 	} else if err != nil {
 		return &orderV1.InternalServerError{

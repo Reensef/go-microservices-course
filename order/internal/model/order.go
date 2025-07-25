@@ -9,7 +9,7 @@ import (
 type OrderPaymentMethod int
 
 const (
-	OrderPaymentMethod_UNKNOWN = iota
+	OrderPaymentMethod_UNSPECIFIED = iota
 	OrderPaymentMethod_CARD
 	OrderPaymentMethod_CREDIT_CARD
 	OrderPaymentMethod_SBP
@@ -46,6 +46,6 @@ type Order struct {
 	Uuid      uuid.UUID
 	Info      OrderInfo
 	CreatedAt time.Time
-	UpdatedAt *time.Time
+	UpdatedAt time.Time
 	DeletedAt *time.Time
 }

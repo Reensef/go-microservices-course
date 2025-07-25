@@ -16,7 +16,7 @@ func APIPaymentMethodToModel(paymentMethod orderV1.PaymentMethod) model.OrderPay
 	case orderV1.PaymentMethodINVESTORMONEY:
 		return model.OrderPaymentMethod_INVESTOR_MONEY
 	default:
-		return model.OrderPaymentMethod_UNKNOWN
+		return model.OrderPaymentMethod_UNSPECIFIED
 	}
 }
 
@@ -31,7 +31,7 @@ func ModelPaymentMethodToAPI(paymentMethod model.OrderPaymentMethod) orderV1.Pay
 	case model.OrderPaymentMethod_INVESTOR_MONEY:
 		return orderV1.PaymentMethodINVESTORMONEY
 	default:
-		return orderV1.PaymentMethodUNKNOWN
+		return orderV1.PaymentMethodUNSPECIFIED
 	}
 }
 
@@ -41,24 +41,18 @@ func APIOrderStatusToModel(status orderV1.OrderStatus) model.OrderStatus {
 		return model.OrderStatus_CANCELED
 	case orderV1.OrderStatusPAID:
 		return model.OrderStatus_PAID
-	case orderV1.OrderStatusPENDINGPAYMENT:
-		return model.OrderStatus_PENDING_PAYMENT
 	default:
-		return model.OrderPaymentMethod_UNKNOWN
+		return model.OrderStatus_PENDING_PAYMENT
 	}
 }
 
-func ModelPaymentMethodToAPI(paymentMethod model.OrderPaymentMethod) orderV1.PaymentMethod {
-	switch paymentMethod {
-	case model.OrderPaymentMethod_CARD:
-		return orderV1.PaymentMethodCARD
-	case model.OrderPaymentMethod_CREDIT_CARD:
-		return orderV1.PaymentMethodCREDITCARD
-	case model.OrderPaymentMethod_SBP:
-		return orderV1.PaymentMethodSBP
-	case model.OrderPaymentMethod_INVESTOR_MONEY:
-		return orderV1.PaymentMethodINVESTORMONEY
+func ModelOrderStatusToAPI(status model.OrderStatus) orderV1.OrderStatus {
+	switch status {
+	case model.OrderStatus_PAID:
+		return orderV1.OrderStatusPAID
+	case model.OrderStatus_CANCELED:
+		return orderV1.OrderStatusCANCELED
 	default:
-		return orderV1.PaymentMethodUNKNOWN
+		return orderV1.OrderStatusPENDINGPAYMENT
 	}
 }

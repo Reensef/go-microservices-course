@@ -3,6 +3,7 @@ package converter
 import (
 	"github.com/Reensef/go-microservices-course/order/internal/model"
 	repoModel "github.com/Reensef/go-microservices-course/order/internal/repository/model"
+	"github.com/samber/lo"
 
 	"github.com/google/uuid"
 )
@@ -13,8 +14,8 @@ func ModelOrderInfoToRepoModel(info model.OrderInfo) repoModel.OrderInfo {
 		PartUuids:       append([]uuid.UUID(nil), info.PartUuids...),
 		TransactionUuid: info.TransactionUuid,
 		TotalPrice:      info.TotalPrice,
-		PaymentMethod:   info.PaymentMethod,
-		Status:          info.Status,
+		PaymentMethod:   ModelPaymentMethodToRepo(info.PaymentMethod),
+		Status:          ModelOrderStatusToRepo(info.Status),
 	}
 }
 
@@ -24,7 +25,7 @@ func ModelOrderToRepoModel(order model.Order) repoModel.Order {
 		Info:      ModelOrderInfoToRepoModel(order.Info),
 		CreatedAt: order.CreatedAt,
 		UpdatedAt: order.UpdatedAt,
-		DeletedAt: order.UpdatedAt,
+		DeletedAt: lo.ToPtr(*order.DeletedAt),
 	}
 }
 
@@ -34,8 +35,8 @@ func RepoModelOrderInfoToModel(info repoModel.OrderInfo) model.OrderInfo {
 		PartUuids:       append([]uuid.UUID(nil), info.PartUuids...),
 		TransactionUuid: info.TransactionUuid,
 		TotalPrice:      info.TotalPrice,
-		PaymentMethod:   info.PaymentMethod,
-		Status:          info.Status,
+		PaymentMethod:   RepoPaymentMethodToModel(info.PaymentMethod),
+		Status:          RepoOrderStatusToModel(info.Status),
 	}
 }
 
