@@ -16,17 +16,17 @@ type OrderRepository interface {
 
 	GetOrderByUUID(
 		ctx context.Context,
-		uuid uuid.UUID,
+		orderUuid uuid.UUID,
 	) (repoModel.Order, error)
 
 	CancelOrder(
 		ctx context.Context,
-		uuid uuid.UUID,
+		orderUuid uuid.UUID,
 	) error
 
 	PayOrder(
 		ctx context.Context,
-		uuid uuid.UUID,
+		orderUuid uuid.UUID,
 		paymentMethod repoModel.OrderPaymentMethod,
 	) (uuid.UUID, error)
 }

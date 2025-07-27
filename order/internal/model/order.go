@@ -9,7 +9,7 @@ import (
 type OrderPaymentMethod int
 
 const (
-	OrderPaymentMethod_UNSPECIFIED = iota
+	OrderPaymentMethod_UNSPECIFIED OrderPaymentMethod = iota
 	OrderPaymentMethod_CARD
 	OrderPaymentMethod_CREDIT_CARD
 	OrderPaymentMethod_SBP
@@ -19,7 +19,7 @@ const (
 type OrderStatus int
 
 const (
-	OrderStatus_PENDING_PAYMENT = iota
+	OrderStatus_PENDING_PAYMENT OrderStatus = iota
 	OrderStatus_PAID
 	OrderStatus_CANCELED
 )

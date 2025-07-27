@@ -7,10 +7,9 @@ import (
 	"github.com/google/uuid"
 )
 
-func (s *service) CreateOrder(
+func (s *service) GetOrderByUUID(
 	ctx context.Context,
-	userUuid uuid.UUID,
-	partUuids []uuid.UUID,
+	orderUuid uuid.UUID,
 ) (model.Order, error) {
 	return model.Order{}, nil
 }

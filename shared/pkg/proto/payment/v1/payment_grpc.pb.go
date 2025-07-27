@@ -8,6 +8,7 @@ package payment_v1
 
 import (
 	context "context"
+
 	grpc "google.golang.org/grpc"
 	codes "google.golang.org/grpc/codes"
 	status "google.golang.org/grpc/status"
@@ -21,6 +22,7 @@ const _ = grpc.SupportPackageIsVersion9
 const (
 	PaymentService_PayOrder_FullMethodName = "/payment.v1.PaymentService/PayOrder"
 )
+
 
 // PaymentServiceClient is the client API for PaymentService service.
 //

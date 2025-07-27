@@ -7,10 +7,10 @@ import (
 	"github.com/google/uuid"
 )
 
-func (s *service) CreateOrder(
+func (s *service) PayOrder(
 	ctx context.Context,
-	userUuid uuid.UUID,
-	partUuids []uuid.UUID,
-) (model.Order, error) {
-	return model.Order{}, nil
+	id uuid.UUID,
+	paymentMethod model.OrderPaymentMethod,
+) (uuid.UUID, error) {
+	return uuid.UUID{}, nil
 }
