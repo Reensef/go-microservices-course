@@ -14,7 +14,7 @@ func (a *api) GetOrderByUUID(
 	ctx context.Context,
 	params orderV1.GetOrderByUUIDParams,
 ) (orderV1.GetOrderByUUIDRes, error) {
-	order, err := a.orderService.GetOrderByUUID(ctx, params.OrderUUID)
+	order, err := a.orderService.GetOrderByUUID(ctx, &params.OrderUUID)
 
 	if errors.Is(err, model.ErrOrderNotFound) {
 		return &orderV1.NotFoundError{
@@ -27,7 +27,6 @@ func (a *api) GetOrderByUUID(
 			Message: "Internal server error",
 		}, nil
 	} else {
-		// po
-		return converter.ModelOrderToAPI(&order), nil
+		return converter.ModelOrderToAPI(order), nil
 	}
 }

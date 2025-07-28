@@ -5,12 +5,21 @@ import (
 
 	"github.com/google/uuid"
 
-	repoModel "github.com/Reensef/go-microservices-course/order/internal/repository/model"
+	model "github.com/Reensef/go-microservices-course/order/internal/model"
+	repoConverter "github.com/Reensef/go-microservices-course/order/internal/repository/order/converter"
 )
 
 func (r *repository) GetOrderByUUID(
 	ctx context.Context,
-	orderUuid uuid.UUID,
-) (repoModel.Order, error) {
-	return repoModel.Order{}, nil
+	orderUuid *uuid.UUID,
+) (*model.Order, error) {
+	r.mu.RLock()
+	defer r.mu.RUnlock()
+
+	order, ok := r.data[*orderUuid]
+	if !ok {
+		return nil, model.ErrOrderNotFound
+	}
+
+	return repoConverter.RepoModelOrderToModel(order), nil
 }

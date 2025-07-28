@@ -5,18 +5,25 @@ import (
 	"errors"
 	"fmt"
 
+	"github.com/google/uuid"
+
 	"github.com/Reensef/go-microservices-course/order/internal/api/order/v1/converter"
 	"github.com/Reensef/go-microservices-course/order/internal/model"
 	orderV1 "github.com/Reensef/go-microservices-course/shared/pkg/openapi/order/v1"
 )
 
+// TODO: добавить в запрос uuid
 func (a *api) PayOrder(
 	ctx context.Context,
 	req *orderV1.PayOrderRequest,
 	params orderV1.PayOrderParams,
 ) (orderV1.PayOrderRes, error) {
+	userUuid := uuid.New()
+
 	transactionUUID, err := a.orderService.PayOrder(
-		ctx, params.OrderUUID,
+		ctx,
+		&params.OrderUUID,
+		&userUuid,
 		converter.APIPaymentMethodToModel(req.PaymentMethod),
 	)
 
@@ -33,6 +40,6 @@ func (a *api) PayOrder(
 	}
 
 	return &orderV1.PayOrderResponse{
-		TransactionUUID: orderV1.NewOptUUID(transactionUUID),
+		TransactionUUID: orderV1.NewOptUUID(*transactionUUID),
 	}, nil
 }

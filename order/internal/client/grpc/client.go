@@ -9,7 +9,7 @@ import (
 )
 
 type PartsFilter struct {
-	Uuids                 []string
+	Uuids                 []uuid.UUID
 	Names                 []string
 	Categories            []model.PartCategory
 	ManufacturerCountries []string
@@ -26,5 +26,9 @@ type IntentoryServiceClient interface {
 type PaymentServiceClient interface {
 	// Метод для оплаты заказа
 	// Возвращает UUID транзакции
-	PayOrder(ctx context.Context, orderUuid, userUuid *uuid.UUID) (*uuid.UUID, error)
+	PayOrder(
+		ctx context.Context,
+		orderUuid, userUuid *uuid.UUID,
+		paymentMethod model.OrderPaymentMethod,
+	) (*uuid.UUID, error)
 }

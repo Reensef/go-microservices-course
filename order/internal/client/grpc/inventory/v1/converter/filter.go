@@ -11,8 +11,13 @@ func ModelFilterToProto(filter *grpcClients.PartsFilter) *inventoryV1.PartsFilte
 		categories = append(categories, ModelPartCategoryToProto(category))
 	}
 
+	uuidStrings := make([]string, 0, len(filter.Uuids))
+	for _, uuid := range filter.Uuids {
+		uuidStrings = append(uuidStrings, uuid.String())
+	}
+
 	return &inventoryV1.PartsFilter{
-		Uuids:                 filter.Uuids,
+		Uuids:                 uuidStrings,
 		Names:                 filter.Names,
 		Categories:            categories,
 		ManufacturerCountries: filter.ManufacturerCountries,

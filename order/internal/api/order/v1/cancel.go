@@ -13,7 +13,7 @@ func (a *api) CancelOrder(
 	ctx context.Context,
 	params orderV1.CancelOrderParams,
 ) (orderV1.CancelOrderRes, error) {
-	err := a.orderService.CancelOrder(ctx, params.OrderUUID)
+	err := a.orderService.CancelOrder(ctx, &params.OrderUUID)
 
 	if errors.Is(err, model.ErrOrderNotFound) {
 		return &orderV1.NotFoundError{

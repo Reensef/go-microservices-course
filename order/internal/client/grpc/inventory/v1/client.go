@@ -10,11 +10,12 @@ import (
 var _ grpcClients.IntentoryServiceClient = (*inventoryClient)(nil)
 
 type inventoryClient struct {
-	mu sync.RWMutex
+	mu      sync.RWMutex
 	service inventoryV1.InventoryServiceClient
-
 }
 
-func NewClient() *inventoryClient {
-	return &inventoryClient{}
+func NewClient(service inventoryV1.InventoryServiceClient) *inventoryClient {
+	return &inventoryClient{
+		service: service,
+	}
 }

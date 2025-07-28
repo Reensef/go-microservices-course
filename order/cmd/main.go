@@ -16,6 +16,11 @@ import (
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/credentials/insecure"
 
+	orderV1API "github.com/Reensef/go-microservices-course/order/internal/api/order/v1"
+	inventoryServiceV1 "github.com/Reensef/go-microservices-course/order/internal/client/grpc/inventory/v1"
+	paymentServiceV1 "github.com/Reensef/go-microservices-course/order/internal/client/grpc/payment/v1"
+	orderRepo "github.com/Reensef/go-microservices-course/order/internal/repository/order"
+	orderService "github.com/Reensef/go-microservices-course/order/internal/service/order"
 	orderV1 "github.com/Reensef/go-microservices-course/shared/pkg/openapi/order/v1"
 	inventoryV1 "github.com/Reensef/go-microservices-course/shared/pkg/proto/inventory/v1"
 	paymentV1 "github.com/Reensef/go-microservices-course/shared/pkg/proto/payment/v1"
@@ -31,8 +36,6 @@ const (
 )
 
 func main() {
-	storage := NewOrderStorage()
-
 	inventoryServiceConn, err := grpc.NewClient(
 		inventoryServiceAddress,
 		grpc.WithTransportCredentials(insecure.NewCredentials()),
@@ -46,7 +49,10 @@ func main() {
 			log.Printf("failed to close connect: %v\n", cerr)
 		}
 	}()
-	inventoryService := inventoryV1.NewInventoryServiceClient(inventoryServiceConn)
+
+	inventoryService := inventoryServiceV1.NewClient(
+		inventoryV1.NewInventoryServiceClient(inventoryServiceConn),
+	)
 
 	paymentServiceConn, err := grpc.NewClient(
 		paymenyServiceAddress,
@@ -61,12 +67,17 @@ func main() {
 			log.Printf("failed to close connect: %v\n", cerr)
 		}
 	}()
-	paymentService := paymentV1.NewPaymentServiceClient(paymentServiceConn)
 
-	orderHandler := NewOrderHandler(storage, inventoryService, paymentService)
+	paymentService := paymentServiceV1.NewClient(
+		paymentV1.NewPaymentServiceClient(paymentServiceConn),
+	)
+
+	repo := orderRepo.NewRepository()
+	service := orderService.NewService(repo, inventoryService, paymentService)
+	api := orderV1API.NewAPI(service)
 
 	// Создаем OpenAPI сервер
-	orderServer, err := orderV1.NewServer(orderHandler)
+	orderServer, err := orderV1.NewServer(api)
 	if err != nil {
 		log.Printf("Error creating OpenAPI server: %v\n", err)
 		return

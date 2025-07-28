@@ -12,7 +12,14 @@ func (a *api) CreateOrder(
 	ctx context.Context,
 	req *orderV1.CreateOrderRequest,
 ) (orderV1.CreateOrderRes, error) {
-	order, err := a.orderService.CreateOrder(ctx, req.GetUserUUID(), req.GetPartUuids())
+	orderInfo := &model.OrderInfo{
+		UserUuid:  req.UserUUID,
+		PartUuids: req.PartUuids,
+	}
+	orderUuid, err := a.orderService.CreateOrder(
+		ctx,
+		orderInfo,
+	)
 
 	if errors.Is(err, model.ErrPartNotFound) {
 		return &orderV1.NotFoundError{
@@ -26,8 +33,10 @@ func (a *api) CreateOrder(
 		}, nil
 	} else {
 		return &orderV1.CreateOrderResponse{
-			OrderUUID:  order.Uuid,
-			TotalPrice: order.Info.TotalPrice,
+			OrderUUID: *orderUuid,
+			// Question: Стоит ли обновлять OrderInfo внутри CreateOrder
+			// или стоит возвращать totalPrice явно?
+			TotalPrice: orderInfo.TotalPrice,
 		}, nil
 	}
 }

@@ -5,13 +5,28 @@ import (
 
 	"github.com/google/uuid"
 
+	model "github.com/Reensef/go-microservices-course/order/internal/model"
 	repoModel "github.com/Reensef/go-microservices-course/order/internal/repository/model"
+	repoConverter "github.com/Reensef/go-microservices-course/order/internal/repository/order/converter"
 )
 
 func (r *repository) PayOrder(
 	ctx context.Context,
-	orderUuid uuid.UUID,
-	paymentMethod repoModel.OrderPaymentMethod,
-) (uuid.UUID, error) {
-	return uuid.UUID{}, nil
+	orderUuid *uuid.UUID,
+	transactionUUID *uuid.UUID,
+	paymentMethod model.OrderPaymentMethod,
+) error {
+	r.mu.Lock()
+	defer r.mu.Unlock()
+
+	order, ok := r.data[*orderUuid]
+	if !ok {
+		return model.ErrOrderNotFound
+	}
+
+	order.Info.PaymentMethod = repoConverter.ModelPaymentMethodToRepo(paymentMethod)
+	order.Info.Status = repoModel.OrderStatus_PAID
+	order.Info.TransactionUuid = *transactionUUID
+
+	return nil
 }

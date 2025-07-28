@@ -1,15 +1,15 @@
 package converter
 
 import (
-	"github.com/Reensef/go-microservices-course/order/internal/model"
-	repoModel "github.com/Reensef/go-microservices-course/order/internal/repository/model"
+	"github.com/google/uuid"
 	"github.com/samber/lo"
 
-	"github.com/google/uuid"
+	"github.com/Reensef/go-microservices-course/order/internal/model"
+	repoModel "github.com/Reensef/go-microservices-course/order/internal/repository/model"
 )
 
-func ModelOrderInfoToRepoModel(info model.OrderInfo) repoModel.OrderInfo {
-	return repoModel.OrderInfo{
+func ModelOrderInfoToRepoModel(info *model.OrderInfo) *repoModel.OrderInfo {
+	return &repoModel.OrderInfo{
 		UserUuid:        info.UserUuid,
 		PartUuids:       append([]uuid.UUID(nil), info.PartUuids...),
 		TransactionUuid: info.TransactionUuid,
@@ -19,18 +19,18 @@ func ModelOrderInfoToRepoModel(info model.OrderInfo) repoModel.OrderInfo {
 	}
 }
 
-func ModelOrderToRepoModel(order model.Order) repoModel.Order {
-	return repoModel.Order{
+func ModelOrderToRepoModel(order *model.Order) *repoModel.Order {
+	return &repoModel.Order{
 		Uuid:      order.Uuid,
-		Info:      ModelOrderInfoToRepoModel(order.Info),
+		Info:      *ModelOrderInfoToRepoModel(&order.Info),
 		CreatedAt: order.CreatedAt,
 		UpdatedAt: order.UpdatedAt,
 		DeletedAt: lo.ToPtr(*order.DeletedAt),
 	}
 }
 
-func RepoModelOrderInfoToModel(info repoModel.OrderInfo) model.OrderInfo {
-	return model.OrderInfo{
+func RepoModelOrderInfoToModel(info *repoModel.OrderInfo) *model.OrderInfo {
+	return &model.OrderInfo{
 		UserUuid:        info.UserUuid,
 		PartUuids:       append([]uuid.UUID(nil), info.PartUuids...),
 		TransactionUuid: info.TransactionUuid,
@@ -40,10 +40,10 @@ func RepoModelOrderInfoToModel(info repoModel.OrderInfo) model.OrderInfo {
 	}
 }
 
-func RepoModelOrderToModel(order repoModel.Order) model.Order {
-	return model.Order{
+func RepoModelOrderToModel(order *repoModel.Order) *model.Order {
+	return &model.Order{
 		Uuid:      order.Uuid,
-		Info:      RepoModelOrderInfoToModel(order.Info),
+		Info:      *RepoModelOrderInfoToModel(&order.Info),
 		CreatedAt: order.CreatedAt,
 		UpdatedAt: order.UpdatedAt,
 		DeletedAt: order.DeletedAt,
