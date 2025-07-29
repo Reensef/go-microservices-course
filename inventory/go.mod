@@ -7,6 +7,7 @@ replace github.com/Reensef/go-microservices-course/shared => ../shared
 require (
 	github.com/Reensef/go-microservices-course/shared v0.0.0-00010101000000-000000000000
 	github.com/brianvoe/gofakeit/v7 v7.3.0
+	github.com/google/uuid v1.6.0
 	google.golang.org/grpc v1.74.0
 	google.golang.org/protobuf v1.36.6
 )

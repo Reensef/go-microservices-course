@@ -6,8 +6,8 @@ import (
 	"github.com/google/uuid"
 
 	model "github.com/Reensef/go-microservices-course/order/internal/model"
+	repoConverter "github.com/Reensef/go-microservices-course/order/internal/repository/converter"
 	repoModel "github.com/Reensef/go-microservices-course/order/internal/repository/model"
-	repoConverter "github.com/Reensef/go-microservices-course/order/internal/repository/order/converter"
 )
 
 func (r *repository) PayOrder(

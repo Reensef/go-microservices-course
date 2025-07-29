@@ -3,6 +3,7 @@ package v1
 import (
 	"context"
 	"errors"
+	"log"
 
 	"github.com/Reensef/go-microservices-course/order/internal/model"
 	orderV1 "github.com/Reensef/go-microservices-course/shared/pkg/openapi/order/v1"
@@ -27,6 +28,8 @@ func (a *api) CreateOrder(
 			Message: "part not found",
 		}, nil
 	} else if err != nil {
+		log.Println("Internal server error:", err)
+
 		return &orderV1.InternalServerError{
 			Code:    500,
 			Message: "internal server error",

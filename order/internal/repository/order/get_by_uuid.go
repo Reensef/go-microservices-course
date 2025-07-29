@@ -6,7 +6,7 @@ import (
 	"github.com/google/uuid"
 
 	model "github.com/Reensef/go-microservices-course/order/internal/model"
-	repoConverter "github.com/Reensef/go-microservices-course/order/internal/repository/order/converter"
+	repoConverter "github.com/Reensef/go-microservices-course/order/internal/repository/converter"
 )
 
 func (r *repository) GetOrderByUUID(

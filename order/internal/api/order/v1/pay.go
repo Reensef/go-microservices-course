@@ -4,6 +4,7 @@ import (
 	"context"
 	"errors"
 	"fmt"
+	"log"
 
 	"github.com/google/uuid"
 
@@ -33,6 +34,8 @@ func (a *api) PayOrder(
 			Message: fmt.Sprintf("Order with UUID '%s' not found", params.OrderUUID.String()),
 		}, nil
 	} else if err != nil {
+		log.Println("Internal server error:", err)
+
 		return &orderV1.InternalServerError{
 			Code:    500,
 			Message: "Internal server error",

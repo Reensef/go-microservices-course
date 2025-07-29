@@ -4,6 +4,7 @@ import (
 	"context"
 	"errors"
 	"fmt"
+	"log"
 
 	"github.com/Reensef/go-microservices-course/order/internal/model"
 	orderV1 "github.com/Reensef/go-microservices-course/shared/pkg/openapi/order/v1"
@@ -26,6 +27,8 @@ func (a *api) CancelOrder(
 			Message: fmt.Sprintf("Order with UUID '%s' already paid", params.OrderUUID.String()),
 		}, nil
 	} else if err != nil {
+		log.Println("Internal server error:", err)
+
 		return &orderV1.InternalServerError{
 			Code:    500,
 			Message: "Internal server error",
