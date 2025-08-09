@@ -72,15 +72,8 @@ func (s *OrderDto) Validate() error {
 		})
 	}
 	if err := func() error {
-		if value, ok := s.PaymentMethod.Get(); ok {
-			if err := func() error {
-				if err := value.Validate(); err != nil {
-					return err
-				}
-				return nil
-			}(); err != nil {
-				return err
-			}
+		if err := s.PaymentMethod.Validate(); err != nil {
+			return err
 		}
 		return nil
 	}(); err != nil {

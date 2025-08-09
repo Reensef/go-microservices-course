@@ -11,7 +11,9 @@ import (
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/reflection"
 
-	payment "github.com/Reensef/go-microservices-course/shared/pkg/proto/payment/v1"
+	paymentApiV1 "github.com/Reensef/go-microservices-course/payment/internal/api/payment/v1"
+	paymentService "github.com/Reensef/go-microservices-course/payment/internal/service/payment"
+	paymentV1 "github.com/Reensef/go-microservices-course/shared/pkg/proto/payment/v1"
 )
 
 const grpcPort = 50052
@@ -28,16 +30,15 @@ func main() {
 		}
 	}()
 
-	// Создаем gRPC сервер
 	s := grpc.NewServer()
-
-	// Регистрируем наш сервис
-	service := NewPaymentService()
-
-	payment.RegisterPaymentServiceServer(s, service)
 
 	// Включаем рефлексию для отладки
 	reflection.Register(s)
+
+	service := paymentService.NewService()
+	api := paymentApiV1.NewAPI(service)
+
+	paymentV1.RegisterPaymentServiceServer(s, api)
 
 	go func() {
 		log.Printf("🚀 gRPC server listening on %d\n", grpcPort)
