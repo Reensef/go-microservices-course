@@ -3,8 +3,6 @@ package model
 import (
 	"time"
 
-	"github.com/google/uuid"
-
 	"github.com/Reensef/go-microservices-course/shared/pkg/utils"
 )
 
@@ -19,28 +17,28 @@ const (
 )
 
 type PartDimensions struct {
-	Length float64
-	Width  float64
-	Height float64
-	Weight float64
+	Length float64 `bson:"length"`
+	Width  float64 `bson:"width"`
+	Height float64 `bson:"height"`
+	Weight float64 `bson:"weight"`
 }
 
 type PartManufacturer struct {
-	Name    string
-	Country string
-	Website string
+	Name    string `bson:"name"`
+	Country string `bson:"country"`
+	Website string `bson:"website"`
 }
 
 type PartInfo struct {
-	Name          string
-	Description   string
-	Price         float64
-	StockQuantity int64
-	Category      PartCategory
-	Dimensions    *PartDimensions
-	Manufacturer  *PartManufacturer
-	Tags          []string
-	Metadata      map[string]utils.MultiValue
+	Name          string                      `bson:"name"`
+	Description   string                      `bson:"description"`
+	Price         float64                     `bson:"price"`
+	StockQuantity int64                       `bson:"stockQuantity"`
+	Category      PartCategory                `bson:"category"`
+	Dimensions    *PartDimensions             `bson:"dimensions"`
+	Manufacturer  *PartManufacturer           `bson:"manufacturer"`
+	Tags          []string                    `bson:"tags"`
+	Metadata      map[string]utils.MultiValue `bson:"metadata"`
 }
 
 type PartUpdateInfo struct {
@@ -56,8 +54,8 @@ type PartUpdateInfo struct {
 }
 
 type Part struct {
-	Uuid      uuid.UUID
-	Info      PartInfo
-	CreatedAt time.Time
-	UpdatedAt time.Time
+	ID        string    `bson:"_id"`
+	Info      PartInfo  `bson:"info"`
+	CreatedAt time.Time `bson:"createdAt"`
+	UpdatedAt time.Time `bson:"updatedAt"`
 }

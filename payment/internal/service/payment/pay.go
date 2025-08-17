@@ -2,7 +2,6 @@ package payment
 
 import (
 	"context"
-	"log"
 
 	"github.com/google/uuid"
 
@@ -11,19 +10,20 @@ import (
 
 func (s *service) Pay(
 	ctx context.Context,
-	orderUuid, userUuid uuid.UUID,
+	orderUuid, userUuid string,
 	paymentMethod model.PaymentMethod,
-) (*uuid.UUID, error) {
+) (*string, error) {
+	if uuid.Validate(orderUuid) != nil {
+		return nil, model.ErrOrderUuidInvalidFormat
+	}
+	if uuid.Validate(userUuid) != nil {
+		return nil, model.ErrUserUuidInvalidFormat
+	}
 	if paymentMethod == model.PaymentMethod_UNSPECIFIED {
 		return nil, model.ErrPaymentMethodUnspecified
 	}
 
-	transactionUuid, err := uuid.NewUUID()
-	if err != nil {
-		return nil, err
-	}
-
-	log.Println("Оплата прошла успешно, transaction_uuid:", transactionUuid.String())
+	transactionUuid := uuid.NewString()
 
 	return &transactionUuid, nil
 }

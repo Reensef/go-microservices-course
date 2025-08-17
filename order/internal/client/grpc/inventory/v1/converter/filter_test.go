@@ -3,7 +3,6 @@ package converter
 import (
 	"testing"
 
-	"github.com/google/uuid"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 
@@ -13,9 +12,9 @@ import (
 
 func TestToProtoFilter(t *testing.T) {
 	filter := model.PartsFilter{
-		Uuids: []uuid.UUID{
-			uuid.MustParse("3f74bbbe-ad48-43cd-bffd-80d0a1b6a8e6"),
-			uuid.MustParse("b8a251c6-df82-4add-bce0-199a81d39cdf"),
+		Ids: []string{
+			"3f74bbbe-ad48-43cd-bffd-80d0a1b6a8e6",
+			"b8a251c6-df82-4add-bce0-199a81d39cdf",
 		},
 		Names: []string{
 			"name1",
@@ -39,7 +38,7 @@ func TestToProtoFilter(t *testing.T) {
 	}
 
 	expected := &inventoryV1.PartsFilter{
-		Uuids: []string{
+		Ids: []string{
 			"3f74bbbe-ad48-43cd-bffd-80d0a1b6a8e6",
 			"b8a251c6-df82-4add-bce0-199a81d39cdf",
 		},

@@ -2,45 +2,43 @@ package part
 
 import (
 	"context"
+	"fmt"
+	"log"
 
 	"github.com/Reensef/go-microservices-course/inventory/internal/model"
-	converter "github.com/Reensef/go-microservices-course/inventory/internal/repository/converter"
-	filters "github.com/Reensef/go-microservices-course/inventory/internal/repository/filters"
+	"github.com/Reensef/go-microservices-course/inventory/internal/repository/converter"
+	repoModel "github.com/Reensef/go-microservices-course/inventory/internal/repository/model"
 )
 
 func (r *repository) GetByFilter(
 	ctx context.Context,
 	filter *model.PartsFilter,
-) []*model.Part {
-	r.mu.RLock()
-	defer r.mu.RUnlock()
-
-	// Если нет фильтра, отдаем все
+) ([]*model.Part, error) {
 	if filter == nil {
-		modelParts := make([]*model.Part, 0, len(r.parts))
-		for _, part := range r.parts {
-			modelParts = append(modelParts, converter.ToModelPart(part))
-		}
-		return modelParts
+		return r.GetAll(ctx)
 	}
 
-	// Если есть фильтр по UUID, отбираем по ключу
-	modelParts := make([]*model.Part, 0)
-	if len(filter.Uuids) > 0 {
-		for _, uuid := range filter.Uuids {
-			if part, exists := r.parts[uuid]; exists {
-				if filters.MatchPartFilters(part, filter) {
-					modelParts = append(modelParts, converter.ToModelPart(part))
-				}
-			}
-		}
-	} else {
-		for _, part := range r.parts {
-			if filters.MatchPartFilters(part, filter) {
-				modelParts = append(modelParts, converter.ToModelPart(part))
-			}
-		}
+	mongoFilter, err := converter.ToMongoPartFilter(filter)
+	if err != nil {
+		return nil, err
 	}
 
-	return modelParts
+	cursor, err := r.collection.Find(ctx, mongoFilter)
+	if err != nil {
+		return nil, err
+	}
+	defer func() {
+		cerr := cursor.Close(ctx)
+		if cerr != nil {
+			log.Printf("failed to close cursor: %v\n", cerr)
+		}
+	}()
+
+	repoParts := make([]*repoModel.Part, 0)
+	err = cursor.All(ctx, &repoParts)
+	if err != nil {
+		return nil, fmt.Errorf("cursor error: %w", err)
+	}
+
+	return converter.ToModelParts(repoParts), nil
 }

@@ -5,7 +5,6 @@ import (
 	"errors"
 	"log"
 
-	"github.com/google/uuid"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
 
@@ -18,15 +17,8 @@ func (a *api) PayOrder(
 	ctx context.Context,
 	req *paymentV1.PayOrderRequest,
 ) (*paymentV1.PayOrderResponse, error) {
-	orderUuid, err := uuid.Parse(req.GetOrderUuid())
-	if err != nil {
-		return nil, status.Errorf(codes.InvalidArgument, "order uuid is invalid")
-	}
-
-	userUuid, err := uuid.Parse(req.GetUserUuid())
-	if err != nil {
-		return nil, status.Errorf(codes.InvalidArgument, "user uuid is invalid")
-	}
+	orderUuid := req.GetOrderUuid()
+	userUuid := req.GetUserUuid()
 
 	transactionUuid, err := a.service.Pay(
 		ctx,
@@ -35,15 +27,23 @@ func (a *api) PayOrder(
 		converter.ToModelPaymentMethod(req.GetPaymentMethod()),
 	)
 	if err != nil {
-		if errors.Is(err, model.ErrPaymentMethodUnspecified) {
-			return nil, status.Errorf(codes.InvalidArgument, "%s", err.Error())
-		}
-
 		log.Printf("api: error paying order: %s", err.Error())
-		return nil, status.Errorf(codes.Internal, "internal server error")
+
+		switch {
+		case errors.Is(err, model.ErrOrderUuidInvalidFormat):
+			return nil, status.Errorf(codes.InvalidArgument, "order must be UUID format")
+		case errors.Is(err, model.ErrUserUuidInvalidFormat):
+			return nil, status.Errorf(codes.InvalidArgument, "user UUID must be UUID format")
+		case errors.Is(err, model.ErrPaymentMethodUnspecified):
+			return nil, status.Errorf(codes.InvalidArgument, "payment method must be specified")
+		default:
+			return nil, status.Errorf(codes.Internal, "internal server error")
+		}
 	}
 
+	log.Println("Оплата прошла успешно, transaction_uuid:", transactionUuid)
+
 	return &paymentV1.PayOrderResponse{
-		TransactionUuid: transactionUuid.String(),
+		TransactionUuid: *transactionUuid,
 	}, nil
 }

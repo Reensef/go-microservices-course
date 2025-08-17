@@ -14,25 +14,38 @@ func (a *api) CreateOrder(
 	req *orderV1.CreateOrderRequest,
 ) (orderV1.CreateOrderRes, error) {
 	orderInfo := &model.OrderInfo{
-		UserUuid:  req.GetUserUUID(),
-		PartUuids: req.GetPartUuids(),
+		UserUuid: req.GetUserUUID(),
+		PartIds:  req.GetPartIds(),
 	}
 	order, err := a.orderService.CreateOrder(
 		ctx,
 		orderInfo,
 	)
 	if err != nil {
-		if errors.Is(err, model.ErrPartNotFound) {
+		switch {
+		case errors.Is(err, model.ErrOrderNotFound):
 			return &orderV1.NotFoundError{
 				Code:    404,
-				Message: "part not found",
+				Message: "order not found",
+			}, nil
+		case errors.Is(err, model.ErrUserUuidInvalidFormat):
+			return &orderV1.ValidationError{
+				Code:    422,
+				Message: "user UUID must be UUID format",
+			}, nil
+		case errors.Is(err, model.ErrPartIdInvalidFormat):
+			return &orderV1.ValidationError{
+				Code:    422,
+				Message: "part ID must be ObjectID format",
+			}, nil
+		default:
+			log.Printf("api: error creating order: %s", err)
+
+			return &orderV1.InternalServerError{
+				Code:    500,
+				Message: "internal server error",
 			}, nil
 		}
-		log.Printf("api: error creating order: %s", err)
-		return &orderV1.InternalServerError{
-			Code:    500,
-			Message: "internal server error",
-		}, nil
 	}
 
 	return &orderV1.CreateOrderResponse{

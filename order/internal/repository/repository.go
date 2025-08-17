@@ -3,8 +3,6 @@ package repository
 import (
 	"context"
 
-	"github.com/google/uuid"
-
 	"github.com/Reensef/go-microservices-course/order/internal/model"
 )
 
@@ -16,18 +14,18 @@ type OrderRepository interface {
 
 	GetOrderByUUID(
 		ctx context.Context,
-		orderUuid uuid.UUID,
+		orderUuid string,
 	) (*model.Order, error)
 
 	CancelOrder(
 		ctx context.Context,
-		orderUuid uuid.UUID,
+		orderUuid string,
 	) error
 
 	PayOrder(
 		ctx context.Context,
-		orderUuid uuid.UUID,
-		transactionUUID uuid.UUID,
+		orderUuid string,
+		transactionUUID string,
 		paymentMethod model.OrderPaymentMethod,
 	) error
 }

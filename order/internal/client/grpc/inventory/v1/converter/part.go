@@ -1,7 +1,6 @@
 package converter
 
 import (
-	"github.com/google/uuid"
 	"google.golang.org/protobuf/types/known/timestamppb"
 
 	model "github.com/Reensef/go-microservices-course/order/internal/model"
@@ -10,13 +9,8 @@ import (
 )
 
 func ToModelPart(part *inventoryV1.Part) (*model.Part, error) {
-	partUuid, err := uuid.Parse(part.GetUuid())
-	if err != nil {
-		return nil, err
-	}
-
 	modelPart := &model.Part{
-		Uuid: partUuid,
+		Id: part.GetId(),
 		Info: model.PartInfo{
 			Name:          part.Name,
 			Description:   part.Description,
@@ -75,7 +69,7 @@ func ToModelPartManufacturer(manufacturer *inventoryV1.Manufacturer) *model.Part
 
 func ToProtoPart(part *model.Part) *inventoryV1.Part {
 	return &inventoryV1.Part{
-		Uuid:          part.Uuid.String(),
+		Id:            part.Id,
 		Name:          part.Info.Name,
 		Description:   part.Info.Description,
 		Price:         part.Info.Price,

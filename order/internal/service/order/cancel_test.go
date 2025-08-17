@@ -7,7 +7,7 @@ import (
 	"github.com/google/uuid"
 	"github.com/stretchr/testify/assert"
 
-	"github.com/Reensef/go-microservices-course/order/internal/model"
+	model "github.com/Reensef/go-microservices-course/order/internal/model"
 	mocks "github.com/Reensef/go-microservices-course/order/internal/repository/mocks"
 )
 
@@ -16,8 +16,10 @@ func TestCancelOrder(t *testing.T) {
 		repo := mocks.NewMockOrderRepository(t)
 		service := NewService(repo, nil, nil)
 
-		uuid := uuid.New()
-		repo.EXPECT().CancelOrder(context.Background(), uuid).Return(model.ErrOrderNotFound).Once()
+		uuid := uuid.NewString()
+		repo.EXPECT().GetOrderByUUID(context.Background(), uuid).
+			Return(nil, model.ErrOrderNotFound).
+			Once()
 
 		err := service.CancelOrder(context.Background(), uuid)
 
@@ -28,8 +30,14 @@ func TestCancelOrder(t *testing.T) {
 		repo := mocks.NewMockOrderRepository(t)
 		service := NewService(repo, nil, nil)
 
-		uuid := uuid.New()
-		repo.EXPECT().CancelOrder(context.Background(), uuid).Return(nil).Once()
+		uuid := uuid.NewString()
+		order := &model.Order{}
+		repo.EXPECT().GetOrderByUUID(context.Background(), uuid).
+			Return(order, nil).
+			Once()
+
+		repo.EXPECT().CancelOrder(context.Background(), uuid).
+			Return(nil).Once()
 
 		err := service.CancelOrder(context.Background(), uuid)
 

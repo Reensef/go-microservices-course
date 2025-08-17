@@ -37,7 +37,10 @@ func TestCreateOrder(t *testing.T) {
 		service := NewService(repo, inventory, payment)
 
 		inventory.EXPECT().ListParts(context.Background(), mock.Anything).Return(nil, fmt.Errorf("error")).Once()
-		uuid, err := service.CreateOrder(context.Background(), &model.OrderInfo{})
+		uuid, err := service.CreateOrder(context.Background(), &model.OrderInfo{
+			UserUuid: uuid.NewString(),
+			PartIds:  []string{uuid.NewString()},
+		})
 
 		assert.Nil(t, uuid)
 		assert.Empty(t, repo.Calls)
@@ -58,8 +61,9 @@ func TestCreateOrder(t *testing.T) {
 		inventory.EXPECT().ListParts(context.Background(), mock.Anything).Return(parts, nil).Once()
 
 		orderInfo := &model.OrderInfo{}
+		orderInfo.UserUuid = uuid.NewString()
 		for range 10 {
-			orderInfo.PartUuids = append(orderInfo.PartUuids, uuid.New())
+			orderInfo.PartIds = append(orderInfo.PartIds, uuid.NewString())
 		}
 		uuid, err := service.CreateOrder(context.Background(), orderInfo)
 
@@ -79,8 +83,9 @@ func TestCreateOrder(t *testing.T) {
 		inventory.EXPECT().ListParts(context.Background(), mock.Anything).Return(make([]*model.Part, 0), nil).Once()
 
 		orderInfo := &model.OrderInfo{}
+		orderInfo.UserUuid = uuid.NewString()
 		for range 10 {
-			orderInfo.PartUuids = append(orderInfo.PartUuids, uuid.New())
+			orderInfo.PartIds = append(orderInfo.PartIds, uuid.NewString())
 		}
 		uuid, err := service.CreateOrder(context.Background(), orderInfo)
 
@@ -100,7 +105,9 @@ func TestCreateOrder(t *testing.T) {
 		inventory.EXPECT().ListParts(context.Background(), mock.Anything).Return(nil, nil).Once()
 		repo.EXPECT().CreateOrder(context.Background(), mock.Anything).Return(nil, fmt.Errorf("error")).Once()
 
-		uuid, err := service.CreateOrder(context.Background(), &model.OrderInfo{})
+		uuid, err := service.CreateOrder(context.Background(), &model.OrderInfo{
+			UserUuid: uuid.NewString(),
+		})
 
 		assert.Nil(t, uuid)
 		assert.Equal(t, fmt.Errorf("error"), err)
@@ -124,9 +131,11 @@ func TestCreateOrder(t *testing.T) {
 		}
 		inventory.EXPECT().ListParts(context.Background(), mock.Anything).Return(parts, nil).Once()
 
-		info := &model.OrderInfo{}
+		info := &model.OrderInfo{
+			UserUuid: uuid.NewString(),
+		}
 
-		expectUuid := uuid.New()
+		expectUuid := uuid.NewString()
 		expectedOrder := &model.Order{
 			Uuid: expectUuid,
 			Info: *info,
