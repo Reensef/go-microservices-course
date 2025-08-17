@@ -3,7 +3,7 @@ package order
 import (
 	"context"
 
-	"github.com/google/uuid"
+	sq "github.com/Masterminds/squirrel"
 
 	model "github.com/Reensef/go-microservices-course/order/internal/model"
 	repoConverter "github.com/Reensef/go-microservices-course/order/internal/repository/converter"
@@ -12,21 +12,30 @@ import (
 
 func (r *repository) PayOrder(
 	ctx context.Context,
-	orderUuid uuid.UUID,
-	transactionUUID uuid.UUID,
+	orderUuid string,
+	transactionUUID string,
 	paymentMethod model.OrderPaymentMethod,
 ) error {
-	r.mu.Lock()
-	defer r.mu.Unlock()
+	builderUpdate := sq.Update("orders").
+		Set("order_status", repoModel.OrderStatus_PAID).
+		Set("payment_method", repoConverter.ToRepoModelPaymentMethod(paymentMethod)).
+		Set("transaction_uuid", transactionUUID).
+		Where(sq.Eq{"uuid": orderUuid}).
+		PlaceholderFormat(sq.Dollar)
 
-	order, ok := r.data[orderUuid]
-	if !ok {
-		return model.ErrOrderNotFound
+	query, args, err := builderUpdate.ToSql()
+	if err != nil {
+		return err
 	}
 
-	order.Info.PaymentMethod = repoConverter.ToRepoModelPaymentMethod(paymentMethod)
-	order.Info.Status = repoModel.OrderStatus_PAID
-	order.Info.TransactionUuid = transactionUUID
+	res, err := r.pool.Exec(ctx, query, args...)
+	if err != nil {
+		return err
+	}
+
+	if res.RowsAffected() == 0 {
+		return model.ErrOrderNotFound
+	}
 
 	return nil
 }

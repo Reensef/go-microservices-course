@@ -8,7 +8,6 @@ import (
 	"context"
 
 	"github.com/Reensef/go-microservices-course/inventory/internal/model"
-	"github.com/google/uuid"
 	mock "github.com/stretchr/testify/mock"
 )
 
@@ -39,8 +38,138 @@ func (_m *MockPartRepository) EXPECT() *MockPartRepository_Expecter {
 	return &MockPartRepository_Expecter{mock: &_m.Mock}
 }
 
+// Create provides a mock function for the type MockPartRepository
+func (_mock *MockPartRepository) Create(ctx context.Context, part *model.PartInfo) (*model.Part, error) {
+	ret := _mock.Called(ctx, part)
+
+	if len(ret) == 0 {
+		panic("no return value specified for Create")
+	}
+
+	var r0 *model.Part
+	var r1 error
+	if returnFunc, ok := ret.Get(0).(func(context.Context, *model.PartInfo) (*model.Part, error)); ok {
+		return returnFunc(ctx, part)
+	}
+	if returnFunc, ok := ret.Get(0).(func(context.Context, *model.PartInfo) *model.Part); ok {
+		r0 = returnFunc(ctx, part)
+	} else {
+		if ret.Get(0) != nil {
+			r0 = ret.Get(0).(*model.Part)
+		}
+	}
+	if returnFunc, ok := ret.Get(1).(func(context.Context, *model.PartInfo) error); ok {
+		r1 = returnFunc(ctx, part)
+	} else {
+		r1 = ret.Error(1)
+	}
+	return r0, r1
+}
+
+// MockPartRepository_Create_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'Create'
+type MockPartRepository_Create_Call struct {
+	*mock.Call
+}
+
+// Create is a helper method to define mock.On call
+//   - ctx context.Context
+//   - part *model.PartInfo
+func (_e *MockPartRepository_Expecter) Create(ctx interface{}, part interface{}) *MockPartRepository_Create_Call {
+	return &MockPartRepository_Create_Call{Call: _e.mock.On("Create", ctx, part)}
+}
+
+func (_c *MockPartRepository_Create_Call) Run(run func(ctx context.Context, part *model.PartInfo)) *MockPartRepository_Create_Call {
+	_c.Call.Run(func(args mock.Arguments) {
+		var arg0 context.Context
+		if args[0] != nil {
+			arg0 = args[0].(context.Context)
+		}
+		var arg1 *model.PartInfo
+		if args[1] != nil {
+			arg1 = args[1].(*model.PartInfo)
+		}
+		run(
+			arg0,
+			arg1,
+		)
+	})
+	return _c
+}
+
+func (_c *MockPartRepository_Create_Call) Return(part1 *model.Part, err error) *MockPartRepository_Create_Call {
+	_c.Call.Return(part1, err)
+	return _c
+}
+
+func (_c *MockPartRepository_Create_Call) RunAndReturn(run func(ctx context.Context, part *model.PartInfo) (*model.Part, error)) *MockPartRepository_Create_Call {
+	_c.Call.Return(run)
+	return _c
+}
+
+// GetAll provides a mock function for the type MockPartRepository
+func (_mock *MockPartRepository) GetAll(ctx context.Context) ([]*model.Part, error) {
+	ret := _mock.Called(ctx)
+
+	if len(ret) == 0 {
+		panic("no return value specified for GetAll")
+	}
+
+	var r0 []*model.Part
+	var r1 error
+	if returnFunc, ok := ret.Get(0).(func(context.Context) ([]*model.Part, error)); ok {
+		return returnFunc(ctx)
+	}
+	if returnFunc, ok := ret.Get(0).(func(context.Context) []*model.Part); ok {
+		r0 = returnFunc(ctx)
+	} else {
+		if ret.Get(0) != nil {
+			r0 = ret.Get(0).([]*model.Part)
+		}
+	}
+	if returnFunc, ok := ret.Get(1).(func(context.Context) error); ok {
+		r1 = returnFunc(ctx)
+	} else {
+		r1 = ret.Error(1)
+	}
+	return r0, r1
+}
+
+// MockPartRepository_GetAll_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'GetAll'
+type MockPartRepository_GetAll_Call struct {
+	*mock.Call
+}
+
+// GetAll is a helper method to define mock.On call
+//   - ctx context.Context
+func (_e *MockPartRepository_Expecter) GetAll(ctx interface{}) *MockPartRepository_GetAll_Call {
+	return &MockPartRepository_GetAll_Call{Call: _e.mock.On("GetAll", ctx)}
+}
+
+func (_c *MockPartRepository_GetAll_Call) Run(run func(ctx context.Context)) *MockPartRepository_GetAll_Call {
+	_c.Call.Run(func(args mock.Arguments) {
+		var arg0 context.Context
+		if args[0] != nil {
+			arg0 = args[0].(context.Context)
+		}
+		run(
+			arg0,
+		)
+	})
+	return _c
+}
+
+func (_c *MockPartRepository_GetAll_Call) Return(parts []*model.Part, err error) *MockPartRepository_GetAll_Call {
+	_c.Call.Return(parts, err)
+	return _c
+}
+
+func (_c *MockPartRepository_GetAll_Call) RunAndReturn(run func(ctx context.Context) ([]*model.Part, error)) *MockPartRepository_GetAll_Call {
+	_c.Call.Return(run)
+	return _c
+}
+
 // GetByFilter provides a mock function for the type MockPartRepository
-func (_mock *MockPartRepository) GetByFilter(ctx context.Context, filter *model.PartsFilter) []*model.Part {
+func (_mock *MockPartRepository) GetByFilter(ctx context.Context, filter *model.PartsFilter) ([]*model.Part, error) {
 	ret := _mock.Called(ctx, filter)
 
 	if len(ret) == 0 {
@@ -48,6 +177,10 @@ func (_mock *MockPartRepository) GetByFilter(ctx context.Context, filter *model.
 	}
 
 	var r0 []*model.Part
+	var r1 error
+	if returnFunc, ok := ret.Get(0).(func(context.Context, *model.PartsFilter) ([]*model.Part, error)); ok {
+		return returnFunc(ctx, filter)
+	}
 	if returnFunc, ok := ret.Get(0).(func(context.Context, *model.PartsFilter) []*model.Part); ok {
 		r0 = returnFunc(ctx, filter)
 	} else {
@@ -55,7 +188,12 @@ func (_mock *MockPartRepository) GetByFilter(ctx context.Context, filter *model.
 			r0 = ret.Get(0).([]*model.Part)
 		}
 	}
-	return r0
+	if returnFunc, ok := ret.Get(1).(func(context.Context, *model.PartsFilter) error); ok {
+		r1 = returnFunc(ctx, filter)
+	} else {
+		r1 = ret.Error(1)
+	}
+	return r0, r1
 }
 
 // MockPartRepository_GetByFilter_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'GetByFilter'
@@ -88,65 +226,65 @@ func (_c *MockPartRepository_GetByFilter_Call) Run(run func(ctx context.Context,
 	return _c
 }
 
-func (_c *MockPartRepository_GetByFilter_Call) Return(parts []*model.Part) *MockPartRepository_GetByFilter_Call {
-	_c.Call.Return(parts)
+func (_c *MockPartRepository_GetByFilter_Call) Return(parts []*model.Part, err error) *MockPartRepository_GetByFilter_Call {
+	_c.Call.Return(parts, err)
 	return _c
 }
 
-func (_c *MockPartRepository_GetByFilter_Call) RunAndReturn(run func(ctx context.Context, filter *model.PartsFilter) []*model.Part) *MockPartRepository_GetByFilter_Call {
+func (_c *MockPartRepository_GetByFilter_Call) RunAndReturn(run func(ctx context.Context, filter *model.PartsFilter) ([]*model.Part, error)) *MockPartRepository_GetByFilter_Call {
 	_c.Call.Return(run)
 	return _c
 }
 
-// GetByUuid provides a mock function for the type MockPartRepository
-func (_mock *MockPartRepository) GetByUuid(ctx context.Context, uuid1 uuid.UUID) (*model.Part, error) {
-	ret := _mock.Called(ctx, uuid1)
+// GetByID provides a mock function for the type MockPartRepository
+func (_mock *MockPartRepository) GetByID(ctx context.Context, id string) (*model.Part, error) {
+	ret := _mock.Called(ctx, id)
 
 	if len(ret) == 0 {
-		panic("no return value specified for GetByUuid")
+		panic("no return value specified for GetByID")
 	}
 
 	var r0 *model.Part
 	var r1 error
-	if returnFunc, ok := ret.Get(0).(func(context.Context, uuid.UUID) (*model.Part, error)); ok {
-		return returnFunc(ctx, uuid1)
+	if returnFunc, ok := ret.Get(0).(func(context.Context, string) (*model.Part, error)); ok {
+		return returnFunc(ctx, id)
 	}
-	if returnFunc, ok := ret.Get(0).(func(context.Context, uuid.UUID) *model.Part); ok {
-		r0 = returnFunc(ctx, uuid1)
+	if returnFunc, ok := ret.Get(0).(func(context.Context, string) *model.Part); ok {
+		r0 = returnFunc(ctx, id)
 	} else {
 		if ret.Get(0) != nil {
 			r0 = ret.Get(0).(*model.Part)
 		}
 	}
-	if returnFunc, ok := ret.Get(1).(func(context.Context, uuid.UUID) error); ok {
-		r1 = returnFunc(ctx, uuid1)
+	if returnFunc, ok := ret.Get(1).(func(context.Context, string) error); ok {
+		r1 = returnFunc(ctx, id)
 	} else {
 		r1 = ret.Error(1)
 	}
 	return r0, r1
 }
 
-// MockPartRepository_GetByUuid_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'GetByUuid'
-type MockPartRepository_GetByUuid_Call struct {
+// MockPartRepository_GetByID_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'GetByID'
+type MockPartRepository_GetByID_Call struct {
 	*mock.Call
 }
 
-// GetByUuid is a helper method to define mock.On call
+// GetByID is a helper method to define mock.On call
 //   - ctx context.Context
-//   - uuid1 uuid.UUID
-func (_e *MockPartRepository_Expecter) GetByUuid(ctx interface{}, uuid1 interface{}) *MockPartRepository_GetByUuid_Call {
-	return &MockPartRepository_GetByUuid_Call{Call: _e.mock.On("GetByUuid", ctx, uuid1)}
+//   - id string
+func (_e *MockPartRepository_Expecter) GetByID(ctx interface{}, id interface{}) *MockPartRepository_GetByID_Call {
+	return &MockPartRepository_GetByID_Call{Call: _e.mock.On("GetByID", ctx, id)}
 }
 
-func (_c *MockPartRepository_GetByUuid_Call) Run(run func(ctx context.Context, uuid1 uuid.UUID)) *MockPartRepository_GetByUuid_Call {
+func (_c *MockPartRepository_GetByID_Call) Run(run func(ctx context.Context, id string)) *MockPartRepository_GetByID_Call {
 	_c.Call.Run(func(args mock.Arguments) {
 		var arg0 context.Context
 		if args[0] != nil {
 			arg0 = args[0].(context.Context)
 		}
-		var arg1 uuid.UUID
+		var arg1 string
 		if args[1] != nil {
-			arg1 = args[1].(uuid.UUID)
+			arg1 = args[1].(string)
 		}
 		run(
 			arg0,
@@ -156,12 +294,12 @@ func (_c *MockPartRepository_GetByUuid_Call) Run(run func(ctx context.Context, u
 	return _c
 }
 
-func (_c *MockPartRepository_GetByUuid_Call) Return(part *model.Part, err error) *MockPartRepository_GetByUuid_Call {
+func (_c *MockPartRepository_GetByID_Call) Return(part *model.Part, err error) *MockPartRepository_GetByID_Call {
 	_c.Call.Return(part, err)
 	return _c
 }
 
-func (_c *MockPartRepository_GetByUuid_Call) RunAndReturn(run func(ctx context.Context, uuid1 uuid.UUID) (*model.Part, error)) *MockPartRepository_GetByUuid_Call {
+func (_c *MockPartRepository_GetByID_Call) RunAndReturn(run func(ctx context.Context, id string) (*model.Part, error)) *MockPartRepository_GetByID_Call {
 	_c.Call.Return(run)
 	return _c
 }

@@ -41,8 +41,10 @@ func ToModelOrderStatus(status repoModel.OrderStatus) model.OrderStatus {
 		return model.OrderStatus_CANCELED
 	case repoModel.OrderStatus_PAID:
 		return model.OrderStatus_PAID
-	default:
+	case repoModel.OrderStatus_PENDING_PAYMENT:
 		return model.OrderStatus_PENDING_PAYMENT
+	default:
+		return model.OrderStatus_UNSPECIFIED
 	}
 }
 
@@ -52,7 +54,9 @@ func ToRepoModelOrderStatus(status model.OrderStatus) repoModel.OrderStatus {
 		return repoModel.OrderStatus_PAID
 	case model.OrderStatus_CANCELED:
 		return repoModel.OrderStatus_CANCELED
-	default:
+	case model.OrderStatus_PENDING_PAYMENT:
 		return repoModel.OrderStatus_PENDING_PAYMENT
+	default:
+		return repoModel.OrderStatus_UNSPECIFIED
 	}
 }

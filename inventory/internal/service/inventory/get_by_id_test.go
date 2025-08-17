@@ -15,13 +15,13 @@ import (
 func TestGetByUuid_Exists(t *testing.T) {
 	repoMock := mocks.NewMockPartRepository(t)
 
-	uuid := uuid.New()
+	id := uuid.New().String()
 
-	repoMock.EXPECT().GetByUuid(t.Context(), uuid).Return(&model.Part{}, nil).Once()
+	repoMock.EXPECT().GetByID(t.Context(), id).Return(&model.Part{}, nil).Once()
 
 	service := NewService(repoMock)
 
-	part, err := service.GetPartByUuid(t.Context(), uuid)
+	part, err := service.GetPartByID(t.Context(), id)
 
 	assert.NoError(t, err)
 	assert.NotNil(t, part)
@@ -31,13 +31,13 @@ func TestGetByUuid_Exists(t *testing.T) {
 func TestGetByUuid_NotExists(t *testing.T) {
 	repoMock := mocks.NewMockPartRepository(t)
 
-	uuid := uuid.New()
+	uuid := uuid.NewString()
 
-	repoMock.EXPECT().GetByUuid(t.Context(), uuid).Return(nil, fmt.Errorf("error")).Once()
+	repoMock.EXPECT().GetByID(t.Context(), uuid).Return(nil, fmt.Errorf("error")).Once()
 
 	service := NewService(repoMock)
 
-	part, err := service.GetPartByUuid(t.Context(), uuid)
+	part, err := service.GetPartByID(t.Context(), uuid)
 
 	assert.Error(t, err)
 	assert.Nil(t, part)

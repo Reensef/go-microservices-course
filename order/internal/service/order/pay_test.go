@@ -13,71 +13,101 @@ import (
 	repoMocks "github.com/Reensef/go-microservices-course/order/internal/repository/mocks"
 )
 
-func TestPayOrder(t *testing.T) {
-	t.Run("Error from payment service", func(t *testing.T) {
-		repo := repoMocks.NewMockOrderRepository(t)
-		inventory := grpcMocks.NewMockIntentoryServiceClient(t)
-		payment := grpcMocks.NewMockPaymentServiceClient(t)
-		service := NewService(repo, inventory, payment)
+func TestPayOrder_errorFromPaymentService(t *testing.T) {
+	repo := repoMocks.NewMockOrderRepository(t)
+	inventory := grpcMocks.NewMockIntentoryServiceClient(t)
+	payment := grpcMocks.NewMockPaymentServiceClient(t)
+	service := NewService(repo, inventory, payment)
 
-		userUuid := uuid.New()
-		orderUuid := uuid.New()
-		paymentMethod := model.OrderPaymentMethod_CARD
-		paymentError := fmt.Errorf("error")
+	userUuid := uuid.NewString()
+	orderUuid := uuid.NewString()
+	paymentMethod := model.OrderPaymentMethod_CARD
+	paymentError := fmt.Errorf("error")
 
-		payment.EXPECT().PayOrder(context.Background(), orderUuid, userUuid, paymentMethod).Return(nil, paymentError).Once()
+	repo.EXPECT().GetOrderStatus(context.Background(), orderUuid).
+		Return(model.OrderStatus_PENDING_PAYMENT, nil).Once()
 
-		uuid, err := service.PayOrder(context.Background(), orderUuid, userUuid, paymentMethod)
+	payment.EXPECT().PayOrder(context.Background(), orderUuid, userUuid, paymentMethod).
+		Return(nil, paymentError).Once()
 
-		assert.Nil(t, uuid)
-		assert.Equal(t, err, paymentError)
+	uuid, err := service.PayOrder(context.Background(), orderUuid, userUuid, paymentMethod)
 
-		assert.Empty(t, repo.Calls)
-		assert.Empty(t, inventory.Calls)
-	})
+	assert.Nil(t, uuid)
+	assert.Equal(t, err, paymentError)
 
-	t.Run("Error from repository", func(t *testing.T) {
-		repo := repoMocks.NewMockOrderRepository(t)
-		inventory := grpcMocks.NewMockIntentoryServiceClient(t)
-		payment := grpcMocks.NewMockPaymentServiceClient(t)
-		service := NewService(repo, inventory, payment)
+	assert.Empty(t, inventory.Calls)
+}
 
-		userUuid := uuid.New()
-		orderUuid := uuid.New()
-		paymentMethod := model.OrderPaymentMethod_CARD
-		repoError := fmt.Errorf("error")
-		transactionUuid := uuid.New()
+func TestPayOrder_errorGetStatusFromRepository(t *testing.T) {
+	repo := repoMocks.NewMockOrderRepository(t)
+	inventory := grpcMocks.NewMockIntentoryServiceClient(t)
+	payment := grpcMocks.NewMockPaymentServiceClient(t)
+	service := NewService(repo, inventory, payment)
 
-		payment.EXPECT().PayOrder(context.Background(), orderUuid, userUuid, paymentMethod).Return(&transactionUuid, nil).Once()
-		repo.EXPECT().PayOrder(context.Background(), orderUuid, transactionUuid, paymentMethod).Return(repoError).Once()
+	userUuid := uuid.NewString()
+	orderUuid := uuid.NewString()
+	paymentMethod := model.OrderPaymentMethod_CARD
+	repoError := fmt.Errorf("error")
+	// transactionUuid := uuid.NewString()
 
-		uuid, err := service.PayOrder(context.Background(), orderUuid, userUuid, paymentMethod)
+	repo.EXPECT().GetOrderStatus(context.Background(), orderUuid).
+		Return(model.OrderStatus_UNSPECIFIED, repoError).Once()
 
-		assert.Nil(t, uuid)
-		assert.Equal(t, err, repoError)
+	uuid, err := service.PayOrder(context.Background(), orderUuid, userUuid, paymentMethod)
 
-		assert.Empty(t, inventory.Calls)
-	})
+	assert.Nil(t, uuid)
+	assert.Equal(t, err, repoError)
+}
 
-	t.Run("Success", func(t *testing.T) {
-		repo := repoMocks.NewMockOrderRepository(t)
-		inventory := grpcMocks.NewMockIntentoryServiceClient(t)
-		payment := grpcMocks.NewMockPaymentServiceClient(t)
-		service := NewService(repo, inventory, payment)
+func TestPayOrder_errorPayFromRepository(t *testing.T) {
+	repo := repoMocks.NewMockOrderRepository(t)
+	inventory := grpcMocks.NewMockIntentoryServiceClient(t)
+	payment := grpcMocks.NewMockPaymentServiceClient(t)
+	service := NewService(repo, inventory, payment)
 
-		userUuid := uuid.New()
-		orderUuid := uuid.New()
-		paymentMethod := model.OrderPaymentMethod_CARD
-		transactionUuid := uuid.New()
+	userUuid := uuid.NewString()
+	orderUuid := uuid.NewString()
+	paymentMethod := model.OrderPaymentMethod_CARD
+	repoError := fmt.Errorf("error")
+	transactionUuid := uuid.NewString()
 
-		payment.EXPECT().PayOrder(context.Background(), orderUuid, userUuid, paymentMethod).Return(&transactionUuid, nil).Once()
-		repo.EXPECT().PayOrder(context.Background(), orderUuid, transactionUuid, paymentMethod).Return(nil).Once()
+	repo.EXPECT().GetOrderStatus(context.Background(), orderUuid).
+		Return(model.OrderStatus_PENDING_PAYMENT, nil).Once()
 
-		uuid, err := service.PayOrder(context.Background(), orderUuid, userUuid, paymentMethod)
+	repo.EXPECT().PayOrder(context.Background(), orderUuid, transactionUuid, paymentMethod).
+		Return(repoError).Once()
 
-		assert.NoError(t, err)
-		assert.Equal(t, uuid, &transactionUuid)
+	payment.EXPECT().PayOrder(context.Background(), orderUuid, userUuid, paymentMethod).
+		Return(&transactionUuid, nil).Once()
 
-		assert.Empty(t, inventory.Calls)
-	})
+	uuid, err := service.PayOrder(context.Background(), orderUuid, userUuid, paymentMethod)
+
+	assert.Nil(t, uuid)
+	assert.Equal(t, err, repoError)
+}
+
+func TestPayOrder_success(t *testing.T) {
+	repo := repoMocks.NewMockOrderRepository(t)
+	inventory := grpcMocks.NewMockIntentoryServiceClient(t)
+	payment := grpcMocks.NewMockPaymentServiceClient(t)
+	service := NewService(repo, inventory, payment)
+
+	userUuid := uuid.NewString()
+	orderUuid := uuid.NewString()
+	paymentMethod := model.OrderPaymentMethod_CARD
+	transactionUuid := uuid.NewString()
+
+	repo.EXPECT().GetOrderStatus(context.Background(), orderUuid).
+		Return(model.OrderStatus_PENDING_PAYMENT, nil).Once()
+	payment.EXPECT().PayOrder(context.Background(), orderUuid, userUuid, paymentMethod).
+		Return(&transactionUuid, nil).Once()
+	repo.EXPECT().PayOrder(context.Background(), orderUuid, transactionUuid, paymentMethod).
+		Return(nil).Once()
+
+	uuid, err := service.PayOrder(context.Background(), orderUuid, userUuid, paymentMethod)
+
+	assert.NoError(t, err)
+	assert.Equal(t, uuid, &transactionUuid)
+
+	assert.Empty(t, inventory.Calls)
 }

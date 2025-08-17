@@ -5,7 +5,6 @@ import (
 	"errors"
 	"log"
 
-	"github.com/google/uuid"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
 
@@ -18,15 +17,8 @@ func (a *api) PayOrder(
 	ctx context.Context,
 	req *paymentV1.PayOrderRequest,
 ) (*paymentV1.PayOrderResponse, error) {
-	orderUuid, err := uuid.Parse(req.GetOrderUuid())
-	if err != nil {
-		return nil, status.Errorf(codes.InvalidArgument, "order uuid is invalid")
-	}
-
-	userUuid, err := uuid.Parse(req.GetUserUuid())
-	if err != nil {
-		return nil, status.Errorf(codes.InvalidArgument, "user uuid is invalid")
-	}
+	orderUuid := req.GetOrderUuid()
+	userUuid := req.GetUserUuid()
 
 	transactionUuid, err := a.service.Pay(
 		ctx,
@@ -44,6 +36,6 @@ func (a *api) PayOrder(
 	}
 
 	return &paymentV1.PayOrderResponse{
-		TransactionUuid: transactionUuid.String(),
+		TransactionUuid: *transactionUuid,
 	}, nil
 }

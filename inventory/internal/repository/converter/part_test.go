@@ -4,7 +4,6 @@ import (
 	"testing"
 
 	"github.com/brianvoe/gofakeit/v7"
-	"github.com/google/uuid"
 	"github.com/stretchr/testify/assert"
 
 	model "github.com/Reensef/go-microservices-course/inventory/internal/model"
@@ -14,7 +13,7 @@ import (
 
 func TestToRepoModelPart(t *testing.T) {
 	part := &model.Part{
-		Uuid:      uuid.MustParse(gofakeit.UUID()),
+		ID:        gofakeit.UUID(),
 		CreatedAt: gofakeit.Date(),
 		UpdatedAt: gofakeit.Date(),
 		Info: model.PartInfo{
@@ -68,7 +67,7 @@ func TestToRepoModelPart(t *testing.T) {
 
 	repoPart := ToRepoModelPart(part)
 
-	assert.Equal(t, part.Uuid, repoPart.Uuid)
+	assert.Equal(t, part.ID, repoPart.ID)
 	assert.Equal(t, part.Info.Name, repoPart.Info.Name)
 	assert.Equal(t, part.Info.Description, repoPart.Info.Description)
 	assert.Equal(t, part.Info.Price, repoPart.Info.Price)
@@ -82,7 +81,7 @@ func TestToRepoModelPart(t *testing.T) {
 
 func TestToModelPart(t *testing.T) {
 	repoPart := &repoModel.Part{
-		Uuid:      uuid.MustParse(gofakeit.UUID()),
+		ID:        gofakeit.UUID(),
 		CreatedAt: gofakeit.Date(),
 		UpdatedAt: gofakeit.Date(),
 		Info: repoModel.PartInfo{
@@ -136,7 +135,7 @@ func TestToModelPart(t *testing.T) {
 
 	part := ToModelPart(repoPart)
 
-	assert.Equal(t, repoPart.Uuid, part.Uuid)
+	assert.Equal(t, repoPart.ID, part.ID)
 	assert.Equal(t, repoPart.Info.Name, part.Info.Name)
 	assert.Equal(t, repoPart.Info.Description, part.Info.Description)
 	assert.Equal(t, repoPart.Info.Price, part.Info.Price)

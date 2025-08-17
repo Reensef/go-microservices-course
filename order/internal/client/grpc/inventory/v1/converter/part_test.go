@@ -16,7 +16,7 @@ import (
 
 func TestToProtoPart(t *testing.T) {
 	part := &model.Part{
-		Uuid:      uuid.New(),
+		Id:        uuid.NewString(),
 		CreatedAt: time.Now(),
 		UpdatedAt: time.Now(),
 		Info: model.PartInfo{
@@ -64,7 +64,7 @@ func TestToProtoPart(t *testing.T) {
 
 	expected := &inventoryV1.Part{
 		Name:          part.Info.Name,
-		Uuid:          part.Uuid.String(),
+		Id:            part.Id,
 		Description:   part.Info.Description,
 		Price:         part.Info.Price,
 		StockQuantity: part.Info.StockQuantity,
@@ -115,7 +115,7 @@ func TestToProtoPart(t *testing.T) {
 
 func TestToModelPart(t *testing.T) {
 	protoPart := &inventoryV1.Part{
-		Uuid:      uuid.New().String(),
+		Id:        uuid.New().String(),
 		CreatedAt: timestamppb.New(time.Now().Add(10)),
 		UpdatedAt: timestamppb.New(time.Now().Add(20)),
 
@@ -161,7 +161,7 @@ func TestToModelPart(t *testing.T) {
 	}
 
 	expected := &model.Part{
-		Uuid:      uuid.MustParse(protoPart.Uuid),
+		Id:        protoPart.GetId(),
 		CreatedAt: protoPart.CreatedAt.AsTime().UTC(),
 		UpdatedAt: protoPart.UpdatedAt.AsTime().UTC(),
 		Info: model.PartInfo{
@@ -210,14 +210,4 @@ func TestToModelPart(t *testing.T) {
 	modelPart, err := ToModelPart(protoPart)
 	require.Nil(t, err)
 	assert.Equal(t, expected, modelPart)
-}
-
-func TestToModelPart_InvalidUuid(t *testing.T) {
-	protoPart := &inventoryV1.Part{
-		Uuid: "",
-	}
-
-	modelPart, err := ToModelPart(protoPart)
-	assert.Error(t, err)
-	assert.Nil(t, modelPart)
 }

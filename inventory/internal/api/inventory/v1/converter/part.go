@@ -1,7 +1,6 @@
 package converter
 
 import (
-	"github.com/google/uuid"
 	"google.golang.org/protobuf/types/known/timestamppb"
 
 	"github.com/Reensef/go-microservices-course/inventory/internal/model"
@@ -14,7 +13,7 @@ func ToProtoPart(part *model.Part) *inventoryV1.Part {
 		return nil
 	}
 	return &inventoryV1.Part{
-		Uuid:          part.Uuid.String(),
+		Id:            part.ID,
 		Name:          part.Info.Name,
 		Description:   part.Info.Description,
 		Price:         part.Info.Price,
@@ -43,17 +42,13 @@ func ToProtoParts(parts []*model.Part) []*inventoryV1.Part {
 	return result
 }
 
-func ToModelPart(part *inventoryV1.Part) (*model.Part, error) {
+func ToModelPart(part *inventoryV1.Part) *model.Part {
 	if part == nil {
-		return nil, nil
-	}
-	uuid, err := uuid.Parse(part.Uuid)
-	if err != nil {
-		return nil, err
+		return nil
 	}
 
 	return &model.Part{
-		Uuid: uuid,
+		ID: part.Id,
 		Info: model.PartInfo{
 			Name:          part.Name,
 			Description:   part.Description,
@@ -73,7 +68,7 @@ func ToModelPart(part *inventoryV1.Part) (*model.Part, error) {
 		},
 		CreatedAt: part.CreatedAt.AsTime(),
 		UpdatedAt: part.UpdatedAt.AsTime(),
-	}, nil
+	}
 }
 
 func ToProtoPartCategory(category model.PartCategory) inventoryV1.Category {

@@ -8,7 +8,6 @@ import (
 	"context"
 
 	"github.com/Reensef/go-microservices-course/order/internal/model"
-	"github.com/google/uuid"
 	mock "github.com/stretchr/testify/mock"
 )
 
@@ -40,7 +39,7 @@ func (_m *MockIntentoryServiceClient) EXPECT() *MockIntentoryServiceClient_Expec
 }
 
 // GetPart provides a mock function for the type MockIntentoryServiceClient
-func (_mock *MockIntentoryServiceClient) GetPart(ctx context.Context, partUuid uuid.UUID) (*model.Part, error) {
+func (_mock *MockIntentoryServiceClient) GetPart(ctx context.Context, partUuid string) (*model.Part, error) {
 	ret := _mock.Called(ctx, partUuid)
 
 	if len(ret) == 0 {
@@ -49,17 +48,17 @@ func (_mock *MockIntentoryServiceClient) GetPart(ctx context.Context, partUuid u
 
 	var r0 *model.Part
 	var r1 error
-	if returnFunc, ok := ret.Get(0).(func(context.Context, uuid.UUID) (*model.Part, error)); ok {
+	if returnFunc, ok := ret.Get(0).(func(context.Context, string) (*model.Part, error)); ok {
 		return returnFunc(ctx, partUuid)
 	}
-	if returnFunc, ok := ret.Get(0).(func(context.Context, uuid.UUID) *model.Part); ok {
+	if returnFunc, ok := ret.Get(0).(func(context.Context, string) *model.Part); ok {
 		r0 = returnFunc(ctx, partUuid)
 	} else {
 		if ret.Get(0) != nil {
 			r0 = ret.Get(0).(*model.Part)
 		}
 	}
-	if returnFunc, ok := ret.Get(1).(func(context.Context, uuid.UUID) error); ok {
+	if returnFunc, ok := ret.Get(1).(func(context.Context, string) error); ok {
 		r1 = returnFunc(ctx, partUuid)
 	} else {
 		r1 = ret.Error(1)
@@ -74,20 +73,20 @@ type MockIntentoryServiceClient_GetPart_Call struct {
 
 // GetPart is a helper method to define mock.On call
 //   - ctx context.Context
-//   - partUuid uuid.UUID
+//   - partUuid string
 func (_e *MockIntentoryServiceClient_Expecter) GetPart(ctx interface{}, partUuid interface{}) *MockIntentoryServiceClient_GetPart_Call {
 	return &MockIntentoryServiceClient_GetPart_Call{Call: _e.mock.On("GetPart", ctx, partUuid)}
 }
 
-func (_c *MockIntentoryServiceClient_GetPart_Call) Run(run func(ctx context.Context, partUuid uuid.UUID)) *MockIntentoryServiceClient_GetPart_Call {
+func (_c *MockIntentoryServiceClient_GetPart_Call) Run(run func(ctx context.Context, partUuid string)) *MockIntentoryServiceClient_GetPart_Call {
 	_c.Call.Run(func(args mock.Arguments) {
 		var arg0 context.Context
 		if args[0] != nil {
 			arg0 = args[0].(context.Context)
 		}
-		var arg1 uuid.UUID
+		var arg1 string
 		if args[1] != nil {
-			arg1 = args[1].(uuid.UUID)
+			arg1 = args[1].(string)
 		}
 		run(
 			arg0,
@@ -102,7 +101,7 @@ func (_c *MockIntentoryServiceClient_GetPart_Call) Return(part *model.Part, err 
 	return _c
 }
 
-func (_c *MockIntentoryServiceClient_GetPart_Call) RunAndReturn(run func(ctx context.Context, partUuid uuid.UUID) (*model.Part, error)) *MockIntentoryServiceClient_GetPart_Call {
+func (_c *MockIntentoryServiceClient_GetPart_Call) RunAndReturn(run func(ctx context.Context, partUuid string) (*model.Part, error)) *MockIntentoryServiceClient_GetPart_Call {
 	_c.Call.Return(run)
 	return _c
 }

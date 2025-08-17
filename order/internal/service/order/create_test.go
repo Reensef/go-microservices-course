@@ -59,7 +59,7 @@ func TestCreateOrder(t *testing.T) {
 
 		orderInfo := &model.OrderInfo{}
 		for range 10 {
-			orderInfo.PartUuids = append(orderInfo.PartUuids, uuid.New())
+			orderInfo.PartIds = append(orderInfo.PartIds, uuid.NewString())
 		}
 		uuid, err := service.CreateOrder(context.Background(), orderInfo)
 
@@ -80,7 +80,7 @@ func TestCreateOrder(t *testing.T) {
 
 		orderInfo := &model.OrderInfo{}
 		for range 10 {
-			orderInfo.PartUuids = append(orderInfo.PartUuids, uuid.New())
+			orderInfo.PartIds = append(orderInfo.PartIds, uuid.NewString())
 		}
 		uuid, err := service.CreateOrder(context.Background(), orderInfo)
 
@@ -126,7 +126,7 @@ func TestCreateOrder(t *testing.T) {
 
 		info := &model.OrderInfo{}
 
-		expectUuid := uuid.New()
+		expectUuid := uuid.NewString()
 		expectedOrder := &model.Order{
 			Uuid: expectUuid,
 			Info: *info,

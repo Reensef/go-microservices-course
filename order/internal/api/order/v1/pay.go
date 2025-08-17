@@ -18,7 +18,7 @@ func (a *api) PayOrder(
 	req *orderV1.PayOrderRequest,
 	params orderV1.PayOrderParams,
 ) (orderV1.PayOrderRes, error) {
-	userUuid := uuid.New()
+	userUuid := uuid.NewString()
 
 	transactionUUID, err := a.orderService.PayOrder(
 		ctx,
@@ -30,12 +30,12 @@ func (a *api) PayOrder(
 		if errors.Is(err, model.ErrOrderNotFound) {
 			return &orderV1.NotFoundError{
 				Code:    404,
-				Message: fmt.Sprintf("Order with UUID '%s' not found", params.OrderUUID.String()),
+				Message: fmt.Sprintf("Order with UUID '%s' not found", params.OrderUUID),
 			}, nil
 		} else if errors.Is(err, model.ErrOrderAlreadyPaid) {
 			return &orderV1.ConflictError{
 				Code:    409,
-				Message: fmt.Sprintf("Order with UUID '%s' already paid", params.OrderUUID.String()),
+				Message: fmt.Sprintf("Order with UUID '%s' already paid", params.OrderUUID),
 			}, nil
 		}
 
@@ -47,6 +47,6 @@ func (a *api) PayOrder(
 	}
 
 	return &orderV1.PayOrderResponse{
-		TransactionUUID: orderV1.NewOptUUID(*transactionUUID),
+		TransactionUUID: orderV1.NewOptString(*transactionUUID),
 	}, nil
 }
