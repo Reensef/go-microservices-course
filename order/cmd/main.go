@@ -13,6 +13,9 @@ import (
 
 	"github.com/go-chi/chi/v5"
 	"github.com/go-chi/chi/v5/middleware"
+	"github.com/jackc/pgx/v5/pgxpool"
+	"github.com/jackc/pgx/v5/stdlib"
+	"github.com/joho/godotenv"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/credentials/insecure"
 
@@ -24,6 +27,7 @@ import (
 	orderV1 "github.com/Reensef/go-microservices-course/shared/pkg/openapi/order/v1"
 	inventoryV1 "github.com/Reensef/go-microservices-course/shared/pkg/proto/inventory/v1"
 	paymentV1 "github.com/Reensef/go-microservices-course/shared/pkg/proto/payment/v1"
+	"github.com/Reensef/go-microservices-course/shared/pkg/utils"
 )
 
 const (
@@ -36,6 +40,41 @@ const (
 )
 
 func main() {
+	ctx := context.Background()
+
+	err := godotenv.Load(".env")
+	if err != nil {
+		log.Printf("failed to load .env file: %v\n", err)
+		return
+	}
+
+	postgresURI := os.Getenv("POSTGRES_URI")
+
+	pool, err := pgxpool.New(ctx, postgresURI)
+	if err != nil {
+		log.Printf("failed to connect to database: %v\n", err)
+		return
+	}
+	defer pool.Close()
+
+	// Проверяем, что соединение с базой установлено
+	err = pool.Ping(ctx)
+	if err != nil {
+		log.Printf("database unavailable: %v\n", err)
+		return
+	}
+
+	// Инициализируем мигратор
+	migrationsDir := os.Getenv("ORDER_MIGRATIONS_DIR")
+	pool.Config().Copy()
+	migrator := utils.NewSqlMigrator(stdlib.OpenDB(*pool.Config().ConnConfig.Copy()), migrationsDir)
+
+	err = migrator.Up()
+	if err != nil {
+		log.Printf("Error migrate database: %v\n", err)
+		return
+	}
+
 	inventoryServiceConn, err := grpc.NewClient(
 		inventoryServiceAddress,
 		grpc.WithTransportCredentials(insecure.NewCredentials()),
@@ -72,7 +111,7 @@ func main() {
 		paymentV1.NewPaymentServiceClient(paymentServiceConn),
 	)
 
-	repo := orderRepo.NewRepository()
+	repo := orderRepo.NewRepository(pool)
 	service := orderService.NewService(repo, inventoryService, paymentService)
 	api := orderV1API.NewAPI(service)
 

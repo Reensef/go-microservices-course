@@ -3,20 +3,18 @@ package grpc
 import (
 	"context"
 
-	"github.com/google/uuid"
-
 	"github.com/Reensef/go-microservices-course/order/internal/model"
 )
 
 type IntentoryServiceClient interface {
-	GetPart(ctx context.Context, partUuid uuid.UUID) (*model.Part, error)
+	GetPart(ctx context.Context, partUuid string) (*model.Part, error)
 	ListParts(ctx context.Context, filter *model.PartsFilter) ([]*model.Part, error)
 }
 
 type PaymentServiceClient interface {
 	PayOrder(
 		ctx context.Context,
-		orderUuid, userUuid uuid.UUID,
+		orderUuid, userUuid string,
 		paymentMethod model.OrderPaymentMethod,
-	) (transactionUuid *uuid.UUID, err error)
+	) (transactionUuid *string, err error)
 }

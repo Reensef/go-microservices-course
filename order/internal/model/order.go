@@ -2,8 +2,6 @@ package model
 
 import (
 	"time"
-
-	"github.com/google/uuid"
 )
 
 type OrderPaymentMethod int32
@@ -19,31 +17,32 @@ const (
 type OrderStatus int32
 
 const (
-	OrderStatus_PENDING_PAYMENT OrderStatus = 0
-	OrderStatus_PAID            OrderStatus = 1
-	OrderStatus_CANCELED        OrderStatus = 2
+	OrderStatus_UNSPECIFIED     OrderStatus = 0
+	OrderStatus_PENDING_PAYMENT OrderStatus = 1
+	OrderStatus_PAID            OrderStatus = 2
+	OrderStatus_CANCELED        OrderStatus = 3
 )
 
 type OrderInfo struct {
-	UserUuid        uuid.UUID
-	PartUuids       []uuid.UUID
-	TransactionUuid uuid.UUID
+	UserUuid        string
+	PartIds         []string
+	TransactionUuid string
 	TotalPrice      float64
 	PaymentMethod   OrderPaymentMethod
 	Status          OrderStatus
 }
 
 type OrderUpdateInfo struct {
-	UserUuid        *uuid.UUID
-	PartUuids       []uuid.UUID
-	TransactionUuid *uuid.UUID
+	UserUuid        *string
+	PartIds         []string
+	TransactionUuid *string
 	TotalPrice      *float64
 	PaymentMethod   *OrderPaymentMethod
 	Status          *OrderStatus
 }
 
 type Order struct {
-	Uuid      uuid.UUID
+	Uuid      string
 	Info      OrderInfo
 	CreatedAt time.Time
 	UpdatedAt time.Time

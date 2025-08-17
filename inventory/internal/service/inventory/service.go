@@ -9,7 +9,9 @@ type service struct {
 }
 
 func NewService(repo repo.PartRepository) *service {
-	return &service{
+	service := &service{
 		repo: repo,
 	}
+
+	return service
 }

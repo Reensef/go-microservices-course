@@ -17,23 +17,33 @@ func (s *service) CreateOrder(
 		return nil, fmt.Errorf("order info is nil")
 	}
 
+	if uuid.Validate(info.UserUuid) != nil {
+		return nil, model.ErrUserUuidInvalidFormat
+	}
+
+	for _, partId := range info.PartIds {
+		if uuid.Validate(partId) != nil {
+			return nil, model.ErrPartIdInvalidFormat
+		}
+	}
+
 	parts, err := s.inventoryService.ListParts(ctx, &model.PartsFilter{
-		Uuids: info.PartUuids,
+		Ids: info.PartIds,
 	})
 	if err != nil {
 		return nil, err
 	}
 
-	partUuidsExists := map[uuid.UUID]bool{}
+	partIdsExists := map[string]bool{}
 	for _, part := range parts {
 		if part == nil {
 			continue
 		}
-		partUuidsExists[part.Uuid] = true
+		partIdsExists[part.Id] = true
 	}
 
-	for _, uuid := range info.PartUuids {
-		if !partUuidsExists[uuid] {
+	for _, uuid := range info.PartIds {
+		if !partIdsExists[uuid] {
 			return nil, model.ErrPartNotFound
 		}
 	}
@@ -43,5 +53,6 @@ func (s *service) CreateOrder(
 		info.TotalPrice += part.Info.Price
 	}
 
-	return s.orderRepo.CreateOrder(ctx, info)
+	order, err := s.orderRepo.CreateOrder(ctx, info)
+	return order, err
 }

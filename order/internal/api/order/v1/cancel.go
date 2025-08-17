@@ -16,23 +16,30 @@ func (a *api) CancelOrder(
 ) (orderV1.CancelOrderRes, error) {
 	err := a.orderService.CancelOrder(ctx, params.OrderUUID)
 	if err != nil {
-		if errors.Is(err, model.ErrOrderNotFound) {
+		switch {
+		case errors.Is(err, model.ErrOrderUuidInvalidFormat):
+			return &orderV1.ValidationError{
+				Code:    422,
+				Message: "order must be UUID format",
+			}, nil
+		case errors.Is(err, model.ErrOrderNotFound):
 			return &orderV1.NotFoundError{
 				Code:    404,
-				Message: fmt.Sprintf("Order by UUID '%s' not found", params.OrderUUID.String()),
+				Message: fmt.Sprintf("order by UUID '%s' not found", params.OrderUUID),
 			}, nil
-		} else if errors.Is(err, model.ErrOrderAlreadyPaid) {
+		case errors.Is(err, model.ErrOrderAlreadyPaid):
 			return &orderV1.ConflictError{
 				Code:    409,
-				Message: fmt.Sprintf("Order with UUID '%s' already paid", params.OrderUUID.String()),
+				Message: fmt.Sprintf("order with UUID '%s' already paid", params.OrderUUID),
+			}, nil
+		default:
+			log.Printf("api: error cancelling order: %s", err)
+
+			return &orderV1.InternalServerError{
+				Code:    500,
+				Message: "internal server error",
 			}, nil
 		}
-
-		log.Printf("api: error cancelling order: %s", err)
-		return &orderV1.InternalServerError{
-			Code:    500,
-			Message: "Internal server error",
-		}, nil
 	}
 
 	return &orderV1.CancelOrderNoContent{}, nil

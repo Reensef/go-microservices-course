@@ -16,8 +16,11 @@ func TestCancelOrder(t *testing.T) {
 		repo := mocks.NewMockOrderRepository(t)
 		service := NewService(repo, nil, nil)
 
-		uuid := uuid.New()
-		repo.EXPECT().CancelOrder(context.Background(), uuid).Return(model.ErrOrderNotFound).Once()
+		uuid := uuid.NewString()
+
+		repo.EXPECT().GetOrderStatus(context.Background(), uuid).
+			Return(model.OrderStatus_UNSPECIFIED, model.ErrOrderNotFound).
+			Once()
 
 		err := service.CancelOrder(context.Background(), uuid)
 
@@ -28,8 +31,14 @@ func TestCancelOrder(t *testing.T) {
 		repo := mocks.NewMockOrderRepository(t)
 		service := NewService(repo, nil, nil)
 
-		uuid := uuid.New()
-		repo.EXPECT().CancelOrder(context.Background(), uuid).Return(nil).Once()
+		uuid := uuid.NewString()
+
+		repo.EXPECT().GetOrderStatus(context.Background(), uuid).
+			Return(model.OrderStatus_PENDING_PAYMENT, nil).
+			Once()
+
+		repo.EXPECT().CancelOrder(context.Background(), uuid).
+			Return(nil).Once()
 
 		err := service.CancelOrder(context.Background(), uuid)
 
