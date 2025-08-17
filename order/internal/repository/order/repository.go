@@ -1,23 +1,19 @@
 package order
 
 import (
-	"sync"
-
-	"github.com/google/uuid"
+	"github.com/jackc/pgx/v5/pgxpool"
 
 	repo "github.com/Reensef/go-microservices-course/order/internal/repository"
-	repoModel "github.com/Reensef/go-microservices-course/order/internal/repository/model"
 )
 
 var _ repo.OrderRepository = (*repository)(nil)
 
 type repository struct {
-	mu   sync.RWMutex
-	data map[uuid.UUID]*repoModel.Order
+	pool *pgxpool.Pool
 }
 
-func NewRepository() *repository {
+func NewRepository(pool *pgxpool.Pool) *repository {
 	return &repository{
-		data: make(map[uuid.UUID]*repoModel.Order),
+		pool: pool,
 	}
 }

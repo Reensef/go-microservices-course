@@ -12,7 +12,7 @@ func ToRepoModelPart(part *model.Part) *repoModel.Part {
 		return nil
 	}
 	return &repoModel.Part{
-		Uuid:      part.Uuid,
+		ID:        part.ID,
 		Info:      *ToRepoModelPartInfo(&part.Info),
 		CreatedAt: part.CreatedAt,
 		UpdatedAt: part.UpdatedAt,
@@ -51,6 +51,17 @@ func ToRepoModelPartCategory(category model.PartCategory) repoModel.PartCategory
 	}
 }
 
+func ToRepoModelPartManufacturer(manufacturer *model.PartManufacturer) *repoModel.PartManufacturer {
+	if manufacturer == nil {
+		return nil
+	}
+	return &repoModel.PartManufacturer{
+		Name:    manufacturer.Name,
+		Country: manufacturer.Country,
+		Website: manufacturer.Website,
+	}
+}
+
 func ToRepoModelPartDimensions(dim *model.PartDimensions) *repoModel.PartDimensions {
 	if dim == nil {
 		return nil
@@ -68,11 +79,19 @@ func ToModelPart(part *repoModel.Part) *model.Part {
 		return nil
 	}
 	return &model.Part{
-		Uuid:      part.Uuid,
+		ID:        part.ID,
 		Info:      *ToModelPartInfo(&part.Info),
 		CreatedAt: part.CreatedAt,
 		UpdatedAt: part.UpdatedAt,
 	}
+}
+
+func ToModelParts(repoParts []*repoModel.Part) []*model.Part {
+	modelParts := make([]*model.Part, 0, len(repoParts))
+	for _, repoPart := range repoParts {
+		modelParts = append(modelParts, ToModelPart(repoPart))
+	}
+	return modelParts
 }
 
 func ToModelPartInfo(info *repoModel.PartInfo) *model.PartInfo {
@@ -116,17 +135,6 @@ func ToModelPartDimensions(dim *repoModel.PartDimensions) *model.PartDimensions 
 		Width:  dim.Width,
 		Height: dim.Height,
 		Weight: dim.Weight,
-	}
-}
-
-func ToRepoModelPartManufacturer(manufacturer *model.PartManufacturer) *repoModel.PartManufacturer {
-	if manufacturer == nil {
-		return nil
-	}
-	return &repoModel.PartManufacturer{
-		Name:    manufacturer.Name,
-		Country: manufacturer.Country,
-		Website: manufacturer.Website,
 	}
 }
 

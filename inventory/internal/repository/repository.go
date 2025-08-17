@@ -3,19 +3,26 @@ package repository
 import (
 	"context"
 
-	"github.com/google/uuid"
-
 	"github.com/Reensef/go-microservices-course/inventory/internal/model"
 )
 
 type PartRepository interface {
-	GetByUuid(
+	Create(
 		ctx context.Context,
-		uuid uuid.UUID,
+		part *model.PartInfo,
 	) (*model.Part, error)
+
+	GetByID(
+		ctx context.Context,
+		id string,
+	) (*model.Part, error)
+
+	GetAll(
+		ctx context.Context,
+	) ([]*model.Part, error)
 
 	GetByFilter(
 		ctx context.Context,
 		filter *model.PartsFilter,
-	) []*model.Part
+	) ([]*model.Part, error)
 }

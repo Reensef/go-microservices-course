@@ -24,7 +24,7 @@ func TestGetOrderByUUID(t *testing.T) {
 
 		repo.EXPECT().GetOrderByUUID(context.Background(), mock.Anything).Return(nil, repoError).Once()
 
-		orderUuid := uuid.New()
+		orderUuid := uuid.NewString()
 		order, err := service.GetOrderByUUID(context.Background(), orderUuid)
 
 		assert.Nil(t, order)

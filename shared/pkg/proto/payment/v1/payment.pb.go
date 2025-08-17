@@ -61,7 +61,6 @@ func (x PaymentMethod) String() string {
 	return protoimpl.X.EnumStringOf(x.Descriptor(), protoreflect.EnumNumber(x))
 }
 
-
 func (PaymentMethod) Descriptor() protoreflect.EnumDescriptor {
 	return file_payment_v1_payment_proto_enumTypes[0].Descriptor()
 }
