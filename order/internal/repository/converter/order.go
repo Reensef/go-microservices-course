@@ -1,7 +1,8 @@
 package converter
 
 import (
-	"github.com/google/uuid"
+	"database/sql"
+
 	"github.com/samber/lo"
 
 	"github.com/Reensef/go-microservices-course/order/internal/model"
@@ -26,12 +27,15 @@ func ToRepoModelOrderInfo(info *model.OrderInfo) *repoModel.OrderInfo {
 		return nil
 	}
 	return &repoModel.OrderInfo{
-		UserUuid:        info.UserUuid,
-		PartUuids:       append([]uuid.UUID(nil), info.PartUuids...),
-		TransactionUuid: info.TransactionUuid,
-		TotalPrice:      info.TotalPrice,
-		PaymentMethod:   ToRepoModelPaymentMethod(info.PaymentMethod),
-		Status:          ToRepoModelOrderStatus(info.Status),
+		UserUuid:  info.UserUuid,
+		PartUuids: info.PartIds,
+		TransactionUuid: sql.NullString{
+			String: info.TransactionUuid,
+			Valid:  info.TransactionUuid != "",
+		},
+		TotalPrice:    info.TotalPrice,
+		PaymentMethod: ToRepoModelPaymentMethod(info.PaymentMethod),
+		Status:        ToRepoModelOrderStatus(info.Status),
 	}
 }
 
@@ -54,8 +58,8 @@ func ToModelOrderInfo(info *repoModel.OrderInfo) *model.OrderInfo {
 	}
 	return &model.OrderInfo{
 		UserUuid:        info.UserUuid,
-		PartUuids:       append([]uuid.UUID(nil), info.PartUuids...),
-		TransactionUuid: info.TransactionUuid,
+		PartIds:         info.PartUuids,
+		TransactionUuid: info.TransactionUuid.String,
 		TotalPrice:      info.TotalPrice,
 		PaymentMethod:   ToModelPaymentMethod(info.PaymentMethod),
 		Status:          ToModelOrderStatus(info.Status),

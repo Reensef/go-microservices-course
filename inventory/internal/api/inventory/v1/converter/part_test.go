@@ -6,7 +6,6 @@ import (
 
 	"github.com/google/uuid"
 	"github.com/stretchr/testify/assert"
-	"github.com/stretchr/testify/require"
 	"google.golang.org/protobuf/types/known/timestamppb"
 
 	model "github.com/Reensef/go-microservices-course/inventory/internal/model"
@@ -16,7 +15,7 @@ import (
 
 func TesToProtoPart(t *testing.T) {
 	part := &model.Part{
-		Uuid:      uuid.New(),
+		ID:        uuid.New().String(),
 		CreatedAt: time.Now(),
 		UpdatedAt: time.Now(),
 		Info: model.PartInfo{
@@ -64,7 +63,7 @@ func TesToProtoPart(t *testing.T) {
 
 	protoPart := ToProtoPart(part)
 
-	assert.Equal(t, part.Uuid.String(), protoPart.Uuid)
+	assert.Equal(t, part.ID, protoPart.Id)
 	assert.Equal(t, part.Info.Name, protoPart.Name)
 	assert.Equal(t, part.Info.Description, protoPart.Description)
 	assert.Equal(t, part.Info.Price, protoPart.Price)
@@ -88,7 +87,7 @@ func TesToProtoPart(t *testing.T) {
 
 func TestToModelPart(t *testing.T) {
 	protoPart := &inventoryV1.Part{
-		Uuid:      uuid.New().String(),
+		Id:        uuid.New().String(),
 		CreatedAt: timestamppb.New(time.Now().Add(10)),
 		UpdatedAt: timestamppb.New(time.Now().Add(20)),
 
@@ -133,10 +132,9 @@ func TestToModelPart(t *testing.T) {
 		},
 	}
 
-	modelPart, err := ToModelPart(protoPart)
-	require.Nil(t, err)
+	modelPart := ToModelPart(protoPart)
 
-	assert.Equal(t, modelPart.Uuid.String(), protoPart.Uuid)
+	assert.Equal(t, modelPart.ID, protoPart.Id)
 	assert.Equal(t, modelPart.Info.Name, protoPart.Name)
 	assert.Equal(t, modelPart.Info.Description, protoPart.Description)
 	assert.Equal(t, modelPart.Info.Price, protoPart.Price)
@@ -156,14 +154,4 @@ func TestToModelPart(t *testing.T) {
 
 	assert.Equal(t, modelPart.CreatedAt.UTC(), protoPart.CreatedAt.AsTime())
 	assert.Equal(t, modelPart.UpdatedAt.UTC(), protoPart.UpdatedAt.AsTime())
-}
-
-func TestToModelPart_InvalidUuid(t *testing.T) {
-	protoPart := &inventoryV1.Part{
-		Uuid: "",
-	}
-
-	modelPart, err := ToModelPart(protoPart)
-	assert.Error(t, err)
-	assert.Nil(t, modelPart)
 }

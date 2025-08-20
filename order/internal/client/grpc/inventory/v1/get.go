@@ -3,8 +3,6 @@ package v1
 import (
 	"context"
 
-	"github.com/google/uuid"
-
 	converter "github.com/Reensef/go-microservices-course/order/internal/client/grpc/inventory/v1/converter"
 	"github.com/Reensef/go-microservices-course/order/internal/model"
 	inventoryV1 "github.com/Reensef/go-microservices-course/shared/pkg/proto/inventory/v1"
@@ -12,12 +10,12 @@ import (
 
 func (c *inventoryV1Client) GetPart(
 	ctx context.Context,
-	partUuid uuid.UUID,
+	partId string,
 ) (*model.Part, error) {
 	response, err := c.service.GetPart(
 		ctx,
 		&inventoryV1.GetPartRequest{
-			Uuid: partUuid.String(),
+			Id: partId,
 		},
 	)
 	if err != nil {

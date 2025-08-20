@@ -4,8 +4,6 @@ import (
 	"context"
 	"fmt"
 
-	"github.com/google/uuid"
-
 	"github.com/Reensef/go-microservices-course/order/internal/model"
 )
 
@@ -18,21 +16,21 @@ func (s *service) CreateOrder(
 	}
 
 	parts, err := s.inventoryService.ListParts(ctx, &model.PartsFilter{
-		Uuids: info.PartUuids,
+		Ids: info.PartIds,
 	})
 	if err != nil {
 		return nil, err
 	}
 
-	partUuidsExists := map[uuid.UUID]bool{}
+	partUuidsExists := map[string]bool{}
 	for _, part := range parts {
 		if part == nil {
 			continue
 		}
-		partUuidsExists[part.Uuid] = true
+		partUuidsExists[part.Id] = true
 	}
 
-	for _, uuid := range info.PartUuids {
+	for _, uuid := range info.PartIds {
 		if !partUuidsExists[uuid] {
 			return nil, model.ErrPartNotFound
 		}
@@ -43,5 +41,6 @@ func (s *service) CreateOrder(
 		info.TotalPrice += part.Info.Price
 	}
 
-	return s.orderRepo.CreateOrder(ctx, info)
+	order, err := s.orderRepo.CreateOrder(ctx, info)
+	return order, err
 }

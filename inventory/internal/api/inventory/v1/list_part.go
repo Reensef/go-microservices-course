@@ -25,7 +25,11 @@ func (a *api) ListParts(
 		return nil, status.Errorf(codes.Internal, "internal server error")
 	}
 
-	modelParts := a.service.GetPartsByFilter(ctx, modelFilter)
+	modelParts, err := a.service.GetPartsByFilter(ctx, modelFilter)
+	if err != nil {
+		return nil, status.Errorf(codes.Internal, "internal server error")
+	}
+
 	protoParts := converter.ToProtoParts(modelParts)
 
 	return &inventoryV1.ListPartsResponse{

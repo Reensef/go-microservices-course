@@ -5,6 +5,8 @@ import (
 	"errors"
 	"log"
 
+	"github.com/google/uuid"
+
 	"github.com/Reensef/go-microservices-course/order/internal/model"
 	orderV1 "github.com/Reensef/go-microservices-course/shared/pkg/openapi/order/v1"
 )
@@ -13,9 +15,14 @@ func (a *api) CreateOrder(
 	ctx context.Context,
 	req *orderV1.CreateOrderRequest,
 ) (orderV1.CreateOrderRes, error) {
+	validateResponse := validateCreateOrderRequest(*req)
+	if validateResponse != nil {
+		return validateResponse, nil
+	}
+
 	orderInfo := &model.OrderInfo{
-		UserUuid:  req.GetUserUUID(),
-		PartUuids: req.GetPartUuids(),
+		UserUuid: req.GetUserUUID(),
+		PartIds:  req.GetPartIds(),
 	}
 	order, err := a.orderService.CreateOrder(
 		ctx,
@@ -39,4 +46,14 @@ func (a *api) CreateOrder(
 		OrderUUID:  order.Uuid,
 		TotalPrice: orderInfo.TotalPrice,
 	}, nil
+}
+
+func validateCreateOrderRequest(req orderV1.CreateOrderRequest) orderV1.CreateOrderRes {
+	if uuid.Validate(req.GetUserUUID()) != nil {
+		return &orderV1.ValidationError{
+			Code:    422,
+			Message: "User UUID must be UUID format",
+		}
+	}
+	return nil
 }

@@ -9,7 +9,7 @@ import (
 func (s *service) GetPartsByFilter(
 	ctx context.Context,
 	filter *model.PartsFilter,
-) []*model.Part {
-	parts := s.repo.GetByFilter(ctx, filter)
-	return parts
+) ([]*model.Part, error) {
+	parts, err := s.repo.GetByFilter(ctx, filter)
+	return parts, err
 }

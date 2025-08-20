@@ -11,19 +11,16 @@ import (
 
 func (s *service) Pay(
 	ctx context.Context,
-	orderUuid, userUuid uuid.UUID,
+	orderUuid, userUuid string,
 	paymentMethod model.PaymentMethod,
-) (*uuid.UUID, error) {
+) (*string, error) {
 	if paymentMethod == model.PaymentMethod_UNSPECIFIED {
 		return nil, model.ErrPaymentMethodUnspecified
 	}
 
-	transactionUuid, err := uuid.NewUUID()
-	if err != nil {
-		return nil, err
-	}
+	transactionUuid := uuid.NewString()
 
-	log.Println("Оплата прошла успешно, transaction_uuid:", transactionUuid.String())
+	log.Println("Оплата прошла успешно, transaction_uuid:", transactionUuid)
 
 	return &transactionUuid, nil
 }

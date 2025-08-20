@@ -8,7 +8,6 @@ import (
 	"context"
 
 	"github.com/Reensef/go-microservices-course/inventory/internal/model"
-	"github.com/google/uuid"
 	mock "github.com/stretchr/testify/mock"
 )
 
@@ -39,55 +38,55 @@ func (_m *MockInventoryService) EXPECT() *MockInventoryService_Expecter {
 	return &MockInventoryService_Expecter{mock: &_m.Mock}
 }
 
-// GetPartByUuid provides a mock function for the type MockInventoryService
-func (_mock *MockInventoryService) GetPartByUuid(ctx context.Context, uuid1 uuid.UUID) (*model.Part, error) {
-	ret := _mock.Called(ctx, uuid1)
+// GetPartByID provides a mock function for the type MockInventoryService
+func (_mock *MockInventoryService) GetPartByID(ctx context.Context, id string) (*model.Part, error) {
+	ret := _mock.Called(ctx, id)
 
 	if len(ret) == 0 {
-		panic("no return value specified for GetPartByUuid")
+		panic("no return value specified for GetPartByID")
 	}
 
 	var r0 *model.Part
 	var r1 error
-	if returnFunc, ok := ret.Get(0).(func(context.Context, uuid.UUID) (*model.Part, error)); ok {
-		return returnFunc(ctx, uuid1)
+	if returnFunc, ok := ret.Get(0).(func(context.Context, string) (*model.Part, error)); ok {
+		return returnFunc(ctx, id)
 	}
-	if returnFunc, ok := ret.Get(0).(func(context.Context, uuid.UUID) *model.Part); ok {
-		r0 = returnFunc(ctx, uuid1)
+	if returnFunc, ok := ret.Get(0).(func(context.Context, string) *model.Part); ok {
+		r0 = returnFunc(ctx, id)
 	} else {
 		if ret.Get(0) != nil {
 			r0 = ret.Get(0).(*model.Part)
 		}
 	}
-	if returnFunc, ok := ret.Get(1).(func(context.Context, uuid.UUID) error); ok {
-		r1 = returnFunc(ctx, uuid1)
+	if returnFunc, ok := ret.Get(1).(func(context.Context, string) error); ok {
+		r1 = returnFunc(ctx, id)
 	} else {
 		r1 = ret.Error(1)
 	}
 	return r0, r1
 }
 
-// MockInventoryService_GetPartByUuid_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'GetPartByUuid'
-type MockInventoryService_GetPartByUuid_Call struct {
+// MockInventoryService_GetPartByID_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'GetPartByID'
+type MockInventoryService_GetPartByID_Call struct {
 	*mock.Call
 }
 
-// GetPartByUuid is a helper method to define mock.On call
+// GetPartByID is a helper method to define mock.On call
 //   - ctx context.Context
-//   - uuid1 uuid.UUID
-func (_e *MockInventoryService_Expecter) GetPartByUuid(ctx interface{}, uuid1 interface{}) *MockInventoryService_GetPartByUuid_Call {
-	return &MockInventoryService_GetPartByUuid_Call{Call: _e.mock.On("GetPartByUuid", ctx, uuid1)}
+//   - id string
+func (_e *MockInventoryService_Expecter) GetPartByID(ctx interface{}, id interface{}) *MockInventoryService_GetPartByID_Call {
+	return &MockInventoryService_GetPartByID_Call{Call: _e.mock.On("GetPartByID", ctx, id)}
 }
 
-func (_c *MockInventoryService_GetPartByUuid_Call) Run(run func(ctx context.Context, uuid1 uuid.UUID)) *MockInventoryService_GetPartByUuid_Call {
+func (_c *MockInventoryService_GetPartByID_Call) Run(run func(ctx context.Context, id string)) *MockInventoryService_GetPartByID_Call {
 	_c.Call.Run(func(args mock.Arguments) {
 		var arg0 context.Context
 		if args[0] != nil {
 			arg0 = args[0].(context.Context)
 		}
-		var arg1 uuid.UUID
+		var arg1 string
 		if args[1] != nil {
-			arg1 = args[1].(uuid.UUID)
+			arg1 = args[1].(string)
 		}
 		run(
 			arg0,
@@ -97,18 +96,18 @@ func (_c *MockInventoryService_GetPartByUuid_Call) Run(run func(ctx context.Cont
 	return _c
 }
 
-func (_c *MockInventoryService_GetPartByUuid_Call) Return(part *model.Part, err error) *MockInventoryService_GetPartByUuid_Call {
+func (_c *MockInventoryService_GetPartByID_Call) Return(part *model.Part, err error) *MockInventoryService_GetPartByID_Call {
 	_c.Call.Return(part, err)
 	return _c
 }
 
-func (_c *MockInventoryService_GetPartByUuid_Call) RunAndReturn(run func(ctx context.Context, uuid1 uuid.UUID) (*model.Part, error)) *MockInventoryService_GetPartByUuid_Call {
+func (_c *MockInventoryService_GetPartByID_Call) RunAndReturn(run func(ctx context.Context, id string) (*model.Part, error)) *MockInventoryService_GetPartByID_Call {
 	_c.Call.Return(run)
 	return _c
 }
 
 // GetPartsByFilter provides a mock function for the type MockInventoryService
-func (_mock *MockInventoryService) GetPartsByFilter(ctx context.Context, filter *model.PartsFilter) []*model.Part {
+func (_mock *MockInventoryService) GetPartsByFilter(ctx context.Context, filter *model.PartsFilter) ([]*model.Part, error) {
 	ret := _mock.Called(ctx, filter)
 
 	if len(ret) == 0 {
@@ -116,6 +115,10 @@ func (_mock *MockInventoryService) GetPartsByFilter(ctx context.Context, filter 
 	}
 
 	var r0 []*model.Part
+	var r1 error
+	if returnFunc, ok := ret.Get(0).(func(context.Context, *model.PartsFilter) ([]*model.Part, error)); ok {
+		return returnFunc(ctx, filter)
+	}
 	if returnFunc, ok := ret.Get(0).(func(context.Context, *model.PartsFilter) []*model.Part); ok {
 		r0 = returnFunc(ctx, filter)
 	} else {
@@ -123,7 +126,12 @@ func (_mock *MockInventoryService) GetPartsByFilter(ctx context.Context, filter 
 			r0 = ret.Get(0).([]*model.Part)
 		}
 	}
-	return r0
+	if returnFunc, ok := ret.Get(1).(func(context.Context, *model.PartsFilter) error); ok {
+		r1 = returnFunc(ctx, filter)
+	} else {
+		r1 = ret.Error(1)
+	}
+	return r0, r1
 }
 
 // MockInventoryService_GetPartsByFilter_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'GetPartsByFilter'
@@ -156,12 +164,12 @@ func (_c *MockInventoryService_GetPartsByFilter_Call) Run(run func(ctx context.C
 	return _c
 }
 
-func (_c *MockInventoryService_GetPartsByFilter_Call) Return(parts []*model.Part) *MockInventoryService_GetPartsByFilter_Call {
-	_c.Call.Return(parts)
+func (_c *MockInventoryService_GetPartsByFilter_Call) Return(parts []*model.Part, err error) *MockInventoryService_GetPartsByFilter_Call {
+	_c.Call.Return(parts, err)
 	return _c
 }
 
-func (_c *MockInventoryService_GetPartsByFilter_Call) RunAndReturn(run func(ctx context.Context, filter *model.PartsFilter) []*model.Part) *MockInventoryService_GetPartsByFilter_Call {
+func (_c *MockInventoryService_GetPartsByFilter_Call) RunAndReturn(run func(ctx context.Context, filter *model.PartsFilter) ([]*model.Part, error)) *MockInventoryService_GetPartsByFilter_Call {
 	_c.Call.Return(run)
 	return _c
 }

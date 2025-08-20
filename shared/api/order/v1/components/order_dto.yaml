@@ -12,26 +12,21 @@ required:
 properties:
   order_uuid:
     type: string
-    format: uuid
     description: UUID заказа
   user_uuid:
     type: string
-    format: uuid
     description: UUID пользователя
-  part_uuids:
+  part_ids:
     type: array
-    format: uuid
     items:
       type: string
-      format: uuid
-    description: Список UUID деталей
+    description: Список ID деталей
   total_price:
     type: number
     format: double
     description: Итоговая стоимость заказа
   transaction_uuid:
     type: string
-    format: uuid
   payment_method:
     $ref: './enums/payment_method.yaml'
   status:

@@ -5,7 +5,6 @@ import (
 	"errors"
 	"log"
 
-	"github.com/google/uuid"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
 
@@ -18,15 +17,10 @@ func (a *api) GetPart(
 	ctx context.Context,
 	req *inventoryV1.GetPartRequest,
 ) (*inventoryV1.GetPartResponse, error) {
-	uuid, err := uuid.Parse(req.GetUuid())
-	if err != nil {
-		return nil, status.Errorf(codes.InvalidArgument, "invalid UUID format")
-	}
-
-	modelPart, err := a.service.GetPartByUuid(ctx, uuid)
+	modelPart, err := a.service.GetPartByID(ctx, req.GetId())
 	if err != nil {
 		if errors.Is(err, model.ErrPartNotFound) {
-			return nil, status.Errorf(codes.NotFound, "part with UUID %s not found", req.GetUuid())
+			return nil, status.Errorf(codes.NotFound, "part with id %s not found", req.GetId())
 		}
 		log.Printf("api: error getting part by UUID: %s", err.Error())
 		return nil, status.Errorf(codes.Internal, "internal server error")

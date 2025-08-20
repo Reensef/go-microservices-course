@@ -3,8 +3,6 @@ package v1
 import (
 	"context"
 
-	"github.com/google/uuid"
-
 	protoConverter "github.com/Reensef/go-microservices-course/order/internal/client/grpc/payment/v1/converter"
 	"github.com/Reensef/go-microservices-course/order/internal/model"
 	paymentV1 "github.com/Reensef/go-microservices-course/shared/pkg/proto/payment/v1"
@@ -12,14 +10,14 @@ import (
 
 func (c *paymentV1Client) PayOrder(
 	ctx context.Context,
-	orderUuid, userUuid uuid.UUID,
+	orderUuid, userUuid string,
 	paymentMethod model.OrderPaymentMethod,
-) (*uuid.UUID, error) {
+) (*string, error) {
 	response, err := c.service.PayOrder(
 		ctx,
 		&paymentV1.PayOrderRequest{
-			OrderUuid:     orderUuid.String(),
-			UserUuid:      userUuid.String(),
+			OrderUuid:     orderUuid,
+			UserUuid:      userUuid,
 			PaymentMethod: protoConverter.ToProtoPaymentMethod(paymentMethod),
 		},
 	)
@@ -27,10 +25,7 @@ func (c *paymentV1Client) PayOrder(
 		return nil, err
 	}
 
-	transactionUuid, err := uuid.Parse(response.GetTransactionUuid())
-	if err != nil {
-		return nil, err
-	}
+	transactionUuid := response.GetTransactionUuid()
 
 	return &transactionUuid, nil
 }
