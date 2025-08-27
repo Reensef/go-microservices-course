@@ -19,7 +19,7 @@ func TestCreateOrder(t *testing.T) {
 		repo := repoMocks.NewMockOrderRepository(t)
 		inventory := grpcMocks.NewMockIntentoryServiceClient(t)
 		payment := grpcMocks.NewMockPaymentServiceClient(t)
-		service := NewService(repo, inventory, payment)
+		service := New(repo, inventory, payment)
 
 		uuid, err := service.CreateOrder(context.Background(), nil)
 
@@ -34,7 +34,7 @@ func TestCreateOrder(t *testing.T) {
 		repo := repoMocks.NewMockOrderRepository(t)
 		inventory := grpcMocks.NewMockIntentoryServiceClient(t)
 		payment := grpcMocks.NewMockPaymentServiceClient(t)
-		service := NewService(repo, inventory, payment)
+		service := New(repo, inventory, payment)
 
 		inventory.EXPECT().ListParts(context.Background(), mock.Anything).Return(nil, fmt.Errorf("error")).Once()
 		uuid, err := service.CreateOrder(context.Background(), &model.OrderInfo{
@@ -52,7 +52,7 @@ func TestCreateOrder(t *testing.T) {
 		repo := repoMocks.NewMockOrderRepository(t)
 		inventory := grpcMocks.NewMockIntentoryServiceClient(t)
 		payment := grpcMocks.NewMockPaymentServiceClient(t)
-		service := NewService(repo, inventory, payment)
+		service := New(repo, inventory, payment)
 
 		parts := make([]*model.Part, 0, 5)
 		for range cap(parts) {
@@ -78,7 +78,7 @@ func TestCreateOrder(t *testing.T) {
 		repo := repoMocks.NewMockOrderRepository(t)
 		inventory := grpcMocks.NewMockIntentoryServiceClient(t)
 		payment := grpcMocks.NewMockPaymentServiceClient(t)
-		service := NewService(repo, inventory, payment)
+		service := New(repo, inventory, payment)
 
 		inventory.EXPECT().ListParts(context.Background(), mock.Anything).Return(make([]*model.Part, 0), nil).Once()
 
@@ -100,7 +100,7 @@ func TestCreateOrder(t *testing.T) {
 		repo := repoMocks.NewMockOrderRepository(t)
 		inventory := grpcMocks.NewMockIntentoryServiceClient(t)
 		payment := grpcMocks.NewMockPaymentServiceClient(t)
-		service := NewService(repo, inventory, payment)
+		service := New(repo, inventory, payment)
 
 		inventory.EXPECT().ListParts(context.Background(), mock.Anything).Return(nil, nil).Once()
 		repo.EXPECT().CreateOrder(context.Background(), mock.Anything).Return(nil, fmt.Errorf("error")).Once()
@@ -119,7 +119,7 @@ func TestCreateOrder(t *testing.T) {
 		repo := repoMocks.NewMockOrderRepository(t)
 		inventory := grpcMocks.NewMockIntentoryServiceClient(t)
 		payment := grpcMocks.NewMockPaymentServiceClient(t)
-		service := NewService(repo, inventory, payment)
+		service := New(repo, inventory, payment)
 
 		parts := make([]*model.Part, 0, 5)
 		for range cap(parts) {

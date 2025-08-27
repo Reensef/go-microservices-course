@@ -17,7 +17,7 @@ func TestPayOrder_errorFromPaymentService(t *testing.T) {
 	repo := repoMocks.NewMockOrderRepository(t)
 	inventory := grpcMocks.NewMockIntentoryServiceClient(t)
 	payment := grpcMocks.NewMockPaymentServiceClient(t)
-	service := NewService(repo, inventory, payment)
+	service := New(repo, inventory, payment)
 
 	userUuid := uuid.NewString()
 	orderUuid := uuid.NewString()
@@ -44,7 +44,7 @@ func TestPayOrder_errorPayFromRepository(t *testing.T) {
 	repo := repoMocks.NewMockOrderRepository(t)
 	inventory := grpcMocks.NewMockIntentoryServiceClient(t)
 	payment := grpcMocks.NewMockPaymentServiceClient(t)
-	service := NewService(repo, inventory, payment)
+	service := New(repo, inventory, payment)
 
 	userUuid := uuid.NewString()
 	orderUuid := uuid.NewString()
@@ -73,7 +73,7 @@ func TestPayOrder_success(t *testing.T) {
 	repo := repoMocks.NewMockOrderRepository(t)
 	inventory := grpcMocks.NewMockIntentoryServiceClient(t)
 	payment := grpcMocks.NewMockPaymentServiceClient(t)
-	service := NewService(repo, inventory, payment)
+	service := New(repo, inventory, payment)
 
 	userUuid := uuid.NewString()
 	orderUuid := uuid.NewString()

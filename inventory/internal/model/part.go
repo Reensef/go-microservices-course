@@ -3,7 +3,7 @@ package model
 import (
 	"time"
 
-	"github.com/Reensef/go-microservices-course/shared/pkg/utils"
+	"github.com/Reensef/go-microservices-course/platform/pkg/multivalue"
 )
 
 type PartCategory int32
@@ -38,7 +38,7 @@ type PartInfo struct {
 	Dimensions    *PartDimensions
 	Manufacturer  *PartManufacturer
 	Tags          []string
-	Metadata      map[string]utils.MultiValue
+	Metadata      map[string]multivalue.MultiValue
 }
 
 type PartUpdateInfo struct {
@@ -50,7 +50,7 @@ type PartUpdateInfo struct {
 	Dimensions    *PartDimensions
 	Manufacturer  *PartManufacturer
 	Tags          []string
-	Metadata      map[string]*utils.MultiValue
+	Metadata      map[string]*multivalue.MultiValue
 }
 
 type Part struct {

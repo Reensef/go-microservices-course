@@ -8,7 +8,7 @@ import (
 
 	model "github.com/Reensef/go-microservices-course/inventory/internal/model"
 	repoModel "github.com/Reensef/go-microservices-course/inventory/internal/repository/model"
-	"github.com/Reensef/go-microservices-course/shared/pkg/utils"
+	"github.com/Reensef/go-microservices-course/platform/pkg/multivalue"
 )
 
 func TestToRepoModelPart(t *testing.T) {
@@ -40,24 +40,24 @@ func TestToRepoModelPart(t *testing.T) {
 				}
 				return tags
 			}(),
-			Metadata: map[string]utils.MultiValue{
-				"key1": func() utils.MultiValue {
-					value := utils.MultiValue{}
+			Metadata: map[string]multivalue.MultiValue{
+				"key1": func() multivalue.MultiValue {
+					value := multivalue.MultiValue{}
 					value.SetString("value")
 					return value
 				}(),
-				"key2": func() utils.MultiValue {
-					value := utils.MultiValue{}
+				"key2": func() multivalue.MultiValue {
+					value := multivalue.MultiValue{}
 					value.SetInt64(10)
 					return value
 				}(),
-				"key3": func() utils.MultiValue {
-					value := utils.MultiValue{}
+				"key3": func() multivalue.MultiValue {
+					value := multivalue.MultiValue{}
 					value.SetFloat64(10.10)
 					return value
 				}(),
-				"key4": func() utils.MultiValue {
-					value := utils.MultiValue{}
+				"key4": func() multivalue.MultiValue {
+					value := multivalue.MultiValue{}
 					value.SetBool(true)
 					return value
 				}(),
@@ -108,24 +108,24 @@ func TestToModelPart(t *testing.T) {
 				}
 				return tags
 			}(),
-			Metadata: map[string]utils.MultiValue{
-				"key1": func() utils.MultiValue {
-					value := utils.MultiValue{}
+			Metadata: map[string]multivalue.MultiValue{
+				"key1": func() multivalue.MultiValue {
+					value := multivalue.MultiValue{}
 					value.SetString("value")
 					return value
 				}(),
-				"key2": func() utils.MultiValue {
-					value := utils.MultiValue{}
+				"key2": func() multivalue.MultiValue {
+					value := multivalue.MultiValue{}
 					value.SetInt64(10)
 					return value
 				}(),
-				"key3": func() utils.MultiValue {
-					value := utils.MultiValue{}
+				"key3": func() multivalue.MultiValue {
+					value := multivalue.MultiValue{}
 					value.SetFloat64(10.10)
 					return value
 				}(),
-				"key4": func() utils.MultiValue {
-					value := utils.MultiValue{}
+				"key4": func() multivalue.MultiValue {
+					value := multivalue.MultiValue{}
 					value.SetBool(true)
 					return value
 				}(),

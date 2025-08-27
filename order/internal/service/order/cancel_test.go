@@ -14,7 +14,7 @@ import (
 func TestCancelOrder(t *testing.T) {
 	t.Run("Order not found", func(t *testing.T) {
 		repo := mocks.NewMockOrderRepository(t)
-		service := NewService(repo, nil, nil)
+		service := New(repo, nil, nil)
 
 		uuid := uuid.NewString()
 		repo.EXPECT().GetOrderByUUID(context.Background(), uuid).
@@ -28,7 +28,7 @@ func TestCancelOrder(t *testing.T) {
 
 	t.Run("Order found", func(t *testing.T) {
 		repo := mocks.NewMockOrderRepository(t)
-		service := NewService(repo, nil, nil)
+		service := New(repo, nil, nil)
 
 		uuid := uuid.NewString()
 		order := &model.Order{}

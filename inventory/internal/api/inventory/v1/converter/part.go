@@ -4,8 +4,8 @@ import (
 	"google.golang.org/protobuf/types/known/timestamppb"
 
 	"github.com/Reensef/go-microservices-course/inventory/internal/model"
+	"github.com/Reensef/go-microservices-course/platform/pkg/multivalue"
 	inventoryV1 "github.com/Reensef/go-microservices-course/shared/pkg/proto/inventory/v1"
-	"github.com/Reensef/go-microservices-course/shared/pkg/utils"
 )
 
 func ToProtoPart(part *model.Part) *inventoryV1.Part {
@@ -58,8 +58,8 @@ func ToModelPart(part *inventoryV1.Part) *model.Part {
 			Dimensions:    ToModelPartDimensions(part.Dimensions),
 			Manufacturer:  ToModelPartManufacturer(part.Manufacturer),
 			Tags:          part.Tags,
-			Metadata: func() map[string]utils.MultiValue {
-				metadata := make(map[string]utils.MultiValue)
+			Metadata: func() map[string]multivalue.MultiValue {
+				metadata := make(map[string]multivalue.MultiValue)
 				for key, value := range part.Metadata {
 					metadata[key] = *ToMultiValue(value)
 				}

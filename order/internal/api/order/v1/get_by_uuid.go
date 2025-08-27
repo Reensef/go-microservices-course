@@ -8,30 +8,30 @@ import (
 
 	"github.com/Reensef/go-microservices-course/order/internal/api/order/v1/converter"
 	"github.com/Reensef/go-microservices-course/order/internal/model"
-	orderV1 "github.com/Reensef/go-microservices-course/shared/pkg/openapi/order/v1"
+	orderApi "github.com/Reensef/go-microservices-course/shared/pkg/openapi/order/v1"
 )
 
-func (a *api) GetOrderByUUID(
+func (a *handler) GetOrderByUUID(
 	ctx context.Context,
-	params orderV1.GetOrderByUUIDParams,
-) (orderV1.GetOrderByUUIDRes, error) {
+	params orderApi.GetOrderByUUIDParams,
+) (orderApi.GetOrderByUUIDRes, error) {
 	order, err := a.orderService.GetOrderByUUID(ctx, params.OrderUUID)
 	if err != nil {
+		log.Printf("api: error getting order by UUID: %s", err)
+
 		switch {
 		case errors.Is(err, model.ErrOrderNotFound):
-			return &orderV1.NotFoundError{
+			return &orderApi.NotFoundError{
 				Code:    404,
 				Message: fmt.Sprintf("order with UUID '%s' not found", params.OrderUUID),
 			}, nil
 		case errors.Is(err, model.ErrOrderUuidInvalidFormat):
-			return &orderV1.ValidationError{
+			return &orderApi.ValidationError{
 				Code:    422,
 				Message: "order must be UUID format",
 			}, nil
 		default:
-			log.Printf("api: error getting order by UUID: %s", err)
-
-			return &orderV1.InternalServerError{
+			return &orderApi.InternalServerError{
 				Code:    500,
 				Message: "internal server error",
 			}, nil

@@ -5,14 +5,14 @@ import (
 
 	converter "github.com/Reensef/go-microservices-course/order/internal/client/grpc/inventory/v1/converter"
 	model "github.com/Reensef/go-microservices-course/order/internal/model"
-	inventoryV1 "github.com/Reensef/go-microservices-course/shared/pkg/proto/inventory/v1"
+	inventoryGrpc "github.com/Reensef/go-microservices-course/shared/pkg/proto/inventory/v1"
 )
 
-func (c *inventoryV1Client) ListParts(
+func (c *inventoryClient) ListParts(
 	ctx context.Context,
 	filter *model.PartsFilter,
 ) ([]*model.Part, error) {
-	response, err := c.service.ListParts(ctx, &inventoryV1.ListPartsRequest{
+	response, err := c.service.ListParts(ctx, &inventoryGrpc.ListPartsRequest{
 		Filter: converter.ToProtoFilter(filter),
 	})
 	if err != nil {
