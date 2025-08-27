@@ -5,17 +5,17 @@ import (
 
 	protoConverter "github.com/Reensef/go-microservices-course/order/internal/client/grpc/payment/v1/converter"
 	"github.com/Reensef/go-microservices-course/order/internal/model"
-	paymentV1 "github.com/Reensef/go-microservices-course/shared/pkg/proto/payment/v1"
+	paymentGrpc "github.com/Reensef/go-microservices-course/shared/pkg/proto/payment/v1"
 )
 
-func (c *paymentV1Client) PayOrder(
+func (c *paymentClient) PayOrder(
 	ctx context.Context,
 	orderUuid, userUuid string,
 	paymentMethod model.OrderPaymentMethod,
 ) (*string, error) {
 	response, err := c.service.PayOrder(
 		ctx,
-		&paymentV1.PayOrderRequest{
+		&paymentGrpc.PayOrderRequest{
 			OrderUuid:     orderUuid,
 			UserUuid:      userUuid,
 			PaymentMethod: protoConverter.ToProtoPaymentMethod(paymentMethod),

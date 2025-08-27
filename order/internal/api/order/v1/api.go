@@ -5,28 +5,28 @@ import (
 	"net/http"
 
 	"github.com/Reensef/go-microservices-course/order/internal/service"
-	orderV1 "github.com/Reensef/go-microservices-course/shared/pkg/openapi/order/v1"
+	orderApi "github.com/Reensef/go-microservices-course/shared/pkg/openapi/order/v1"
 )
 
-var _ orderV1.Handler = (*api)(nil)
+var _ orderApi.Handler = (*handler)(nil)
 
-type api struct {
+type handler struct {
 	orderService service.OrderService
 }
 
-func NewAPI(service service.OrderService) *api {
-	return &api{
+func NewHandler(service service.OrderService) *handler {
+	return &handler{
 		orderService: service,
 	}
 }
 
-func (a *api) NewError(
+func (a *handler) NewError(
 	_ context.Context,
 	err error,
-) *orderV1.GenericErrorStatusCode {
-	return &orderV1.GenericErrorStatusCode{
+) *orderApi.GenericErrorStatusCode {
+	return &orderApi.GenericErrorStatusCode{
 		StatusCode: http.StatusInternalServerError,
-		Response: orderV1.GenericError{
+		Response: orderApi.GenericError{
 			Code:    http.StatusInternalServerError,
 			Message: err.Error(),
 		},

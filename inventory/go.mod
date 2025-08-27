@@ -4,7 +4,10 @@ go 1.24.4
 
 replace github.com/Reensef/go-microservices-course/shared => ../shared
 
+replace github.com/Reensef/go-microservices-course/platform => ../platform
+
 require (
+	github.com/Reensef/go-microservices-course/platform v0.0.0-00010101000000-000000000000
 	github.com/Reensef/go-microservices-course/shared v0.0.0-00010101000000-000000000000
 	github.com/brianvoe/gofakeit/v7 v7.3.0
 	github.com/google/uuid v1.6.0

@@ -9,8 +9,8 @@ import (
 	"google.golang.org/protobuf/types/known/timestamppb"
 
 	model "github.com/Reensef/go-microservices-course/inventory/internal/model"
+	"github.com/Reensef/go-microservices-course/platform/pkg/multivalue"
 	inventoryV1 "github.com/Reensef/go-microservices-course/shared/pkg/proto/inventory/v1"
-	"github.com/Reensef/go-microservices-course/shared/pkg/utils"
 )
 
 func TesToProtoPart(t *testing.T) {
@@ -36,24 +36,24 @@ func TesToProtoPart(t *testing.T) {
 				Website: "Website",
 			},
 			Tags: []string{"tag1", "tag2", "tag3", "tag4", "tag5"},
-			Metadata: map[string]utils.MultiValue{
-				"key1": func() utils.MultiValue {
-					value := utils.MultiValue{}
+			Metadata: map[string]multivalue.MultiValue{
+				"key1": func() multivalue.MultiValue {
+					value := multivalue.MultiValue{}
 					value.SetString("value")
 					return value
 				}(),
-				"key2": func() utils.MultiValue {
-					value := utils.MultiValue{}
+				"key2": func() multivalue.MultiValue {
+					value := multivalue.MultiValue{}
 					value.SetInt64(10)
 					return value
 				}(),
-				"key3": func() utils.MultiValue {
-					value := utils.MultiValue{}
+				"key3": func() multivalue.MultiValue {
+					value := multivalue.MultiValue{}
 					value.SetFloat64(10.10)
 					return value
 				}(),
-				"key4": func() utils.MultiValue {
-					value := utils.MultiValue{}
+				"key4": func() multivalue.MultiValue {
+					value := multivalue.MultiValue{}
 					value.SetBool(true)
 					return value
 				}(),

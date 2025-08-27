@@ -20,14 +20,14 @@ func NewRepository(db *mongo.Database) *repository {
 		collection: collection,
 	}
 
-	repo.GenData()
+	repo.genData()
 
 	return repo
 }
 
-func (r *repository) GenData() {
+func (s *repository) genData() {
 	for range 10 {
-		part, err := r.Create(context.Background(), generateRandomPart())
+		part, err := s.Create(context.Background(), generateRandomPart())
 		if err != nil {
 			log.Println(err)
 			continue

@@ -6,7 +6,6 @@ require (
 	github.com/envoyproxy/protoc-gen-validate v1.2.1
 	github.com/go-faster/errors v0.7.1
 	github.com/go-faster/jx v1.1.0
-	github.com/google/uuid v1.6.0
 	github.com/ogen-go/ogen v1.14.0
 	go.opentelemetry.io/otel v1.37.0
 	go.opentelemetry.io/otel/metric v1.37.0
@@ -16,8 +15,8 @@ require (
 )
 
 require (
-	github.com/mfridman/interpolate v0.0.2 // indirect
-	github.com/sethvargo/go-retry v0.3.0 // indirect
+	github.com/google/uuid v1.6.0 // indirect
+	github.com/rogpeppe/go-internal v1.14.1 // indirect
 )
 
 require (
@@ -29,7 +28,6 @@ require (
 	github.com/go-logr/stdr v1.2.2 // indirect
 	github.com/mattn/go-colorable v0.1.13 // indirect
 	github.com/mattn/go-isatty v0.0.20 // indirect
-	github.com/pressly/goose/v3 v3.24.3
 	github.com/segmentio/asm v1.2.0 // indirect
 	go.opentelemetry.io/auto/sdk v1.1.0 // indirect
 	go.uber.org/multierr v1.11.0 // indirect

@@ -14,7 +14,7 @@ import (
 func TestCancelOrder(t *testing.T) {
 	t.Run("Order not found", func(t *testing.T) {
 		repo := mocks.NewMockOrderRepository(t)
-		service := NewService(repo, nil, nil)
+		service := New(repo, nil, nil)
 
 		uuid := uuid.NewString()
 
@@ -29,7 +29,7 @@ func TestCancelOrder(t *testing.T) {
 
 	t.Run("Order found", func(t *testing.T) {
 		repo := mocks.NewMockOrderRepository(t)
-		service := NewService(repo, nil, nil)
+		service := New(repo, nil, nil)
 
 		uuid := uuid.NewString()
 

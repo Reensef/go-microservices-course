@@ -10,8 +10,8 @@ import (
 	"google.golang.org/protobuf/types/known/timestamppb"
 
 	model "github.com/Reensef/go-microservices-course/order/internal/model"
-	inventoryV1 "github.com/Reensef/go-microservices-course/shared/pkg/proto/inventory/v1"
-	"github.com/Reensef/go-microservices-course/shared/pkg/utils"
+	"github.com/Reensef/go-microservices-course/platform/pkg/multivalue"
+	inventoryGrpc "github.com/Reensef/go-microservices-course/shared/pkg/proto/inventory/v1"
 )
 
 func TestToProtoPart(t *testing.T) {
@@ -37,24 +37,24 @@ func TestToProtoPart(t *testing.T) {
 				Website: "Website",
 			},
 			Tags: []string{"tag1", "tag2", "tag3", "tag4", "tag5"},
-			Metadata: map[string]utils.MultiValue{
-				"key1": func() utils.MultiValue {
-					value := utils.MultiValue{}
+			Metadata: map[string]multivalue.MultiValue{
+				"key1": func() multivalue.MultiValue {
+					value := multivalue.MultiValue{}
 					value.SetString("value")
 					return value
 				}(),
-				"key2": func() utils.MultiValue {
-					value := utils.MultiValue{}
+				"key2": func() multivalue.MultiValue {
+					value := multivalue.MultiValue{}
 					value.SetInt64(10)
 					return value
 				}(),
-				"key3": func() utils.MultiValue {
-					value := utils.MultiValue{}
+				"key3": func() multivalue.MultiValue {
+					value := multivalue.MultiValue{}
 					value.SetFloat64(10.10)
 					return value
 				}(),
-				"key4": func() utils.MultiValue {
-					value := utils.MultiValue{}
+				"key4": func() multivalue.MultiValue {
+					value := multivalue.MultiValue{}
 					value.SetBool(true)
 					return value
 				}(),
@@ -62,43 +62,43 @@ func TestToProtoPart(t *testing.T) {
 		},
 	}
 
-	expected := &inventoryV1.Part{
+	expected := &inventoryGrpc.Part{
 		Name:          part.Info.Name,
 		Id:            part.Id,
 		Description:   part.Info.Description,
 		Price:         part.Info.Price,
 		StockQuantity: part.Info.StockQuantity,
-		Category:      inventoryV1.Category_CATEGORY_ENGINE,
-		Dimensions: &inventoryV1.Dimensions{
+		Category:      inventoryGrpc.Category_CATEGORY_ENGINE,
+		Dimensions: &inventoryGrpc.Dimensions{
 			Length: part.Info.Dimensions.Length,
 			Width:  part.Info.Dimensions.Width,
 			Height: part.Info.Dimensions.Height,
 			Weight: part.Info.Dimensions.Weight,
 		},
-		Manufacturer: &inventoryV1.Manufacturer{
+		Manufacturer: &inventoryGrpc.Manufacturer{
 			Name:    part.Info.Manufacturer.Name,
 			Country: part.Info.Manufacturer.Country,
 			Website: part.Info.Manufacturer.Website,
 		},
 		Tags: part.Info.Tags,
-		Metadata: map[string]*inventoryV1.Value{
+		Metadata: map[string]*inventoryGrpc.Value{
 			"key1": {
-				Kind: &inventoryV1.Value_StringValue{
+				Kind: &inventoryGrpc.Value_StringValue{
 					StringValue: "value",
 				},
 			},
 			"key2": {
-				Kind: &inventoryV1.Value_Int64Value{
+				Kind: &inventoryGrpc.Value_Int64Value{
 					Int64Value: 10,
 				},
 			},
 			"key3": {
-				Kind: &inventoryV1.Value_DoubleValue{
+				Kind: &inventoryGrpc.Value_DoubleValue{
 					DoubleValue: 10.10,
 				},
 			},
 			"key4": {
-				Kind: &inventoryV1.Value_BoolValue{
+				Kind: &inventoryGrpc.Value_BoolValue{
 					BoolValue: true,
 				},
 			},
@@ -114,7 +114,7 @@ func TestToProtoPart(t *testing.T) {
 }
 
 func TestToModelPart(t *testing.T) {
-	protoPart := &inventoryV1.Part{
+	protoPart := &inventoryGrpc.Part{
 		Id:        uuid.New().String(),
 		CreatedAt: timestamppb.New(time.Now().Add(10)),
 		UpdatedAt: timestamppb.New(time.Now().Add(20)),
@@ -123,38 +123,38 @@ func TestToModelPart(t *testing.T) {
 		Description:   "Description",
 		Price:         10.0,
 		StockQuantity: 50,
-		Category:      inventoryV1.Category_CATEGORY_ENGINE,
-		Dimensions: &inventoryV1.Dimensions{
+		Category:      inventoryGrpc.Category_CATEGORY_ENGINE,
+		Dimensions: &inventoryGrpc.Dimensions{
 			Length: 1.0,
 			Width:  2.0,
 			Height: 3.0,
 			Weight: 4.0,
 		},
-		Manufacturer: &inventoryV1.Manufacturer{
+		Manufacturer: &inventoryGrpc.Manufacturer{
 			Name:    "MName",
 			Country: "Country",
 			Website: "Website",
 		},
 		Tags: []string{"tag1", "tag2", "tag3", "tag4", "tag5"},
-		Metadata: map[string]*inventoryV1.Value{
-			"key1": func() *inventoryV1.Value {
-				value := &inventoryV1.Value{}
-				value.Kind = &inventoryV1.Value_StringValue{StringValue: "value"}
+		Metadata: map[string]*inventoryGrpc.Value{
+			"key1": func() *inventoryGrpc.Value {
+				value := &inventoryGrpc.Value{}
+				value.Kind = &inventoryGrpc.Value_StringValue{StringValue: "value"}
 				return value
 			}(),
-			"key2": func() *inventoryV1.Value {
-				value := &inventoryV1.Value{}
-				value.Kind = &inventoryV1.Value_Int64Value{Int64Value: 10}
+			"key2": func() *inventoryGrpc.Value {
+				value := &inventoryGrpc.Value{}
+				value.Kind = &inventoryGrpc.Value_Int64Value{Int64Value: 10}
 				return value
 			}(),
-			"key3": func() *inventoryV1.Value {
-				value := &inventoryV1.Value{}
-				value.Kind = &inventoryV1.Value_DoubleValue{DoubleValue: 10.10}
+			"key3": func() *inventoryGrpc.Value {
+				value := &inventoryGrpc.Value{}
+				value.Kind = &inventoryGrpc.Value_DoubleValue{DoubleValue: 10.10}
 				return value
 			}(),
-			"key4": func() *inventoryV1.Value {
-				value := &inventoryV1.Value{}
-				value.Kind = &inventoryV1.Value_BoolValue{BoolValue: true}
+			"key4": func() *inventoryGrpc.Value {
+				value := &inventoryGrpc.Value{}
+				value.Kind = &inventoryGrpc.Value_BoolValue{BoolValue: true}
 				return value
 			}(),
 		},
@@ -182,24 +182,24 @@ func TestToModelPart(t *testing.T) {
 				Country: protoPart.Manufacturer.Country,
 				Website: protoPart.Manufacturer.Website,
 			},
-			Metadata: map[string]utils.MultiValue{
-				"key1": func() utils.MultiValue {
-					value := utils.MultiValue{}
+			Metadata: map[string]multivalue.MultiValue{
+				"key1": func() multivalue.MultiValue {
+					value := multivalue.MultiValue{}
 					value.SetString("value")
 					return value
 				}(),
-				"key2": func() utils.MultiValue {
-					value := utils.MultiValue{}
+				"key2": func() multivalue.MultiValue {
+					value := multivalue.MultiValue{}
 					value.SetInt64(10)
 					return value
 				}(),
-				"key3": func() utils.MultiValue {
-					value := utils.MultiValue{}
+				"key3": func() multivalue.MultiValue {
+					value := multivalue.MultiValue{}
 					value.SetFloat64(10.10)
 					return value
 				}(),
-				"key4": func() utils.MultiValue {
-					value := utils.MultiValue{}
+				"key4": func() multivalue.MultiValue {
+					value := multivalue.MultiValue{}
 					value.SetBool(true)
 					return value
 				}(),

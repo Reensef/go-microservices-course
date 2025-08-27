@@ -2,17 +2,17 @@ package v1
 
 import (
 	grpcClients "github.com/Reensef/go-microservices-course/order/internal/client/grpc"
-	paymentV1 "github.com/Reensef/go-microservices-course/shared/pkg/proto/payment/v1"
+	paymentGrpc "github.com/Reensef/go-microservices-course/shared/pkg/proto/payment/v1"
 )
 
-var _ grpcClients.PaymentServiceClient = (*paymentV1Client)(nil)
+var _ grpcClients.PaymentClient = (*paymentClient)(nil)
 
-type paymentV1Client struct {
-	service paymentV1.PaymentServiceClient
+type paymentClient struct {
+	service paymentGrpc.PaymentServiceClient
 }
 
-func NewClient(service paymentV1.PaymentServiceClient) *paymentV1Client {
-	return &paymentV1Client{
+func New(service paymentGrpc.PaymentServiceClient) *paymentClient {
+	return &paymentClient{
 		service: service,
 	}
 }

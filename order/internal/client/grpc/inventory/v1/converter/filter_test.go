@@ -7,7 +7,7 @@ import (
 	"github.com/stretchr/testify/require"
 
 	model "github.com/Reensef/go-microservices-course/order/internal/model"
-	inventoryV1 "github.com/Reensef/go-microservices-course/shared/pkg/proto/inventory/v1"
+	inventoryGrpc "github.com/Reensef/go-microservices-course/shared/pkg/proto/inventory/v1"
 )
 
 func TestToProtoFilter(t *testing.T) {
@@ -37,18 +37,18 @@ func TestToProtoFilter(t *testing.T) {
 		},
 	}
 
-	expected := &inventoryV1.PartsFilter{
+	expected := &inventoryGrpc.PartsFilter{
 		Ids: []string{
 			"3f74bbbe-ad48-43cd-bffd-80d0a1b6a8e6",
 			"b8a251c6-df82-4add-bce0-199a81d39cdf",
 		},
 		Names: filter.Names,
-		Categories: []inventoryV1.Category{
-			inventoryV1.Category_CATEGORY_ENGINE,
-			inventoryV1.Category_CATEGORY_FUEL,
-			inventoryV1.Category_CATEGORY_PORTHOLE,
-			inventoryV1.Category_CATEGORY_WING,
-			inventoryV1.Category_CATEGORY_UNSPECIFIED,
+		Categories: []inventoryGrpc.Category{
+			inventoryGrpc.Category_CATEGORY_ENGINE,
+			inventoryGrpc.Category_CATEGORY_FUEL,
+			inventoryGrpc.Category_CATEGORY_PORTHOLE,
+			inventoryGrpc.Category_CATEGORY_WING,
+			inventoryGrpc.Category_CATEGORY_UNSPECIFIED,
 		},
 		ManufacturerCountries: filter.ManufacturerCountries,
 		Tags:                  filter.Tags,

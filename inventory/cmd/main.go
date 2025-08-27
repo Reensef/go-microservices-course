@@ -21,18 +21,19 @@ import (
 	inventoryV1 "github.com/Reensef/go-microservices-course/shared/pkg/proto/inventory/v1"
 )
 
-const grpcPort = 50051
+const configPath = "./deploy/compose/inventory/.env"
 
 func main() {
 	ctx := context.Background()
 
-	err := godotenv.Load(".env")
+	err := godotenv.Load(configPath)
 	if err != nil {
 		log.Printf("failed to load .env file: %v\n", err)
 		return
 	}
 
 	mongoURI := os.Getenv("MONGO_URI")
+	grpcPort := os.Getenv("GRPC_PORT")
 
 	log.Printf("Connecting to %s...\n", mongoURI)
 	mongoClient, err := mongo.Connect(ctx, options.Client().ApplyURI(mongoURI))
@@ -57,7 +58,7 @@ func main() {
 	// Получаем базу данных
 	mongoDB := mongoClient.Database("inventory")
 
-	lis, err := net.Listen("tcp", fmt.Sprintf(":%d", grpcPort))
+	lis, err := net.Listen("tcp", fmt.Sprintf(":%s", grpcPort))
 	if err != nil {
 		log.Printf("failed to listen: %v\n", err)
 		return
@@ -75,7 +76,7 @@ func main() {
 	inventoryV1.RegisterInventoryServiceServer(s, api)
 
 	go func() {
-		log.Printf("🚀 gRPC server listening on %d\n", grpcPort)
+		log.Printf("🚀 gRPC server listening on %s\n", grpcPort)
 		err = s.Serve(lis)
 		if err != nil {
 			log.Printf("failed to serve: %v\n", err)

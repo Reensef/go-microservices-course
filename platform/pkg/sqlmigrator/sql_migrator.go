@@ -1,4 +1,4 @@
-package utils
+package sqlmigrator
 
 import (
 	"database/sql"
@@ -6,19 +6,19 @@ import (
 	"github.com/pressly/goose/v3"
 )
 
-type SqlMigrator struct {
+type Migrator struct {
 	db            *sql.DB
 	migrationsDir string
 }
 
-func NewSqlMigrator(db *sql.DB, migrationsDir string) *SqlMigrator {
-	return &SqlMigrator{
+func New(db *sql.DB, migrationsDir string) *Migrator {
+	return &Migrator{
 		db:            db,
 		migrationsDir: migrationsDir,
 	}
 }
 
-func (m *SqlMigrator) Up() error {
+func (m *Migrator) Up() error {
 	err := goose.Up(m.db, m.migrationsDir)
 	if err != nil {
 		return err
