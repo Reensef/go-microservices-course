@@ -8,7 +8,6 @@ import (
 	"context"
 
 	"github.com/Reensef/go-microservices-course/order/internal/model"
-	"github.com/google/uuid"
 	mock "github.com/stretchr/testify/mock"
 )
 
@@ -40,7 +39,7 @@ func (_m *MockOrderService) EXPECT() *MockOrderService_Expecter {
 }
 
 // CancelOrder provides a mock function for the type MockOrderService
-func (_mock *MockOrderService) CancelOrder(ctx context.Context, orderUuid uuid.UUID) error {
+func (_mock *MockOrderService) CancelOrder(ctx context.Context, orderUuid string) error {
 	ret := _mock.Called(ctx, orderUuid)
 
 	if len(ret) == 0 {
@@ -48,7 +47,7 @@ func (_mock *MockOrderService) CancelOrder(ctx context.Context, orderUuid uuid.U
 	}
 
 	var r0 error
-	if returnFunc, ok := ret.Get(0).(func(context.Context, uuid.UUID) error); ok {
+	if returnFunc, ok := ret.Get(0).(func(context.Context, string) error); ok {
 		r0 = returnFunc(ctx, orderUuid)
 	} else {
 		r0 = ret.Error(0)
@@ -63,20 +62,20 @@ type MockOrderService_CancelOrder_Call struct {
 
 // CancelOrder is a helper method to define mock.On call
 //   - ctx context.Context
-//   - orderUuid uuid.UUID
+//   - orderUuid string
 func (_e *MockOrderService_Expecter) CancelOrder(ctx interface{}, orderUuid interface{}) *MockOrderService_CancelOrder_Call {
 	return &MockOrderService_CancelOrder_Call{Call: _e.mock.On("CancelOrder", ctx, orderUuid)}
 }
 
-func (_c *MockOrderService_CancelOrder_Call) Run(run func(ctx context.Context, orderUuid uuid.UUID)) *MockOrderService_CancelOrder_Call {
+func (_c *MockOrderService_CancelOrder_Call) Run(run func(ctx context.Context, orderUuid string)) *MockOrderService_CancelOrder_Call {
 	_c.Call.Run(func(args mock.Arguments) {
 		var arg0 context.Context
 		if args[0] != nil {
 			arg0 = args[0].(context.Context)
 		}
-		var arg1 uuid.UUID
+		var arg1 string
 		if args[1] != nil {
-			arg1 = args[1].(uuid.UUID)
+			arg1 = args[1].(string)
 		}
 		run(
 			arg0,
@@ -91,7 +90,7 @@ func (_c *MockOrderService_CancelOrder_Call) Return(err error) *MockOrderService
 	return _c
 }
 
-func (_c *MockOrderService_CancelOrder_Call) RunAndReturn(run func(ctx context.Context, orderUuid uuid.UUID) error) *MockOrderService_CancelOrder_Call {
+func (_c *MockOrderService_CancelOrder_Call) RunAndReturn(run func(ctx context.Context, orderUuid string) error) *MockOrderService_CancelOrder_Call {
 	_c.Call.Return(run)
 	return _c
 }
@@ -165,7 +164,7 @@ func (_c *MockOrderService_CreateOrder_Call) RunAndReturn(run func(ctx context.C
 }
 
 // GetOrderByUUID provides a mock function for the type MockOrderService
-func (_mock *MockOrderService) GetOrderByUUID(ctx context.Context, orderUuid uuid.UUID) (*model.Order, error) {
+func (_mock *MockOrderService) GetOrderByUUID(ctx context.Context, orderUuid string) (*model.Order, error) {
 	ret := _mock.Called(ctx, orderUuid)
 
 	if len(ret) == 0 {
@@ -174,17 +173,17 @@ func (_mock *MockOrderService) GetOrderByUUID(ctx context.Context, orderUuid uui
 
 	var r0 *model.Order
 	var r1 error
-	if returnFunc, ok := ret.Get(0).(func(context.Context, uuid.UUID) (*model.Order, error)); ok {
+	if returnFunc, ok := ret.Get(0).(func(context.Context, string) (*model.Order, error)); ok {
 		return returnFunc(ctx, orderUuid)
 	}
-	if returnFunc, ok := ret.Get(0).(func(context.Context, uuid.UUID) *model.Order); ok {
+	if returnFunc, ok := ret.Get(0).(func(context.Context, string) *model.Order); ok {
 		r0 = returnFunc(ctx, orderUuid)
 	} else {
 		if ret.Get(0) != nil {
 			r0 = ret.Get(0).(*model.Order)
 		}
 	}
-	if returnFunc, ok := ret.Get(1).(func(context.Context, uuid.UUID) error); ok {
+	if returnFunc, ok := ret.Get(1).(func(context.Context, string) error); ok {
 		r1 = returnFunc(ctx, orderUuid)
 	} else {
 		r1 = ret.Error(1)
@@ -199,20 +198,20 @@ type MockOrderService_GetOrderByUUID_Call struct {
 
 // GetOrderByUUID is a helper method to define mock.On call
 //   - ctx context.Context
-//   - orderUuid uuid.UUID
+//   - orderUuid string
 func (_e *MockOrderService_Expecter) GetOrderByUUID(ctx interface{}, orderUuid interface{}) *MockOrderService_GetOrderByUUID_Call {
 	return &MockOrderService_GetOrderByUUID_Call{Call: _e.mock.On("GetOrderByUUID", ctx, orderUuid)}
 }
 
-func (_c *MockOrderService_GetOrderByUUID_Call) Run(run func(ctx context.Context, orderUuid uuid.UUID)) *MockOrderService_GetOrderByUUID_Call {
+func (_c *MockOrderService_GetOrderByUUID_Call) Run(run func(ctx context.Context, orderUuid string)) *MockOrderService_GetOrderByUUID_Call {
 	_c.Call.Run(func(args mock.Arguments) {
 		var arg0 context.Context
 		if args[0] != nil {
 			arg0 = args[0].(context.Context)
 		}
-		var arg1 uuid.UUID
+		var arg1 string
 		if args[1] != nil {
-			arg1 = args[1].(uuid.UUID)
+			arg1 = args[1].(string)
 		}
 		run(
 			arg0,
@@ -227,32 +226,32 @@ func (_c *MockOrderService_GetOrderByUUID_Call) Return(order *model.Order, err e
 	return _c
 }
 
-func (_c *MockOrderService_GetOrderByUUID_Call) RunAndReturn(run func(ctx context.Context, orderUuid uuid.UUID) (*model.Order, error)) *MockOrderService_GetOrderByUUID_Call {
+func (_c *MockOrderService_GetOrderByUUID_Call) RunAndReturn(run func(ctx context.Context, orderUuid string) (*model.Order, error)) *MockOrderService_GetOrderByUUID_Call {
 	_c.Call.Return(run)
 	return _c
 }
 
 // PayOrder provides a mock function for the type MockOrderService
-func (_mock *MockOrderService) PayOrder(ctx context.Context, orderUuid uuid.UUID, userUuid uuid.UUID, paymentMethod model.OrderPaymentMethod) (*uuid.UUID, error) {
+func (_mock *MockOrderService) PayOrder(ctx context.Context, orderUuid string, userUuid string, paymentMethod model.OrderPaymentMethod) (*string, error) {
 	ret := _mock.Called(ctx, orderUuid, userUuid, paymentMethod)
 
 	if len(ret) == 0 {
 		panic("no return value specified for PayOrder")
 	}
 
-	var r0 *uuid.UUID
+	var r0 *string
 	var r1 error
-	if returnFunc, ok := ret.Get(0).(func(context.Context, uuid.UUID, uuid.UUID, model.OrderPaymentMethod) (*uuid.UUID, error)); ok {
+	if returnFunc, ok := ret.Get(0).(func(context.Context, string, string, model.OrderPaymentMethod) (*string, error)); ok {
 		return returnFunc(ctx, orderUuid, userUuid, paymentMethod)
 	}
-	if returnFunc, ok := ret.Get(0).(func(context.Context, uuid.UUID, uuid.UUID, model.OrderPaymentMethod) *uuid.UUID); ok {
+	if returnFunc, ok := ret.Get(0).(func(context.Context, string, string, model.OrderPaymentMethod) *string); ok {
 		r0 = returnFunc(ctx, orderUuid, userUuid, paymentMethod)
 	} else {
 		if ret.Get(0) != nil {
-			r0 = ret.Get(0).(*uuid.UUID)
+			r0 = ret.Get(0).(*string)
 		}
 	}
-	if returnFunc, ok := ret.Get(1).(func(context.Context, uuid.UUID, uuid.UUID, model.OrderPaymentMethod) error); ok {
+	if returnFunc, ok := ret.Get(1).(func(context.Context, string, string, model.OrderPaymentMethod) error); ok {
 		r1 = returnFunc(ctx, orderUuid, userUuid, paymentMethod)
 	} else {
 		r1 = ret.Error(1)
@@ -267,26 +266,26 @@ type MockOrderService_PayOrder_Call struct {
 
 // PayOrder is a helper method to define mock.On call
 //   - ctx context.Context
-//   - orderUuid uuid.UUID
-//   - userUuid uuid.UUID
+//   - orderUuid string
+//   - userUuid string
 //   - paymentMethod model.OrderPaymentMethod
 func (_e *MockOrderService_Expecter) PayOrder(ctx interface{}, orderUuid interface{}, userUuid interface{}, paymentMethod interface{}) *MockOrderService_PayOrder_Call {
 	return &MockOrderService_PayOrder_Call{Call: _e.mock.On("PayOrder", ctx, orderUuid, userUuid, paymentMethod)}
 }
 
-func (_c *MockOrderService_PayOrder_Call) Run(run func(ctx context.Context, orderUuid uuid.UUID, userUuid uuid.UUID, paymentMethod model.OrderPaymentMethod)) *MockOrderService_PayOrder_Call {
+func (_c *MockOrderService_PayOrder_Call) Run(run func(ctx context.Context, orderUuid string, userUuid string, paymentMethod model.OrderPaymentMethod)) *MockOrderService_PayOrder_Call {
 	_c.Call.Run(func(args mock.Arguments) {
 		var arg0 context.Context
 		if args[0] != nil {
 			arg0 = args[0].(context.Context)
 		}
-		var arg1 uuid.UUID
+		var arg1 string
 		if args[1] != nil {
-			arg1 = args[1].(uuid.UUID)
+			arg1 = args[1].(string)
 		}
-		var arg2 uuid.UUID
+		var arg2 string
 		if args[2] != nil {
-			arg2 = args[2].(uuid.UUID)
+			arg2 = args[2].(string)
 		}
 		var arg3 model.OrderPaymentMethod
 		if args[3] != nil {
@@ -302,12 +301,12 @@ func (_c *MockOrderService_PayOrder_Call) Run(run func(ctx context.Context, orde
 	return _c
 }
 
-func (_c *MockOrderService_PayOrder_Call) Return(transactionUUID *uuid.UUID, err error) *MockOrderService_PayOrder_Call {
+func (_c *MockOrderService_PayOrder_Call) Return(transactionUUID *string, err error) *MockOrderService_PayOrder_Call {
 	_c.Call.Return(transactionUUID, err)
 	return _c
 }
 
-func (_c *MockOrderService_PayOrder_Call) RunAndReturn(run func(ctx context.Context, orderUuid uuid.UUID, userUuid uuid.UUID, paymentMethod model.OrderPaymentMethod) (*uuid.UUID, error)) *MockOrderService_PayOrder_Call {
+func (_c *MockOrderService_PayOrder_Call) RunAndReturn(run func(ctx context.Context, orderUuid string, userUuid string, paymentMethod model.OrderPaymentMethod) (*string, error)) *MockOrderService_PayOrder_Call {
 	_c.Call.Return(run)
 	return _c
 }

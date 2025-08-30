@@ -1,9 +1,7 @@
 package model
 
-import "github.com/google/uuid"
-
 type PartsFilter struct {
-	Uuids                 []uuid.UUID
+	IDs                   []string
 	Names                 []string
 	Categories            []PartCategory
 	ManufacturerCountries []string

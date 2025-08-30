@@ -117,7 +117,7 @@ func TestToModelOrderStatus(t *testing.T) {
 		{
 			name:                "Test unknown status",
 			status:              repoModel.OrderStatus(100),
-			expectedModelStatus: model.OrderStatus_PENDING_PAYMENT,
+			expectedModelStatus: model.OrderStatus_UNSPECIFIED,
 		},
 	}
 
@@ -155,7 +155,7 @@ func TestToRepoModelOrderStatus(t *testing.T) {
 		{
 			name:               "Test unknown status conversion",
 			status:             model.OrderStatus(100),
-			expectedRepoStatus: repoModel.OrderStatus_PENDING_PAYMENT,
+			expectedRepoStatus: repoModel.OrderStatus_UNSPECIFIED,
 		},
 	}
 	for _, tt := range tests {

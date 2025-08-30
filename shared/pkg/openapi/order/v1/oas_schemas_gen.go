@@ -7,7 +7,6 @@ import (
 	"time"
 
 	"github.com/go-faster/errors"
-	"github.com/google/uuid"
 )
 
 func (s *GenericErrorStatusCode) Error() string {
@@ -83,41 +82,41 @@ func (*ConflictError) payOrderRes()    {}
 // Ref: #/components/schemas/create_order_request
 type CreateOrderRequest struct {
 	// UUID пользователя.
-	UserUUID uuid.UUID `json:"user_uuid"`
-	// Список UUID деталей.
-	PartUuids []uuid.UUID `json:"part_uuids"`
+	UserUUID string `json:"user_uuid"`
+	// Список ID деталей.
+	PartIds []string `json:"part_ids"`
 }
 
 // GetUserUUID returns the value of UserUUID.
-func (s *CreateOrderRequest) GetUserUUID() uuid.UUID {
+func (s *CreateOrderRequest) GetUserUUID() string {
 	return s.UserUUID
 }
 
-// GetPartUuids returns the value of PartUuids.
-func (s *CreateOrderRequest) GetPartUuids() []uuid.UUID {
-	return s.PartUuids
+// GetPartIds returns the value of PartIds.
+func (s *CreateOrderRequest) GetPartIds() []string {
+	return s.PartIds
 }
 
 // SetUserUUID sets the value of UserUUID.
-func (s *CreateOrderRequest) SetUserUUID(val uuid.UUID) {
+func (s *CreateOrderRequest) SetUserUUID(val string) {
 	s.UserUUID = val
 }
 
-// SetPartUuids sets the value of PartUuids.
-func (s *CreateOrderRequest) SetPartUuids(val []uuid.UUID) {
-	s.PartUuids = val
+// SetPartIds sets the value of PartIds.
+func (s *CreateOrderRequest) SetPartIds(val []string) {
+	s.PartIds = val
 }
 
 // Ref: #/components/schemas/create_order_response
 type CreateOrderResponse struct {
 	// UUID заказа.
-	OrderUUID uuid.UUID `json:"order_uuid"`
+	OrderUUID string `json:"order_uuid"`
 	// Итоговая стоимость заказа.
 	TotalPrice float64 `json:"total_price"`
 }
 
 // GetOrderUUID returns the value of OrderUUID.
-func (s *CreateOrderResponse) GetOrderUUID() uuid.UUID {
+func (s *CreateOrderResponse) GetOrderUUID() string {
 	return s.OrderUUID
 }
 
@@ -127,7 +126,7 @@ func (s *CreateOrderResponse) GetTotalPrice() float64 {
 }
 
 // SetOrderUUID sets the value of OrderUUID.
-func (s *CreateOrderResponse) SetOrderUUID(val uuid.UUID) {
+func (s *CreateOrderResponse) SetOrderUUID(val string) {
 	s.OrderUUID = val
 }
 
@@ -258,38 +257,38 @@ func (*NotFoundError) createOrderRes()    {}
 func (*NotFoundError) getOrderByUUIDRes() {}
 func (*NotFoundError) payOrderRes()       {}
 
-// NewOptUUID returns new OptUUID with value set to v.
-func NewOptUUID(v uuid.UUID) OptUUID {
-	return OptUUID{
+// NewOptString returns new OptString with value set to v.
+func NewOptString(v string) OptString {
+	return OptString{
 		Value: v,
 		Set:   true,
 	}
 }
 
-// OptUUID is optional uuid.UUID.
-type OptUUID struct {
-	Value uuid.UUID
+// OptString is optional string.
+type OptString struct {
+	Value string
 	Set   bool
 }
 
-// IsSet returns true if OptUUID was set.
-func (o OptUUID) IsSet() bool { return o.Set }
+// IsSet returns true if OptString was set.
+func (o OptString) IsSet() bool { return o.Set }
 
 // Reset unsets value.
-func (o *OptUUID) Reset() {
-	var v uuid.UUID
+func (o *OptString) Reset() {
+	var v string
 	o.Value = v
 	o.Set = false
 }
 
 // SetTo sets value to v.
-func (o *OptUUID) SetTo(v uuid.UUID) {
+func (o *OptString) SetTo(v string) {
 	o.Set = true
 	o.Value = v
 }
 
 // Get returns value and boolean that denotes whether value was set.
-func (o OptUUID) Get() (v uuid.UUID, ok bool) {
+func (o OptString) Get() (v string, ok bool) {
 	if !o.Set {
 		return v, false
 	}
@@ -297,7 +296,7 @@ func (o OptUUID) Get() (v uuid.UUID, ok bool) {
 }
 
 // Or returns value if set, or given parameter if does not.
-func (o OptUUID) Or(d uuid.UUID) uuid.UUID {
+func (o OptString) Or(d string) string {
 	if v, ok := o.Get(); ok {
 		return v
 	}
@@ -307,14 +306,14 @@ func (o OptUUID) Or(d uuid.UUID) uuid.UUID {
 // Ref: #/components/schemas/order_dto
 type OrderDto struct {
 	// UUID заказа.
-	OrderUUID uuid.UUID `json:"order_uuid"`
+	OrderUUID string `json:"order_uuid"`
 	// UUID пользователя.
-	UserUUID uuid.UUID `json:"user_uuid"`
-	// Список UUID деталей.
-	PartUuids []uuid.UUID `json:"part_uuids"`
+	UserUUID string `json:"user_uuid"`
+	// Список ID деталей.
+	PartIds []string `json:"part_ids"`
 	// Итоговая стоимость заказа.
 	TotalPrice      float64       `json:"total_price"`
-	TransactionUUID OptUUID       `json:"transaction_uuid"`
+	TransactionUUID OptString     `json:"transaction_uuid"`
 	PaymentMethod   PaymentMethod `json:"payment_method"`
 	Status          OrderStatus   `json:"status"`
 	CreatedAt       time.Time     `json:"created_at"`
@@ -322,18 +321,18 @@ type OrderDto struct {
 }
 
 // GetOrderUUID returns the value of OrderUUID.
-func (s *OrderDto) GetOrderUUID() uuid.UUID {
+func (s *OrderDto) GetOrderUUID() string {
 	return s.OrderUUID
 }
 
 // GetUserUUID returns the value of UserUUID.
-func (s *OrderDto) GetUserUUID() uuid.UUID {
+func (s *OrderDto) GetUserUUID() string {
 	return s.UserUUID
 }
 
-// GetPartUuids returns the value of PartUuids.
-func (s *OrderDto) GetPartUuids() []uuid.UUID {
-	return s.PartUuids
+// GetPartIds returns the value of PartIds.
+func (s *OrderDto) GetPartIds() []string {
+	return s.PartIds
 }
 
 // GetTotalPrice returns the value of TotalPrice.
@@ -342,7 +341,7 @@ func (s *OrderDto) GetTotalPrice() float64 {
 }
 
 // GetTransactionUUID returns the value of TransactionUUID.
-func (s *OrderDto) GetTransactionUUID() OptUUID {
+func (s *OrderDto) GetTransactionUUID() OptString {
 	return s.TransactionUUID
 }
 
@@ -367,18 +366,18 @@ func (s *OrderDto) GetUpdatedAt() time.Time {
 }
 
 // SetOrderUUID sets the value of OrderUUID.
-func (s *OrderDto) SetOrderUUID(val uuid.UUID) {
+func (s *OrderDto) SetOrderUUID(val string) {
 	s.OrderUUID = val
 }
 
 // SetUserUUID sets the value of UserUUID.
-func (s *OrderDto) SetUserUUID(val uuid.UUID) {
+func (s *OrderDto) SetUserUUID(val string) {
 	s.UserUUID = val
 }
 
-// SetPartUuids sets the value of PartUuids.
-func (s *OrderDto) SetPartUuids(val []uuid.UUID) {
-	s.PartUuids = val
+// SetPartIds sets the value of PartIds.
+func (s *OrderDto) SetPartIds(val []string) {
+	s.PartIds = val
 }
 
 // SetTotalPrice sets the value of TotalPrice.
@@ -387,7 +386,7 @@ func (s *OrderDto) SetTotalPrice(val float64) {
 }
 
 // SetTransactionUUID sets the value of TransactionUUID.
-func (s *OrderDto) SetTransactionUUID(val OptUUID) {
+func (s *OrderDto) SetTransactionUUID(val OptString) {
 	s.TransactionUUID = val
 }
 
@@ -481,16 +480,16 @@ func (s *PayOrderRequest) SetPaymentMethod(val PaymentMethod) {
 // Ref: #/components/schemas/pay_order_response
 type PayOrderResponse struct {
 	// UUID транзакции.
-	TransactionUUID OptUUID `json:"transaction_uuid"`
+	TransactionUUID OptString `json:"transaction_uuid"`
 }
 
 // GetTransactionUUID returns the value of TransactionUUID.
-func (s *PayOrderResponse) GetTransactionUUID() OptUUID {
+func (s *PayOrderResponse) GetTransactionUUID() OptString {
 	return s.TransactionUUID
 }
 
 // SetTransactionUUID sets the value of TransactionUUID.
-func (s *PayOrderResponse) SetTransactionUUID(val OptUUID) {
+func (s *PayOrderResponse) SetTransactionUUID(val OptString) {
 	s.TransactionUUID = val
 }
 
@@ -558,4 +557,76 @@ func (s *PaymentMethod) UnmarshalText(data []byte) error {
 	default:
 		return errors.Errorf("invalid value: %q", data)
 	}
+}
+
+// Ref: #/components/schemas/validation_error
+type ValidationError struct {
+	// HTTP-код ошибки.
+	Code int `json:"code"`
+	// Сообщение об ошибке.
+	Message string `json:"message"`
+	// Детали ошибок валидации.
+	Details []ValidationErrorDetailsItem `json:"details"`
+}
+
+// GetCode returns the value of Code.
+func (s *ValidationError) GetCode() int {
+	return s.Code
+}
+
+// GetMessage returns the value of Message.
+func (s *ValidationError) GetMessage() string {
+	return s.Message
+}
+
+// GetDetails returns the value of Details.
+func (s *ValidationError) GetDetails() []ValidationErrorDetailsItem {
+	return s.Details
+}
+
+// SetCode sets the value of Code.
+func (s *ValidationError) SetCode(val int) {
+	s.Code = val
+}
+
+// SetMessage sets the value of Message.
+func (s *ValidationError) SetMessage(val string) {
+	s.Message = val
+}
+
+// SetDetails sets the value of Details.
+func (s *ValidationError) SetDetails(val []ValidationErrorDetailsItem) {
+	s.Details = val
+}
+
+func (*ValidationError) cancelOrderRes()    {}
+func (*ValidationError) createOrderRes()    {}
+func (*ValidationError) getOrderByUUIDRes() {}
+func (*ValidationError) payOrderRes()       {}
+
+type ValidationErrorDetailsItem struct {
+	// Имя поля которое не прошло валидацию.
+	Field string `json:"field"`
+	// Сообщение об ошибке для конкретного поля.
+	Message string `json:"message"`
+}
+
+// GetField returns the value of Field.
+func (s *ValidationErrorDetailsItem) GetField() string {
+	return s.Field
+}
+
+// GetMessage returns the value of Message.
+func (s *ValidationErrorDetailsItem) GetMessage() string {
+	return s.Message
+}
+
+// SetField sets the value of Field.
+func (s *ValidationErrorDetailsItem) SetField(val string) {
+	s.Field = val
+}
+
+// SetMessage sets the value of Message.
+func (s *ValidationErrorDetailsItem) SetMessage(val string) {
+	s.Message = val
 }

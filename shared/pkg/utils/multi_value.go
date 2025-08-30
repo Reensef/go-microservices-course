@@ -11,8 +11,8 @@ const (
 )
 
 type MultiValue struct {
-	valueType MultiValueType
-	value     any
+	valueType MultiValueType `bson:"valueType"`
+	value     any            `bson:"value"`
 }
 
 // Type возвращает тип хранимого значения
