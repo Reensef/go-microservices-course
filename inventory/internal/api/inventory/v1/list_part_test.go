@@ -16,7 +16,7 @@ func TestListPart(t *testing.T) {
 
 	dataLen := 5
 
-	service.EXPECT().GetPartsByFilter(t.Context(), mock.Anything).Return(make([]*model.Part, dataLen)).Once()
+	service.EXPECT().GetPartsByFilter(t.Context(), mock.Anything).Return(make([]*model.Part, dataLen), nil).Once()
 
 	a := NewAPI(service)
 

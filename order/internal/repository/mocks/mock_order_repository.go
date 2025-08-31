@@ -7,9 +7,9 @@ package mocks
 import (
 	"context"
 
-	"github.com/Reensef/go-microservices-course/order/internal/model"
-	"github.com/google/uuid"
 	mock "github.com/stretchr/testify/mock"
+
+	"github.com/Reensef/go-microservices-course/order/internal/model"
 )
 
 // NewMockOrderRepository creates a new instance of MockOrderRepository. It also registers a testing interface on the mock and a cleanup function to assert the mocks expectations.
@@ -17,7 +17,8 @@ import (
 func NewMockOrderRepository(t interface {
 	mock.TestingT
 	Cleanup(func())
-}) *MockOrderRepository {
+},
+) *MockOrderRepository {
 	mock := &MockOrderRepository{}
 	mock.Mock.Test(t)
 
@@ -40,7 +41,7 @@ func (_m *MockOrderRepository) EXPECT() *MockOrderRepository_Expecter {
 }
 
 // CancelOrder provides a mock function for the type MockOrderRepository
-func (_mock *MockOrderRepository) CancelOrder(ctx context.Context, orderUuid uuid.UUID) error {
+func (_mock *MockOrderRepository) CancelOrder(ctx context.Context, orderUuid string) error {
 	ret := _mock.Called(ctx, orderUuid)
 
 	if len(ret) == 0 {
@@ -48,7 +49,7 @@ func (_mock *MockOrderRepository) CancelOrder(ctx context.Context, orderUuid uui
 	}
 
 	var r0 error
-	if returnFunc, ok := ret.Get(0).(func(context.Context, uuid.UUID) error); ok {
+	if returnFunc, ok := ret.Get(0).(func(context.Context, string) error); ok {
 		r0 = returnFunc(ctx, orderUuid)
 	} else {
 		r0 = ret.Error(0)
@@ -63,20 +64,20 @@ type MockOrderRepository_CancelOrder_Call struct {
 
 // CancelOrder is a helper method to define mock.On call
 //   - ctx context.Context
-//   - orderUuid uuid.UUID
-func (_e *MockOrderRepository_Expecter) CancelOrder(ctx interface{}, orderUuid interface{}) *MockOrderRepository_CancelOrder_Call {
+//   - orderUuid string
+func (_e *MockOrderRepository_Expecter) CancelOrder(ctx, orderUuid interface{}) *MockOrderRepository_CancelOrder_Call {
 	return &MockOrderRepository_CancelOrder_Call{Call: _e.mock.On("CancelOrder", ctx, orderUuid)}
 }
 
-func (_c *MockOrderRepository_CancelOrder_Call) Run(run func(ctx context.Context, orderUuid uuid.UUID)) *MockOrderRepository_CancelOrder_Call {
+func (_c *MockOrderRepository_CancelOrder_Call) Run(run func(ctx context.Context, orderUuid string)) *MockOrderRepository_CancelOrder_Call {
 	_c.Call.Run(func(args mock.Arguments) {
 		var arg0 context.Context
 		if args[0] != nil {
 			arg0 = args[0].(context.Context)
 		}
-		var arg1 uuid.UUID
+		var arg1 string
 		if args[1] != nil {
-			arg1 = args[1].(uuid.UUID)
+			arg1 = args[1].(string)
 		}
 		run(
 			arg0,
@@ -91,7 +92,7 @@ func (_c *MockOrderRepository_CancelOrder_Call) Return(err error) *MockOrderRepo
 	return _c
 }
 
-func (_c *MockOrderRepository_CancelOrder_Call) RunAndReturn(run func(ctx context.Context, orderUuid uuid.UUID) error) *MockOrderRepository_CancelOrder_Call {
+func (_c *MockOrderRepository_CancelOrder_Call) RunAndReturn(run func(ctx context.Context, orderUuid string) error) *MockOrderRepository_CancelOrder_Call {
 	_c.Call.Return(run)
 	return _c
 }
@@ -132,7 +133,7 @@ type MockOrderRepository_CreateOrder_Call struct {
 // CreateOrder is a helper method to define mock.On call
 //   - ctx context.Context
 //   - info *model.OrderInfo
-func (_e *MockOrderRepository_Expecter) CreateOrder(ctx interface{}, info interface{}) *MockOrderRepository_CreateOrder_Call {
+func (_e *MockOrderRepository_Expecter) CreateOrder(ctx, info interface{}) *MockOrderRepository_CreateOrder_Call {
 	return &MockOrderRepository_CreateOrder_Call{Call: _e.mock.On("CreateOrder", ctx, info)}
 }
 
@@ -165,7 +166,7 @@ func (_c *MockOrderRepository_CreateOrder_Call) RunAndReturn(run func(ctx contex
 }
 
 // GetOrderByUUID provides a mock function for the type MockOrderRepository
-func (_mock *MockOrderRepository) GetOrderByUUID(ctx context.Context, orderUuid uuid.UUID) (*model.Order, error) {
+func (_mock *MockOrderRepository) GetOrderByUUID(ctx context.Context, orderUuid string) (*model.Order, error) {
 	ret := _mock.Called(ctx, orderUuid)
 
 	if len(ret) == 0 {
@@ -174,17 +175,17 @@ func (_mock *MockOrderRepository) GetOrderByUUID(ctx context.Context, orderUuid 
 
 	var r0 *model.Order
 	var r1 error
-	if returnFunc, ok := ret.Get(0).(func(context.Context, uuid.UUID) (*model.Order, error)); ok {
+	if returnFunc, ok := ret.Get(0).(func(context.Context, string) (*model.Order, error)); ok {
 		return returnFunc(ctx, orderUuid)
 	}
-	if returnFunc, ok := ret.Get(0).(func(context.Context, uuid.UUID) *model.Order); ok {
+	if returnFunc, ok := ret.Get(0).(func(context.Context, string) *model.Order); ok {
 		r0 = returnFunc(ctx, orderUuid)
 	} else {
 		if ret.Get(0) != nil {
 			r0 = ret.Get(0).(*model.Order)
 		}
 	}
-	if returnFunc, ok := ret.Get(1).(func(context.Context, uuid.UUID) error); ok {
+	if returnFunc, ok := ret.Get(1).(func(context.Context, string) error); ok {
 		r1 = returnFunc(ctx, orderUuid)
 	} else {
 		r1 = ret.Error(1)
@@ -199,20 +200,20 @@ type MockOrderRepository_GetOrderByUUID_Call struct {
 
 // GetOrderByUUID is a helper method to define mock.On call
 //   - ctx context.Context
-//   - orderUuid uuid.UUID
-func (_e *MockOrderRepository_Expecter) GetOrderByUUID(ctx interface{}, orderUuid interface{}) *MockOrderRepository_GetOrderByUUID_Call {
+//   - orderUuid string
+func (_e *MockOrderRepository_Expecter) GetOrderByUUID(ctx, orderUuid interface{}) *MockOrderRepository_GetOrderByUUID_Call {
 	return &MockOrderRepository_GetOrderByUUID_Call{Call: _e.mock.On("GetOrderByUUID", ctx, orderUuid)}
 }
 
-func (_c *MockOrderRepository_GetOrderByUUID_Call) Run(run func(ctx context.Context, orderUuid uuid.UUID)) *MockOrderRepository_GetOrderByUUID_Call {
+func (_c *MockOrderRepository_GetOrderByUUID_Call) Run(run func(ctx context.Context, orderUuid string)) *MockOrderRepository_GetOrderByUUID_Call {
 	_c.Call.Run(func(args mock.Arguments) {
 		var arg0 context.Context
 		if args[0] != nil {
 			arg0 = args[0].(context.Context)
 		}
-		var arg1 uuid.UUID
+		var arg1 string
 		if args[1] != nil {
-			arg1 = args[1].(uuid.UUID)
+			arg1 = args[1].(string)
 		}
 		run(
 			arg0,
@@ -227,13 +228,13 @@ func (_c *MockOrderRepository_GetOrderByUUID_Call) Return(order *model.Order, er
 	return _c
 }
 
-func (_c *MockOrderRepository_GetOrderByUUID_Call) RunAndReturn(run func(ctx context.Context, orderUuid uuid.UUID) (*model.Order, error)) *MockOrderRepository_GetOrderByUUID_Call {
+func (_c *MockOrderRepository_GetOrderByUUID_Call) RunAndReturn(run func(ctx context.Context, orderUuid string) (*model.Order, error)) *MockOrderRepository_GetOrderByUUID_Call {
 	_c.Call.Return(run)
 	return _c
 }
 
 // PayOrder provides a mock function for the type MockOrderRepository
-func (_mock *MockOrderRepository) PayOrder(ctx context.Context, orderUuid uuid.UUID, transactionUUID uuid.UUID, paymentMethod model.OrderPaymentMethod) error {
+func (_mock *MockOrderRepository) PayOrder(ctx context.Context, orderUuid, transactionUUID string, paymentMethod model.OrderPaymentMethod) error {
 	ret := _mock.Called(ctx, orderUuid, transactionUUID, paymentMethod)
 
 	if len(ret) == 0 {
@@ -241,7 +242,7 @@ func (_mock *MockOrderRepository) PayOrder(ctx context.Context, orderUuid uuid.U
 	}
 
 	var r0 error
-	if returnFunc, ok := ret.Get(0).(func(context.Context, uuid.UUID, uuid.UUID, model.OrderPaymentMethod) error); ok {
+	if returnFunc, ok := ret.Get(0).(func(context.Context, string, string, model.OrderPaymentMethod) error); ok {
 		r0 = returnFunc(ctx, orderUuid, transactionUUID, paymentMethod)
 	} else {
 		r0 = ret.Error(0)
@@ -256,26 +257,26 @@ type MockOrderRepository_PayOrder_Call struct {
 
 // PayOrder is a helper method to define mock.On call
 //   - ctx context.Context
-//   - orderUuid uuid.UUID
-//   - transactionUUID uuid.UUID
+//   - orderUuid string
+//   - transactionUUID string
 //   - paymentMethod model.OrderPaymentMethod
-func (_e *MockOrderRepository_Expecter) PayOrder(ctx interface{}, orderUuid interface{}, transactionUUID interface{}, paymentMethod interface{}) *MockOrderRepository_PayOrder_Call {
+func (_e *MockOrderRepository_Expecter) PayOrder(ctx, orderUuid, transactionUUID, paymentMethod interface{}) *MockOrderRepository_PayOrder_Call {
 	return &MockOrderRepository_PayOrder_Call{Call: _e.mock.On("PayOrder", ctx, orderUuid, transactionUUID, paymentMethod)}
 }
 
-func (_c *MockOrderRepository_PayOrder_Call) Run(run func(ctx context.Context, orderUuid uuid.UUID, transactionUUID uuid.UUID, paymentMethod model.OrderPaymentMethod)) *MockOrderRepository_PayOrder_Call {
+func (_c *MockOrderRepository_PayOrder_Call) Run(run func(ctx context.Context, orderUuid, transactionUUID string, paymentMethod model.OrderPaymentMethod)) *MockOrderRepository_PayOrder_Call {
 	_c.Call.Run(func(args mock.Arguments) {
 		var arg0 context.Context
 		if args[0] != nil {
 			arg0 = args[0].(context.Context)
 		}
-		var arg1 uuid.UUID
+		var arg1 string
 		if args[1] != nil {
-			arg1 = args[1].(uuid.UUID)
+			arg1 = args[1].(string)
 		}
-		var arg2 uuid.UUID
+		var arg2 string
 		if args[2] != nil {
-			arg2 = args[2].(uuid.UUID)
+			arg2 = args[2].(string)
 		}
 		var arg3 model.OrderPaymentMethod
 		if args[3] != nil {
@@ -296,7 +297,7 @@ func (_c *MockOrderRepository_PayOrder_Call) Return(err error) *MockOrderReposit
 	return _c
 }
 
-func (_c *MockOrderRepository_PayOrder_Call) RunAndReturn(run func(ctx context.Context, orderUuid uuid.UUID, transactionUUID uuid.UUID, paymentMethod model.OrderPaymentMethod) error) *MockOrderRepository_PayOrder_Call {
+func (_c *MockOrderRepository_PayOrder_Call) RunAndReturn(run func(ctx context.Context, orderUuid, transactionUUID string, paymentMethod model.OrderPaymentMethod) error) *MockOrderRepository_PayOrder_Call {
 	_c.Call.Return(run)
 	return _c
 }

@@ -18,7 +18,7 @@ func (a *api) PayOrder(
 	req *orderV1.PayOrderRequest,
 	params orderV1.PayOrderParams,
 ) (orderV1.PayOrderRes, error) {
-	userUuid := uuid.New()
+	userUuid := uuid.NewString()
 
 	transactionUUID, err := a.orderService.PayOrder(
 		ctx,
@@ -27,26 +27,43 @@ func (a *api) PayOrder(
 		converter.ToModelPaymentMethod(req.GetPaymentMethod()),
 	)
 	if err != nil {
-		if errors.Is(err, model.ErrOrderNotFound) {
+		switch {
+		case errors.Is(err, model.ErrOrderNotFound):
 			return &orderV1.NotFoundError{
 				Code:    404,
-				Message: fmt.Sprintf("Order with UUID '%s' not found", params.OrderUUID.String()),
+				Message: fmt.Sprintf("order with UUID '%s' not found", params.OrderUUID),
 			}, nil
-		} else if errors.Is(err, model.ErrOrderAlreadyPaid) {
+		case errors.Is(err, model.ErrOrderAlreadyPaid):
 			return &orderV1.ConflictError{
 				Code:    409,
-				Message: fmt.Sprintf("Order with UUID '%s' already paid", params.OrderUUID.String()),
+				Message: fmt.Sprintf("order with UUID '%s' already paid", params.OrderUUID),
+			}, nil
+		case errors.Is(err, model.ErrPaymentMethodUnspecified):
+			return &orderV1.ValidationError{
+				Code:    422,
+				Message: "payment method must be specified",
+			}, nil
+		case errors.Is(err, model.ErrOrderUuidInvalidFormat):
+			return &orderV1.ValidationError{
+				Code:    422,
+				Message: "order must be UUID format",
+			}, nil
+		case errors.Is(err, model.ErrUserUuidInvalidFormat):
+			return &orderV1.ValidationError{
+				Code:    422,
+				Message: "user UUID must be UUID format",
+			}, nil
+		default:
+			log.Printf("api: error paying order: %s", err)
+
+			return &orderV1.InternalServerError{
+				Code:    500,
+				Message: "internal server error",
 			}, nil
 		}
-
-		log.Printf("api: error paying order: %s", err)
-		return &orderV1.InternalServerError{
-			Code:    500,
-			Message: "Internal server error",
-		}, nil
 	}
 
 	return &orderV1.PayOrderResponse{
-		TransactionUUID: orderV1.NewOptUUID(*transactionUUID),
+		TransactionUUID: orderV1.NewOptString(*transactionUUID),
 	}, nil
 }

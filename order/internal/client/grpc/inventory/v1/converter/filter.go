@@ -11,13 +11,8 @@ func ToProtoFilter(filter *model.PartsFilter) *inventoryV1.PartsFilter {
 		categories = append(categories, ToProtoPartCategory(category))
 	}
 
-	uuidStrings := make([]string, 0, len(filter.Uuids))
-	for _, uuid := range filter.Uuids {
-		uuidStrings = append(uuidStrings, uuid.String())
-	}
-
 	return &inventoryV1.PartsFilter{
-		Uuids:                 uuidStrings,
+		Ids:                   filter.Ids,
 		Names:                 filter.Names,
 		Categories:            categories,
 		ManufacturerCountries: filter.ManufacturerCountries,

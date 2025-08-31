@@ -1,74 +1,74 @@
 package part
 
 import (
+	"context"
 	"log"
-	"sync"
-	"time"
 
 	"github.com/brianvoe/gofakeit/v7"
-	"github.com/google/uuid"
+	"go.mongodb.org/mongo-driver/mongo"
 
-	repoModel "github.com/Reensef/go-microservices-course/inventory/internal/repository/model"
+	model "github.com/Reensef/go-microservices-course/inventory/internal/model"
 )
 
 type repository struct {
-	mu    sync.RWMutex
-	parts map[uuid.UUID]*repoModel.Part
+	collection *mongo.Collection
 }
 
-func NewRepository() *repository {
+func NewRepository(db *mongo.Database) *repository {
+	collection := db.Collection("parts")
 	repo := &repository{
-		parts: make(map[uuid.UUID]*repoModel.Part),
+		collection: collection,
 	}
 
-	for range 10 {
-		fake := generateRandomPart()
-		log.Println(fake.Uuid.String())
-		repo.parts[fake.Uuid] = fake
-	}
+	repo.GenData()
 
 	return repo
 }
 
-func generateRandomPart() *repoModel.Part {
+func (r *repository) GenData() {
+	for range 10 {
+		part, err := r.Create(context.Background(), generateRandomPart())
+		if err != nil {
+			log.Println(err)
+			continue
+		}
+		log.Println(part.ID)
+	}
+}
+
+func generateRandomPart() *model.PartInfo {
 	// Генерация случайной категории
-	categories := []repoModel.PartCategory{
-		repoModel.PartCategory_UNSPECIFIED,
-		repoModel.PartCategory_ENGINE,
-		repoModel.PartCategory_FUEL,
-		repoModel.PartCategory_PORTHOLE,
-		repoModel.PartCategory_WING,
+	categories := []model.PartCategory{
+		model.PartCategory_UNSPECIFIED,
+		model.PartCategory_ENGINE,
+		model.PartCategory_FUEL,
+		model.PartCategory_PORTHOLE,
+		model.PartCategory_WING,
 	}
 	category := categories[gofakeit.Number(0, len(categories)-1)]
 
 	// Генерация случайных тегов
 	tags := gofakeit.RandomString([]string{"metal", "plastic", "electronics", "rare", "expensive"})
 
-	// Создание детали
-	part := &repoModel.Part{
-		Uuid: uuid.MustParse(gofakeit.UUID()),
-		Info: repoModel.PartInfo{
-			Name:          gofakeit.ProductName(),
-			Description:   gofakeit.Sentence(10),
-			Price:         float64(gofakeit.Price(100, 10000)),
-			StockQuantity: int64(gofakeit.Number(0, 1000)),
-			Category:      category,
-			Dimensions: &repoModel.PartDimensions{
-				Length: gofakeit.Float64Range(1, 100),
-				Width:  gofakeit.Float64Range(1, 100),
-				Height: gofakeit.Float64Range(1, 100),
-				Weight: gofakeit.Float64Range(0.1, 500),
-			},
-			Manufacturer: &repoModel.PartManufacturer{
-				Name:    gofakeit.Company(),
-				Country: gofakeit.Country(),
-				Website: gofakeit.URL(),
-			},
-			Tags: []string{tags},
+	partInfo := &model.PartInfo{
+		Name:          gofakeit.ProductName(),
+		Description:   gofakeit.Sentence(10),
+		Price:         float64(gofakeit.Price(100, 10000)),
+		StockQuantity: int64(gofakeit.Number(0, 1000)),
+		Category:      category,
+		Dimensions: &model.PartDimensions{
+			Length: gofakeit.Float64Range(1, 100),
+			Width:  gofakeit.Float64Range(1, 100),
+			Height: gofakeit.Float64Range(1, 100),
+			Weight: gofakeit.Float64Range(0.1, 500),
 		},
-		CreatedAt: gofakeit.DateRange(time.Now().AddDate(-1, 0, 0), time.Now()),
-		UpdatedAt: time.Now(),
+		Manufacturer: &model.PartManufacturer{
+			Name:    gofakeit.Company(),
+			Country: gofakeit.Country(),
+			Website: gofakeit.URL(),
+		},
+		Tags: []string{tags},
 	}
 
-	return part
+	return partInfo
 }

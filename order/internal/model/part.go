@@ -3,8 +3,6 @@ package model
 import (
 	"time"
 
-	"github.com/google/uuid"
-
 	"github.com/Reensef/go-microservices-course/shared/pkg/utils"
 )
 
@@ -56,7 +54,7 @@ type PartUpdateInfo struct {
 }
 
 type Part struct {
-	Uuid      uuid.UUID
+	Id        string
 	Info      PartInfo
 	CreatedAt time.Time
 	UpdatedAt time.Time

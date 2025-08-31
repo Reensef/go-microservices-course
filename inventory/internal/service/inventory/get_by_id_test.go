@@ -4,7 +4,6 @@ import (
 	"fmt"
 	"testing"
 
-	"github.com/google/uuid"
 	"github.com/stretchr/testify/assert"
 
 	"github.com/Reensef/go-microservices-course/inventory/internal/model"
@@ -15,13 +14,13 @@ import (
 func TestGetByUuid_Exists(t *testing.T) {
 	repoMock := mocks.NewMockPartRepository(t)
 
-	uuid := uuid.New()
+	id := "aaaaaaaabbbbbbbbcccccccc"
 
-	repoMock.EXPECT().GetByUuid(t.Context(), uuid).Return(&model.Part{}, nil).Once()
+	repoMock.EXPECT().GetByID(t.Context(), id).Return(&model.Part{}, nil).Once()
 
 	service := NewService(repoMock)
 
-	part, err := service.GetPartByUuid(t.Context(), uuid)
+	part, err := service.GetPartByID(t.Context(), id)
 
 	assert.NoError(t, err)
 	assert.NotNil(t, part)
@@ -31,13 +30,13 @@ func TestGetByUuid_Exists(t *testing.T) {
 func TestGetByUuid_NotExists(t *testing.T) {
 	repoMock := mocks.NewMockPartRepository(t)
 
-	uuid := uuid.New()
+	id := "aaaaaaaabbbbbbbbcccccccc"
 
-	repoMock.EXPECT().GetByUuid(t.Context(), uuid).Return(nil, fmt.Errorf("error")).Once()
+	repoMock.EXPECT().GetByID(t.Context(), id).Return(nil, fmt.Errorf("error")).Once()
 
 	service := NewService(repoMock)
 
-	part, err := service.GetPartByUuid(t.Context(), uuid)
+	part, err := service.GetPartByID(t.Context(), id)
 
 	assert.Error(t, err)
 	assert.Nil(t, part)

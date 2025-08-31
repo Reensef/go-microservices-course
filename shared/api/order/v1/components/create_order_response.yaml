@@ -5,7 +5,6 @@ required:
 properties:
   order_uuid:
     type: string
-    format: uuid
     description: UUID заказа
   total_price:
     type: number

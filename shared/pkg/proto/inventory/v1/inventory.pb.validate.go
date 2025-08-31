@@ -35,9 +35,6 @@ var (
 	_ = sort.Sort
 )
 
-// define the regex for a UUID once up-front
-var _inventory_uuidPattern = regexp.MustCompile("^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$")
-
 // Validate checks the field values on GetPartRequest with the rules defined in
 // the proto definition for this message. If any rules are violated, the first
 // error encountered is returned, or nil if there are no violations.
@@ -60,11 +57,10 @@ func (m *GetPartRequest) validate(all bool) error {
 
 	var errors []error
 
-	if err := m._validateUuid(m.GetUuid()); err != nil {
-		err = GetPartRequestValidationError{
-			field:  "Uuid",
-			reason: "value must be a valid UUID",
-			cause:  err,
+	if !_GetPartRequest_Id_Pattern.MatchString(m.GetId()) {
+		err := GetPartRequestValidationError{
+			field:  "Id",
+			reason: "value does not match regex pattern \"^[0-9a-fA-F]{24}$\"",
 		}
 		if !all {
 			return err
@@ -74,14 +70,6 @@ func (m *GetPartRequest) validate(all bool) error {
 
 	if len(errors) > 0 {
 		return GetPartRequestMultiError(errors)
-	}
-
-	return nil
-}
-
-func (m *GetPartRequest) _validateUuid(uuid string) error {
-	if matched := _inventory_uuidPattern.MatchString(uuid); !matched {
-		return errors.New("invalid uuid format")
 	}
 
 	return nil
@@ -157,6 +145,8 @@ var _ interface {
 	Cause() error
 	ErrorName() string
 } = GetPartRequestValidationError{}
+
+var _GetPartRequest_Id_Pattern = regexp.MustCompile("^[0-9a-fA-F]{24}$")
 
 // Validate checks the field values on GetPartResponse with the rules defined
 // in the proto definition for this message. If any rules are violated, the
@@ -574,14 +564,13 @@ func (m *PartsFilter) validate(all bool) error {
 
 	var errors []error
 
-	for idx, item := range m.GetUuids() {
+	for idx, item := range m.GetIds() {
 		_, _ = idx, item
 
-		if err := m._validateUuid(item); err != nil {
-			err = PartsFilterValidationError{
-				field:  fmt.Sprintf("Uuids[%v]", idx),
-				reason: "value must be a valid UUID",
-				cause:  err,
+		if !_PartsFilter_Ids_Pattern.MatchString(item) {
+			err := PartsFilterValidationError{
+				field:  fmt.Sprintf("Ids[%v]", idx),
+				reason: "value does not match regex pattern \"^[0-9a-fA-F]{24}$\"",
 			}
 			if !all {
 				return err
@@ -593,14 +582,6 @@ func (m *PartsFilter) validate(all bool) error {
 
 	if len(errors) > 0 {
 		return PartsFilterMultiError(errors)
-	}
-
-	return nil
-}
-
-func (m *PartsFilter) _validateUuid(uuid string) error {
-	if matched := _inventory_uuidPattern.MatchString(uuid); !matched {
-		return errors.New("invalid uuid format")
 	}
 
 	return nil
@@ -676,6 +657,8 @@ var _ interface {
 	ErrorName() string
 } = PartsFilterValidationError{}
 
+var _PartsFilter_Ids_Pattern = regexp.MustCompile("^[0-9a-fA-F]{24}$")
+
 // Validate checks the field values on Part with the rules defined in the proto
 // definition for this message. If any rules are violated, the first error
 // encountered is returned, or nil if there are no violations.
@@ -697,11 +680,10 @@ func (m *Part) validate(all bool) error {
 
 	var errors []error
 
-	if err := m._validateUuid(m.GetUuid()); err != nil {
-		err = PartValidationError{
-			field:  "Uuid",
-			reason: "value must be a valid UUID",
-			cause:  err,
+	if !_Part_Id_Pattern.MatchString(m.GetId()) {
+		err := PartValidationError{
+			field:  "Id",
+			reason: "value does not match regex pattern \"^[0-9a-fA-F]{24}$\"",
 		}
 		if !all {
 			return err
@@ -888,14 +870,6 @@ func (m *Part) validate(all bool) error {
 	return nil
 }
 
-func (m *Part) _validateUuid(uuid string) error {
-	if matched := _inventory_uuidPattern.MatchString(uuid); !matched {
-		return errors.New("invalid uuid format")
-	}
-
-	return nil
-}
-
 // PartMultiError is an error wrapping multiple validation errors returned by
 // Part.ValidateAll() if the designated constraints aren't met.
 type PartMultiError []error
@@ -965,6 +939,8 @@ var _ interface {
 	Cause() error
 	ErrorName() string
 } = PartValidationError{}
+
+var _Part_Id_Pattern = regexp.MustCompile("^[0-9a-fA-F]{24}$")
 
 // Validate checks the field values on Dimensions with the rules defined in the
 // proto definition for this message. If any rules are violated, the first

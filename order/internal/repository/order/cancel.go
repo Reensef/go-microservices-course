@@ -3,7 +3,7 @@ package order
 import (
 	"context"
 
-	"github.com/google/uuid"
+	sq "github.com/Masterminds/squirrel"
 
 	model "github.com/Reensef/go-microservices-course/order/internal/model"
 	repoModel "github.com/Reensef/go-microservices-course/order/internal/repository/model"
@@ -11,21 +11,26 @@ import (
 
 func (r *repository) CancelOrder(
 	ctx context.Context,
-	orderUuid uuid.UUID,
+	orderUuid string,
 ) error {
-	r.mu.Lock()
-	defer r.mu.Unlock()
+	builderUpdate := sq.Update("orders").
+		Set("order_status", repoModel.OrderStatus_CANCELED).
+		Where(sq.Eq{"uuid": orderUuid}).
+		PlaceholderFormat(sq.Dollar)
 
-	order, ok := r.data[orderUuid]
-	if !ok {
+	query, args, err := builderUpdate.ToSql()
+	if err != nil {
+		return err
+	}
+
+	res, err := r.pool.Exec(ctx, query, args...)
+	if err != nil {
+		return err
+	}
+
+	if res.RowsAffected() == 0 {
 		return model.ErrOrderNotFound
 	}
-
-	if order.Info.Status == repoModel.OrderStatus_PAID {
-		return model.ErrOrderAlreadyPaid
-	}
-
-	order.Info.Status = repoModel.OrderStatus_CANCELED
 
 	return nil
 }

@@ -42,6 +42,38 @@ vars:
   MODULES: assembly inventory order payment platform iam notification
 
 tasks:
+  inventory:run:
+    desc: "Запускает inventory сервис"
+    cmds:
+      - go run ./inventory/cmd/main.go
+  
+  inventory:debug:
+    desc: "Запускает inventory сервис в режиме отладки"
+    summary: |
+      "https://stackoverflow.com/questions/69506371/why-does-debugging-go-with-vs-code-and-wsl-hang-delve"
+    cmds:
+      - dlv debug ./inventory/cmd/main.go --headless --listen=127.0.0.1:50001 --accept-multiclient --continue --only-same-user=false
+
+  order:run:
+      desc: "Запускает order сервис"
+      cmds:
+        - go run ./order/cmd/main.go
+  
+  order:debug:
+      desc: "Запускает order сервис в режиме отладки"
+      cmds:
+        - dlv debug ./order/cmd/main.go --headless --listen=127.0.0.1:50001 --accept-multiclient --continue --only-same-user=false
+
+  payment:run:
+      desc: "Запускает payment сервис"
+      cmds:
+        - go run ./payment/cmd/main.go
+  
+  payment:debug:
+    desc: "Запускает payment сервис в режиме отладки"
+    cmds:
+      - dlv debug ./payment/cmd/main.go --headless --listen=127.0.0.1:50001 --accept-multiclient --continue --only-same-user=false
+
   install-formatters:
     desc: "Устанавливает форматтеры gci и gofumpt в ./bin"
     summary: |
@@ -396,7 +428,7 @@ tasks:
         fi
         
         # Извлекаем UUID первой детали для дальнейших тестов
-        PART_UUID=$(echo $PARTS_RESPONSE | grep -o '"uuid": "[^"]*' | head -1 | cut -d'"' -f4)
+        PART_UUID=$(echo $PARTS_RESPONSE | grep -o '"id": "[^"]*' | head -1 | cut -d'"' -f4)
         if [ -z "$PART_UUID" ]; then
           echo "❌ Не удалось найти UUID детали в ответе."
           echo "🔍 Ответ сервера: $PARTS_RESPONSE"
@@ -406,7 +438,7 @@ tasks:
         
         echo
         echo "🔍 Тест 2: Получение информации о детали по UUID"
-        PART_RESPONSE=$({{.GRPCURL}} -plaintext -d "{\"uuid\":\"$PART_UUID\"}" localhost:50051 inventory.v1.InventoryService/GetPart)
+        PART_RESPONSE=$({{.GRPCURL}} -plaintext -d "{\"id\":\"$PART_UUID\"}" localhost:50051 inventory.v1.InventoryService/GetPart)
         
         if [[ -z "$PART_RESPONSE" || "$PART_RESPONSE" == *"error"* ]]; then
           echo "❌ Не удалось получить информацию о детали."

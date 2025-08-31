@@ -3,15 +3,17 @@ package service
 import (
 	"context"
 
-	"github.com/google/uuid"
-
 	"github.com/Reensef/go-microservices-course/inventory/internal/model"
 )
 
-func (s *service) GetPartByUuid(
+func (s *service) GetPartByID(
 	ctx context.Context,
-	uuid uuid.UUID,
+	id string,
 ) (*model.Part, error) {
-	part, err := s.repo.GetByUuid(ctx, uuid)
+	if len(id) != 24 {
+		return nil, model.ErrPartIdInvalidFormat
+	}
+
+	part, err := s.repo.GetByID(ctx, id)
 	return part, err
 }
