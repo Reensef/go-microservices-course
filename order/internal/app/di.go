@@ -41,7 +41,6 @@ type diContainer struct {
 	sqlMigrator  *sqlmigrator.Migrator
 }
 
-
 func NewDiContainer() *diContainer {
 	return &diContainer{}
 }

@@ -19,7 +19,7 @@ func TestGetPart_ValidUuid(t *testing.T) {
 
 	service.EXPECT().GetPartByID(t.Context(), uuid).Return(&model.Part{}, nil).Once()
 
-	a := NewAPI(service)
+	a := New(service)
 
 	response, err := a.GetPart(t.Context(), &inventoryV1.GetPartRequest{Id: uuid})
 	assert.NoError(t, err)
@@ -34,7 +34,7 @@ func TestGetPart_ServiceError(t *testing.T) {
 
 	service.EXPECT().GetPartByID(t.Context(), uuid).Return(nil, fmt.Errorf("error")).Once()
 
-	a := NewAPI(service)
+	a := New(service)
 
 	response, err := a.GetPart(t.Context(), &inventoryV1.GetPartRequest{Id: uuid})
 	assert.Error(t, err)

@@ -39,13 +39,13 @@ func main() {
 
 	a, err := app.New(appCtx)
 	if err != nil {
-		logger.Error(appCtx, "Error creating application", zap.Error(err))
+		logger.Error(appCtx, "error creating application", zap.Error(err))
 		return
 	}
 
 	err = a.Run(appCtx)
 	if err != nil {
-		logger.Error(appCtx, "Error running application", zap.Error(err))
+		logger.Error(appCtx, "error running application", zap.Error(err))
 		return
 	}
 }

@@ -14,7 +14,7 @@ type repository struct {
 	collection *mongo.Collection
 }
 
-func NewRepository(db *mongo.Database) *repository {
+func New(db *mongo.Database) *repository {
 	collection := db.Collection("parts")
 	repo := &repository{
 		collection: collection,
