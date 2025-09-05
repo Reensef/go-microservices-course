@@ -6,11 +6,6 @@ services: # Здесь описываются контейнеры, необхо
     container_name: inventory-mongo
     # Устанавливаем удобное читаемое имя контейнера — пригодится для логов и отладки
 
-    # environment: # Переменные окружения для инициализации MongoDB
-    #   MONGO_INITDB_DATABASE: ${MONGO_INITDB_DATABASE} # Имя базы данных, которая будет создана при запуске
-    #   MONGO_INITDB_ROOT_USERNAME: ${MONGO_INITDB_ROOT_USERNAME} # Имя root-пользователя MongoDB
-    #   MONGO_INITDB_ROOT_PASSWORD: ${MONGO_INITDB_ROOT_PASSWORD} # Пароль для root-пользователя
-
     env_file:
       - .env
 
@@ -43,6 +38,28 @@ services: # Здесь описываются контейнеры, необхо
     networks:
       - microservices-net
       # Подключаем контейнер к общей сети всех микросервисов, чтобы они могли взаимодействовать между собой по имени
+
+  inventory:
+    build:
+      context: ./../.. # Контекст сборки приложения — root-папка проекта
+      dockerfile: ./../docker/inventory/Dockerfile
+      platforms:
+        - linux/amd64
+
+    container_name: inventory-service # Имя контейнера приложения
+    image: inventory-service:v1.0.0
+
+    ports:
+      - "${GRPC_PORT}:8080" # Внешний порт из .env, внутренний фиксированный 8080
+    env_file:
+      - .env
+    depends_on:
+      inventory-mongo:
+        condition: service_healthy # Ждём, пока база станет "здоровой", прежде чем стартовать приложение
+    restart: unless-stopped # Автоматический перезапуск приложения
+    # Сеть можно оставить для расширяемости проекта
+    networks:
+      - microservices-net
 
 volumes: # Раздел с томами — определяем хранилище, которое создаст Docker
   inventory_mango_data:
