@@ -27,9 +27,9 @@ RUN go mod download
 # Копируем исходный код всех модулей — включая зависимости, т.к. они нужны при компиляции
 COPY platform ./platform
 COPY shared ./shared
-COPY inventory ./inventory
+# COPY inventory ./inventory
 # COPY order ./order
-# COPY payment ./payment
+COPY payment ./payment
 
 # Скачиваем grpc-health-probe — это утилита для проверки состояния gRPC-сервиса
 # Warning: а если её подменят? Нужно кэшировать у себя
@@ -38,8 +38,8 @@ ADD https://github.com/grpc-ecosystem/grpc-health-probe/releases/download/v0.4.3
 # Делаем скачанный файл исполняемым
 RUN chmod +x grpc-health-probe
 
-# Собираем бинарный файл UFO-сервиса для Linux-архитектуры без CGO
-RUN CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -o app-inventory ./inventory/cmd/main.go
+# Собираем бинарный файл сервиса для Linux-архитектуры без CGO
+RUN CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -o app-payment ./payment/cmd/main.go
 
 
 # ============================
@@ -59,7 +59,7 @@ WORKDIR /app
 USER appuser
 
 # Копируем скомпилированный бинарник из стадии builder
-COPY --from=builder /app/app-inventory .
+COPY --from=builder /app/app-payment .
 
 # Копируем бинарь grpc-health-probe в /bin
 COPY --from=builder /app/grpc-health-probe /bin/grpc-health-probe
@@ -68,7 +68,7 @@ COPY --from=builder /app/grpc-health-probe /bin/grpc-health-probe
 # COPY deploy/compose/inventory/.env .env
 
 # Экспонируем порт gRPC-сервиса Inventory
-EXPOSE 50051
+EXPOSE 50053
 
 # Устанавливаем команду запуска — запускаем наш бинарь
-ENTRYPOINT ["./app-inventory"]
+ENTRYPOINT ["./app-payment"]

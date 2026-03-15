@@ -49,7 +49,7 @@ tasks:
   inventory:run:
     desc: "Запускает inventory сервис"
     cmds:
-      - go run ./inventory/cmd/main.go
+      - go run ./inventory/cmd/main.go --env ./inventory/cmd/.env.dev
   
   inventory:debug:
     desc: "Запускает inventory сервис в режиме отладки"
@@ -61,7 +61,7 @@ tasks:
   order:run:
       desc: "Запускает order сервис"
       cmds:
-        - go run ./order/cmd/main.go
+        - go run ./order/cmd/main.go --env ./order/cmd/.env.dev
   
   order:debug:
       desc: "Запускает order сервис в режиме отладки"
@@ -71,68 +71,92 @@ tasks:
   payment:run:
       desc: "Запускает payment сервис"
       cmds:
-        - go run ./payment/cmd/main.go
+        - go run ./payment/cmd/main.go --env ./payment/cmd/.env.dev
   
   payment:debug:
     desc: "Запускает payment сервис в режиме отладки"
     cmds:
       - dlv debug ./payment/cmd/main.go --headless --listen=127.0.0.1:50001 --accept-multiclient --continue --only-same-user=false
 
-  docker:up-core:
-    desc: Поднять core контейнеры
-    dir: deploy/compose/core
+  compose:network:up:
+    desc: Поднять сеть
+    dir: deploy/compose/network
     cmds:
-      - echo "[task] 🚀 Поднимаем core контейнеры"
-      - docker compose up --build --detach
+      - docker compose --all-resources up
 
-  docker:down-core:
-    desc: Остановить и удалить core контейнеры
-    dir: deploy/compose/core
+  compose:network:down:
+    desc: Удалить сеть
+    dir: deploy/compose/network
     cmds:
-      - echo "[task] 🛑 Останавливаем core контейнеры"
-      - docker compose down --volumes
+      - docker compose --all-resources down
 
-  docker:up-order:
+  compose:order:up:
     desc: Поднять Order зависимости
     dir: deploy/compose/order
     cmds:
       - echo "[task] 📦 Поднимаем Order зависимости"
       - docker compose up --build --detach
 
-  docker:down-order:
+  compose:order:up:
     desc: Остановить и удалить Order зависимости
     dir: deploy/compose/order
     cmds:
       - echo "[task] 🛑 Останавливаем Order зависимости"
       - docker compose down --volumes
 
-  docker:up-inventory:
+  compose:inventory:up:
     desc: Поднять Inventory зависимости
     dir: deploy/compose/inventory
     cmds:
       - echo "[task] 📦 Поднимаем Inventory зависимости"
       - docker compose up --build --detach
 
-  docker:down-inventory:
-    desc: Остановить и удалить Inventory зависимости
+  compose:inventory:down:
     dir: deploy/compose/inventory
     cmds:
-      - echo "[task] 🛑 Останавливаем Inventory зависимости"
       - docker compose down --volumes
 
-  docker:up-all:
-    desc: Поднять все зависимости по очереди вместе
+  compose:payment:up:
+    dir: deploy/compose/payment
     cmds:
-      - task docker:up-core
-      - task docker:up-order
-      - task docker:up-inventory
+      - docker compose up --build --detach
 
-  docker:down-all:
-    desc: Остановить и удалить все зависимости по очереди вместе
+  compose:payment:down:
+    dir: deploy/compose/payment
     cmds:
-      - task docker:down-core
-      - task docker:down-order
-      - task docker:down-inventory
+      - docker compose down
+
+  compose:mongo:up:
+    dir: deploy/compose/mongo
+    cmds:
+      - docker compose up --volumes --detach
+
+  compose:mongo:down:
+    dir: deploy/compose/mongo
+    cmds:
+      - docker compose down --volumes
+
+  compose:postgres:up:
+    dir: deploy/compose/postgres
+    cmds:
+      - docker compose up --volumes --detach
+
+  compose:postgres:down:
+    dir: deploy/compose/postgres
+    cmds:
+      - docker compose down --volumes
+
+  compose:infra:up:
+    cmds:
+      - task compose:network:up
+      - task compose:postgres:up
+      - task compose:mongo:up
+
+  compose:infra:down:
+    cmds:
+      - task compose:mongo:down
+      - task compose:postgres:down
+      - task compose:network:down
 
   install-formatters:
     desc: "Устанавливает форматтеры gci и gofumpt в ./bin"
@@ -471,7 +495,7 @@ tasks:
         done
         exit $ERR
 
-  test-api:
+  test:api:
     desc: "🧪 Запуск тестов для проверки API микросервисов"
     deps: [ grpcurl:install ]
     cmds:
@@ -479,7 +503,7 @@ tasks:
         echo "🧪 Тестирование API микросервисов через gRPC и REST"
         
         echo "📦 Тест 1: Получение списка деталей из Inventory"
-        PARTS_RESPONSE=$({{.GRPCURL}} -plaintext -d '{"filter":{}}' localhost:50052 inventory.v1.InventoryService/ListParts)
+        PARTS_RESPONSE=$({{.GRPCURL}} -plaintext -d '{"filter":{}}' localhost:50051 inventory.v1.InventoryService/ListParts)
         
         if [[ -z "$PARTS_RESPONSE" || "$PARTS_RESPONSE" == *"error"* ]]; then
           echo "❌ Не удалось получить список деталей."
@@ -498,7 +522,7 @@ tasks:
         
         echo
         echo "🔍 Тест 2: Получение информации о детали по UUID"
-        PART_RESPONSE=$({{.GRPCURL}} -plaintext -d "{\"id\":\"$PART_UUID\"}" localhost:50052 inventory.v1.InventoryService/GetPart)
+        PART_RESPONSE=$({{.GRPCURL}} -plaintext -d "{\"id\":\"$PART_UUID\"}" localhost:50051 inventory.v1.InventoryService/GetPart)
         
         if [[ -z "$PART_RESPONSE" || "$PART_RESPONSE" == *"error"* ]]; then
           echo "❌ Не удалось получить информацию о детали."
@@ -523,7 +547,7 @@ tasks:
         
         echo
         echo "📝 Тест 4: Создание заказа (REST API)"
-        ORDER_RESPONSE=$(curl -s -X POST "http://localhost:50051/api/v1/orders" \
+        ORDER_RESPONSE=$(curl -s -X POST "http://localhost:50052/api/v1/orders" \
           -H "Content-Type: application/json" \
           -d "{\"user_uuid\":\"$USER_UUID\",\"part_uuids\":[\"$PART_UUID\"]}")
         
@@ -547,7 +571,7 @@ tasks:
         
         echo
         echo "📊 Тест 5: Проверка начального статуса заказа (должен быть PENDING_PAYMENT)"
-        ORDER_INFO_RESPONSE=$(curl -s -X GET "http://localhost:50051/api/v1/orders/$ORDER_UUID")
+        ORDER_INFO_RESPONSE=$(curl -s -X GET "http://localhost:50052/api/v1/orders/$ORDER_UUID")
         
         if [[ -z "$ORDER_INFO_RESPONSE" || "$ORDER_INFO_RESPONSE" == *"error"* ]]; then
           echo "❌ Не удалось получить информацию о заказе."
@@ -575,7 +599,7 @@ tasks:
         
         echo
         echo "💰 Тест 6: Оплата заказа (REST API)"
-        PAY_RESPONSE=$(curl -s -X POST "http://localhost:50051/api/v1/orders/$ORDER_UUID/pay" \
+        PAY_RESPONSE=$(curl -s -X POST "http://localhost:50052/api/v1/orders/$ORDER_UUID/pay" \
           -H "Content-Type: application/json" \
           -d "{\"payment_method\":\"CARD\"}")
         
@@ -588,7 +612,7 @@ tasks:
         
         echo
         echo "📊 Тест 7: Проверка статуса после оплаты (должен быть PAID)"
-        ORDER_INFO_RESPONSE=$(curl -s -X GET "http://localhost:50051/api/v1/orders/$ORDER_UUID")
+        ORDER_INFO_RESPONSE=$(curl -s -X GET "http://localhost:50052/api/v1/orders/$ORDER_UUID")
         
         # Извлекаем статус заказа
         ORDER_STATUS=$(echo $ORDER_INFO_RESPONSE | grep -o '"status":"[^"]*' | cut -d'"' -f4)
@@ -605,7 +629,7 @@ tasks:
         
         echo
         echo "📝 Тест 8: Создание второго заказа для отмены (REST API)"
-        ORDER2_RESPONSE=$(curl -s -X POST "http://localhost:50051/api/v1/orders" \
+        ORDER2_RESPONSE=$(curl -s -X POST "http://localhost:50052/api/v1/orders" \
           -H "Content-Type: application/json" \
           -d "{\"user_uuid\":\"$USER_UUID\",\"part_uuids\":[\"$PART_UUID\"]}")
         
@@ -628,7 +652,7 @@ tasks:
         echo "✅ Успешно создан второй заказ с UUID: $ORDER2_UUID"
         
         # Проверяем его начальный статус
-        ORDER2_INFO=$(curl -s -X GET "http://localhost:50051/api/v1/orders/$ORDER2_UUID")
+        ORDER2_INFO=$(curl -s -X GET "http://localhost:50052/api/v1/orders/$ORDER2_UUID")
         ORDER2_STATUS=$(echo $ORDER2_INFO | grep -o '"status":"[^"]*' | cut -d'"' -f4)
         if [ -z "$ORDER2_STATUS" ]; then
           ORDER2_STATUS=$(echo $ORDER2_INFO | grep -o '"status": "[^"]*' | cut -d'"' -f4)
@@ -645,11 +669,11 @@ tasks:
         echo "Ожидаем 2 секунды перед отменой..."
         sleep 2
         
-        curl -s -X POST "http://localhost:50051/api/v1/orders/$ORDER2_UUID/cancel"
+        curl -s -X POST "http://localhost:50052/api/v1/orders/$ORDER2_UUID/cancel"
         
         echo "Проверяем статус после отмены..."
         
-        ORDER2_INFO=$(curl -s -X GET "http://localhost:50051/api/v1/orders/$ORDER2_UUID")
+        ORDER2_INFO=$(curl -s -X GET "http://localhost:50052/api/v1/orders/$ORDER2_UUID")
         ORDER2_STATUS=$(echo $ORDER2_INFO | grep -o '"status":"[^"]*' | cut -d'"' -f4)
         if [ -z "$ORDER2_STATUS" ]; then
           ORDER2_STATUS=$(echo $ORDER2_INFO | grep -o '"status": "[^"]*' | cut -d'"' -f4)

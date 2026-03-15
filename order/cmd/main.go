@@ -2,6 +2,7 @@ package main
 
 import (
 	"context"
+	"flag"
 	"fmt"
 	"os/signal"
 	"syscall"
@@ -15,18 +16,12 @@ import (
 	"github.com/Reensef/go-microservices-course/platform/pkg/logger"
 )
 
-const (
-	// Таймауты для HTTP-сервера
-	readHeaderTimeout       = 5 * time.Second
-	shutdownTimeout         = 10 * time.Second
-	inventoryServiceAddress = "localhost:50051"
-	paymenyServiceAddress   = "localhost:50053"
-)
-
-const configPath = "./deploy/compose/order/.env"
-
 func main() {
-	err := config.Load(configPath)
+	var env string
+	flag.StringVar(&env, "env", "", "Путь к файлу с переменными окружения")
+	flag.Parse()
+
+	err := config.Load(env)
 	if err != nil {
 		panic(fmt.Errorf("failed to load config: %w", err))
 	}
@@ -39,7 +34,7 @@ func main() {
 
 	a, err := app.New(appCtx)
 	if err != nil {
-		logger.Error(appCtx, "error creating application", zap.Error(err))
+		fmt.Println("Error create app: %w", err)
 		return
 	}
 

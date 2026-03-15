@@ -3,9 +3,8 @@ package config
 import (
 	"os"
 
-	"github.com/joho/godotenv"
-
 	"github.com/Reensef/go-microservices-course/order/internal/config/env"
+	"github.com/joho/godotenv"
 )
 
 var appConfig *config
@@ -22,10 +21,12 @@ type config struct {
 	Postgres PostgresConfig
 }
 
-func Load(path ...string) error {
-	err := godotenv.Load(path...)
-	if err != nil && !os.IsNotExist(err) {
-		return err
+func Load(envFile string) error {
+	if envFile != "" {
+		err := godotenv.Load(envFile)
+		if err != nil && !os.IsNotExist(err) {
+			return err
+		}
 	}
 
 	loggerCfg, err := env.NewLoggerConfig()

@@ -2,6 +2,7 @@ package main
 
 import (
 	"context"
+	"flag"
 	"fmt"
 	"os/signal"
 	"syscall"
@@ -15,10 +16,12 @@ import (
 	"github.com/Reensef/go-microservices-course/platform/pkg/logger"
 )
 
-const configPath = "./deploy/compose/inventory/.env"
-
 func main() {
-	err := config.Load(configPath)
+	var env string
+	flag.StringVar(&env, "env", "", "Путь к файлу с переменными окружения")
+	flag.Parse()
+
+	err := config.Load(env)
 	if err != nil {
 		panic(fmt.Errorf("failed to load config: %w", err))
 	}

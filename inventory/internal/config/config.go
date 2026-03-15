@@ -16,10 +16,12 @@ type config struct {
 	Mongo            MongoConfig
 }
 
-func Load(path ...string) error {
-	err := godotenv.Load(path...)
-	if err != nil && !os.IsNotExist(err) {
-		return err
+func Load(envFile string) error {
+	if envFile != "" {
+		err := godotenv.Load(envFile)
+		if err != nil && !os.IsNotExist(err) {
+			return err
+		}
 	}
 
 	loggerConfig, err := env.NewLoggerConfig()
