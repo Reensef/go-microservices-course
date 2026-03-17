@@ -32,7 +32,7 @@ type Closer struct {
 }
 
 // Глобальный экземпляр для использования по всему приложению
-var globalCloser = NewWithLogger(&logger.NoopLogger{})
+var globalCloser = NewWithLogger(&logger.DummyLogger{})
 
 // AddNamed добавляет функцию закрытия с именем зависимости для логирования в глобальный closer
 func AddNamed(name string, f func(context.Context) error) {

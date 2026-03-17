@@ -6,7 +6,7 @@ import (
 	"go.uber.org/zap"
 )
 
-type NoopLogger struct{}
+type DummyLogger struct{}
 
-func (l *NoopLogger) Info(ctx context.Context, msg string, fields ...zap.Field)  {}
-func (l *NoopLogger) Error(ctx context.Context, msg string, fields ...zap.Field) {}
+func (l *DummyLogger) Info(ctx context.Context, msg string, fields ...zap.Field)  {}
+func (l *DummyLogger) Error(ctx context.Context, msg string, fields ...zap.Field) {}

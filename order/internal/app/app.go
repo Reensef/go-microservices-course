@@ -40,8 +40,8 @@ func (a *App) Run(ctx context.Context) error {
 func (a *App) initDeps(ctx context.Context) error {
 	inits := []func(context.Context) error{
 		a.initDI,
-		a.applyMigrations,
 		a.initLogger,
+		a.applyMigrations,
 		a.initCloser,
 		a.initOrderRouter,
 		a.initOrderHttpServer,
@@ -108,12 +108,6 @@ func (a *App) runOrderHttpServer(ctx context.Context) error {
 		"🚀 HTTP Order Service server listening on %s",
 		config.AppConfig().OrderService.Address()),
 	)
-	err := a.orderHttpServer.ListenAndServe()
-	if err != nil {
-		logger.Warn(ctx, fmt.Sprintf("Order HTTP server startup error: %v", err))
-		return err
-	}
-
 	closer.AddNamed("Order HTTP server", func(ctx context.Context) error {
 		err := a.orderHttpServer.Shutdown(ctx)
 		if err != nil && !errors.Is(err, http.ErrServerClosed) {
@@ -123,6 +117,12 @@ func (a *App) runOrderHttpServer(ctx context.Context) error {
 
 		return nil
 	})
+
+	err := a.orderHttpServer.ListenAndServe()
+	if err != nil {
+		logger.Warn(ctx, fmt.Sprintf("Order HTTP server startup error: %v", err))
+		return err
+	}
 
 	return nil
 }

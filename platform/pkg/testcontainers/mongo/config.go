@@ -37,7 +37,7 @@ func buildConfig(opts ...Option) *Config {
 		Username:      "root",
 		Password:      "root",
 		AuthDB:        "admin",
-		Logger:        &logger.NoopLogger{},
+		Logger:        &logger.DummyLogger{},
 	}
 
 	for _, opt := range opts {

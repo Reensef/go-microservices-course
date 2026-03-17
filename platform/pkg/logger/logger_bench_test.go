@@ -5,11 +5,15 @@ import (
 	"testing"
 
 	"go.uber.org/zap"
+	"go.uber.org/zap/zapcore"
 )
 
 func init() {
-	// Инициализируем логгер на "мусорный" writer, чтобы не засорять консоль и не тормозить бенчи
-	InitForBenchmark()
+	core := zapcore.NewNopCore()
+
+	globalLogger = &logger{
+		zapLogger: zap.New(core),
+	}
 }
 
 func BenchmarkGlobalLogger(b *testing.B) {

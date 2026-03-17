@@ -55,7 +55,7 @@ func NewContainer(ctx context.Context, opts ...Option) (*Container, error) {
 		LogOutput:     io.Discard,
 		StartupWait:   wait.ForListeningPort(defaultAppPort + "/tcp").WithStartupTimeout(defaultStartupTimeout),
 		Env:           make(map[string]string),
-		Logger:        &logger.NoopLogger{},
+		Logger:        &logger.DummyLogger{},
 	}
 	for _, opt := range opts {
 		opt(cfg)

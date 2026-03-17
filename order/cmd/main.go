@@ -34,7 +34,7 @@ func main() {
 
 	a, err := app.New(appCtx)
 	if err != nil {
-		fmt.Println("Error create app: %w", err)
+		logger.Error(appCtx, "error create application", zap.Error(err))
 		return
 	}
 
