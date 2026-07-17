@@ -14,20 +14,20 @@ type repository struct {
 	collection *mongo.Collection
 }
 
-func New(db *mongo.Database) *repository {
+func New(ctx context.Context, db *mongo.Database) *repository {
 	collection := db.Collection("parts")
 	repo := &repository{
 		collection: collection,
 	}
 
-	repo.genData()
+	repo.genData(ctx)
 
 	return repo
 }
 
-func (s *repository) genData() {
+func (s *repository) genData(ctx context.Context) {
 	for range 10 {
-		part, err := s.Create(context.Background(), generateRandomPart())
+		part, err := s.Create(ctx, generateRandomPart())
 		if err != nil {
 			log.Println(err)
 			continue

@@ -3,8 +3,9 @@ package config
 import (
 	"os"
 
-	"github.com/Reensef/go-microservices-course/order/internal/config/env"
 	"github.com/joho/godotenv"
+
+	"github.com/Reensef/go-microservices-course/order/internal/config/env"
 )
 
 var appConfig *config

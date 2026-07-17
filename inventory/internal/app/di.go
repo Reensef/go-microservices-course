@@ -96,7 +96,7 @@ func (d *diContainer) InventoryListener(ctx context.Context) net.Listener {
 
 func (d *diContainer) PartRepository(ctx context.Context) repository.PartRepository {
 	if d.partRepository == nil {
-		d.partRepository = partRepository.New(d.MongoHandler(ctx))
+		d.partRepository = partRepository.New(ctx, d.MongoHandler(ctx))
 	}
 
 	return d.partRepository

@@ -12,6 +12,6 @@ const (
 	MongoPortKey      = "MONGO_PORT"
 	MongoDatabaseKey  = "MONGO_DATABASE"
 	MongoUsernameKey  = "MONGO_INITDB_ROOT_USERNAME"
-	MongoPasswordKey  = "MONGO_INITDB_ROOT_PASSWORD"
+	MongoPasswordKey  = "MONGO_INITDB_ROOT_PASSWORD" // nolint:gosec
 	MongoAuthDBKey    = "MONGO_AUTH_DB"
 )
