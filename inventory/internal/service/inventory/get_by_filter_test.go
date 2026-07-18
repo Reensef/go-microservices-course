@@ -20,7 +20,7 @@ func TestGetByFilter(t *testing.T) {
 
 	repoMock.EXPECT().GetByFilter(t.Context(), mock.Anything).Return(make([]*model.Part, dataLen), nil).Once()
 
-	service := NewService(repoMock)
+	service := New(repoMock)
 
 	parts, err := service.GetPartsByFilter(t.Context(), nil)
 

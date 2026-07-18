@@ -6,12 +6,12 @@ import (
 	"github.com/Reensef/go-microservices-course/order/internal/model"
 )
 
-type IntentoryServiceClient interface {
+type IntentoryClient interface {
 	GetPart(ctx context.Context, partUuid string) (*model.Part, error)
 	ListParts(ctx context.Context, filter *model.PartsFilter) ([]*model.Part, error)
 }
 
-type PaymentServiceClient interface {
+type PaymentClient interface {
 	PayOrder(
 		ctx context.Context,
 		orderUuid, userUuid string,

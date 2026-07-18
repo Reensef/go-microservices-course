@@ -18,7 +18,7 @@ func TestGetByUuid_Exists(t *testing.T) {
 
 	repoMock.EXPECT().GetByID(t.Context(), id).Return(&model.Part{}, nil).Once()
 
-	service := NewService(repoMock)
+	service := New(repoMock)
 
 	part, err := service.GetPartByID(t.Context(), id)
 
@@ -34,7 +34,7 @@ func TestGetByUuid_NotExists(t *testing.T) {
 
 	repoMock.EXPECT().GetByID(t.Context(), id).Return(nil, fmt.Errorf("error")).Once()
 
-	service := NewService(repoMock)
+	service := New(repoMock)
 
 	part, err := service.GetPartByID(t.Context(), id)
 

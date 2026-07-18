@@ -8,7 +8,7 @@ type service struct {
 	repo repo.PartRepository
 }
 
-func NewService(repo repo.PartRepository) *service {
+func New(repo repo.PartRepository) *service {
 	service := &service{
 		repo: repo,
 	}

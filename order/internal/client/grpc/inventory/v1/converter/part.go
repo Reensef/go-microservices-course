@@ -4,11 +4,11 @@ import (
 	"google.golang.org/protobuf/types/known/timestamppb"
 
 	model "github.com/Reensef/go-microservices-course/order/internal/model"
-	inventoryV1 "github.com/Reensef/go-microservices-course/shared/pkg/proto/inventory/v1"
-	"github.com/Reensef/go-microservices-course/shared/pkg/utils"
+	"github.com/Reensef/go-microservices-course/platform/pkg/multivalue"
+	inventoryGrpc "github.com/Reensef/go-microservices-course/shared/pkg/proto/inventory/v1"
 )
 
-func ToModelPart(part *inventoryV1.Part) (*model.Part, error) {
+func ToModelPart(part *inventoryGrpc.Part) (*model.Part, error) {
 	modelPart := &model.Part{
 		Id: part.GetId(),
 		Info: model.PartInfo{
@@ -20,8 +20,8 @@ func ToModelPart(part *inventoryV1.Part) (*model.Part, error) {
 			Dimensions:    ToModelPartDimensions(part.Dimensions),
 			Manufacturer:  ToModelPartManufacturer(part.Manufacturer),
 			Tags:          part.Tags,
-			Metadata: func() map[string]utils.MultiValue {
-				metadata := make(map[string]utils.MultiValue)
+			Metadata: func() map[string]multivalue.MultiValue {
+				metadata := make(map[string]multivalue.MultiValue)
 				for key, value := range part.Metadata {
 					metadata[key] = *ToMultiValue(value)
 				}
@@ -35,22 +35,22 @@ func ToModelPart(part *inventoryV1.Part) (*model.Part, error) {
 	return modelPart, nil
 }
 
-func ToModelPartCategory(category inventoryV1.Category) model.PartCategory {
+func ToModelPartCategory(category inventoryGrpc.Category) model.PartCategory {
 	switch category {
-	case inventoryV1.Category_CATEGORY_ENGINE:
+	case inventoryGrpc.Category_CATEGORY_ENGINE:
 		return model.PartCategory_ENGINE
-	case inventoryV1.Category_CATEGORY_FUEL:
+	case inventoryGrpc.Category_CATEGORY_FUEL:
 		return model.PartCategory_FUEL
-	case inventoryV1.Category_CATEGORY_PORTHOLE:
+	case inventoryGrpc.Category_CATEGORY_PORTHOLE:
 		return model.PartCategory_PORTHOLE
-	case inventoryV1.Category_CATEGORY_WING:
+	case inventoryGrpc.Category_CATEGORY_WING:
 		return model.PartCategory_WING
 	default:
 		return model.PartCategory_UNSPECIFIED
 	}
 }
 
-func ToModelPartDimensions(dim *inventoryV1.Dimensions) *model.PartDimensions {
+func ToModelPartDimensions(dim *inventoryGrpc.Dimensions) *model.PartDimensions {
 	return &model.PartDimensions{
 		Length: dim.Length,
 		Width:  dim.Width,
@@ -59,7 +59,7 @@ func ToModelPartDimensions(dim *inventoryV1.Dimensions) *model.PartDimensions {
 	}
 }
 
-func ToModelPartManufacturer(manufacturer *inventoryV1.Manufacturer) *model.PartManufacturer {
+func ToModelPartManufacturer(manufacturer *inventoryGrpc.Manufacturer) *model.PartManufacturer {
 	return &model.PartManufacturer{
 		Name:    manufacturer.Name,
 		Country: manufacturer.Country,
@@ -67,8 +67,8 @@ func ToModelPartManufacturer(manufacturer *inventoryV1.Manufacturer) *model.Part
 	}
 }
 
-func ToProtoPart(part *model.Part) *inventoryV1.Part {
-	return &inventoryV1.Part{
+func ToProtoPart(part *model.Part) *inventoryGrpc.Part {
+	return &inventoryGrpc.Part{
 		Id:            part.Id,
 		Name:          part.Info.Name,
 		Description:   part.Info.Description,
@@ -80,8 +80,8 @@ func ToProtoPart(part *model.Part) *inventoryV1.Part {
 		Tags:          part.Info.Tags,
 		CreatedAt:     timestamppb.New(part.CreatedAt),
 		UpdatedAt:     timestamppb.New(part.UpdatedAt),
-		Metadata: func() map[string]*inventoryV1.Value {
-			metadata := make(map[string]*inventoryV1.Value)
+		Metadata: func() map[string]*inventoryGrpc.Value {
+			metadata := make(map[string]*inventoryGrpc.Value)
 			for key, value := range part.Info.Metadata {
 				metadata[key] = ToProtoMultiValue(&value)
 			}
@@ -90,23 +90,23 @@ func ToProtoPart(part *model.Part) *inventoryV1.Part {
 	}
 }
 
-func ToProtoPartCategory(category model.PartCategory) inventoryV1.Category {
+func ToProtoPartCategory(category model.PartCategory) inventoryGrpc.Category {
 	switch category {
 	case model.PartCategory_ENGINE:
-		return inventoryV1.Category_CATEGORY_ENGINE
+		return inventoryGrpc.Category_CATEGORY_ENGINE
 	case model.PartCategory_FUEL:
-		return inventoryV1.Category_CATEGORY_FUEL
+		return inventoryGrpc.Category_CATEGORY_FUEL
 	case model.PartCategory_PORTHOLE:
-		return inventoryV1.Category_CATEGORY_PORTHOLE
+		return inventoryGrpc.Category_CATEGORY_PORTHOLE
 	case model.PartCategory_WING:
-		return inventoryV1.Category_CATEGORY_WING
+		return inventoryGrpc.Category_CATEGORY_WING
 	default:
-		return inventoryV1.Category_CATEGORY_UNSPECIFIED
+		return inventoryGrpc.Category_CATEGORY_UNSPECIFIED
 	}
 }
 
-func ToProtoPartDimensions(dim *model.PartDimensions) *inventoryV1.Dimensions {
-	return &inventoryV1.Dimensions{
+func ToProtoPartDimensions(dim *model.PartDimensions) *inventoryGrpc.Dimensions {
+	return &inventoryGrpc.Dimensions{
 		Length: dim.Length,
 		Width:  dim.Width,
 		Height: dim.Height,
@@ -114,8 +114,8 @@ func ToProtoPartDimensions(dim *model.PartDimensions) *inventoryV1.Dimensions {
 	}
 }
 
-func ToProtoPartManufacturer(manufacturer *model.PartManufacturer) *inventoryV1.Manufacturer {
-	return &inventoryV1.Manufacturer{
+func ToProtoPartManufacturer(manufacturer *model.PartManufacturer) *inventoryGrpc.Manufacturer {
+	return &inventoryGrpc.Manufacturer{
 		Name:    manufacturer.Name,
 		Country: manufacturer.Country,
 		Website: manufacturer.Website,

@@ -1,0 +1,40 @@
+services:
+  inventory-mongo:
+    image: ${MONGO_IMAGE_NAME} # Образ MongoDB
+
+    env_file:
+      - ./.env
+
+    volumes:
+      - mongo_data:/data/db
+      # Подключаем локальный Docker-том к директории MongoDB, где хранятся все данные
+      # Это нужно для сохранения данных между перезапусками контейнера
+
+    ports:
+      - "${MONGO_EXTERNAL_PORT}:27017"
+      # Пробрасываем порт: внешний из .env, внутренний фиксированный
+      # Это позволяет подключаться к Mongo из внешних инструментов
+
+    healthcheck:
+      test:
+        [
+          "CMD-SHELL",
+          "echo 'db.runCommand({ ping: 1 }).ok' | mongosh --quiet -u ${MONGO_INITDB_ROOT_USERNAME} -p ${MONGO_INITDB_ROOT_PASSWORD} --authenticationDatabase ${MONGO_AUTH_DB}",
+        ]
+      # Проверка готовности MongoDB: выполняем команду ping через mongosh с указанием логина и пароля
+      # --quiet отключает лишний вывод, чтобы результатом был только "1" при успехе
+      interval: 10s # Запускаем проверку каждые 10 секунд
+      timeout: 5s # Максимальное время ожидания выполнения ping-команды
+      retries: 5 # После 5 неудачных проверок подряд контейнер считается "неработоспособным"
+
+    restart: unless-stopped
+
+    networks:
+      - common
+
+volumes:
+  mongo_data:
+
+networks:
+  common:
+    external: true

@@ -1,8 +1,0 @@
-include:
-  - ./deploy/compose/inventory/docker-compose.yml
-  - ./deploy/compose/order/docker-compose.yml
-
-networks:
-  microservices-net:
-    name: microservices-net
-    driver: bridge

@@ -1,0 +1,35 @@
+services:
+  order-postgres:
+    image: postgres:17.0-alpine3.20
+
+    env_file:
+      - ./.env
+
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+      # Определяем том, который будет использоваться для хранения данных PostgreSQL
+      # Он сохраняет данные между перезапусками контейнера
+
+    ports:
+      - "${POSTGRES_PORT}:5432"
+      # Пробрасываем внутренний порт PostgreSQL (5432) на порт хоста
+      # Это нужно, чтобы другие сервисы или инструменты могли подключиться к базе
+
+    healthcheck:
+      test: [ "CMD-SHELL", "pg_isready -U ${POSTGRES_USER}" ]
+      # Настраиваем проверку готовности контейнера — pg_isready проверяет, принимает ли база подключения
+      interval: 10s  # Интервал между проверками — каждые 10 секунд
+      timeout: 5s    # Время ожидания ответа от проверки
+      retries: 5     # После 5 неудачных попыток подряд контейнер считается "unhealthy"
+
+    restart: unless-stopped
+
+    networks:
+      - common
+
+volumes:
+  postgres_data:
+
+networks:
+  common:
+    external: true

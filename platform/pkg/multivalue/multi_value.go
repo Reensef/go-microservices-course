@@ -1,4 +1,4 @@
-package utils
+package multivalue
 
 type MultiValueType int32
 

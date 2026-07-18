@@ -18,7 +18,7 @@ import (
 func TestPayOrder(t *testing.T) {
 	t.Run("Success", func(t *testing.T) {
 		mockPaymentService := mocks.NewMockPaymentService(t)
-		apiInstance := NewAPI(mockPaymentService)
+		apiInstance := New(mockPaymentService)
 
 		ctx := context.Background()
 
@@ -46,7 +46,7 @@ func TestPayOrder(t *testing.T) {
 
 	t.Run("Unspecified payment method", func(t *testing.T) {
 		mockPaymentService := mocks.NewMockPaymentService(t)
-		apiInstance := NewAPI(mockPaymentService)
+		apiInstance := New(mockPaymentService)
 
 		ctx := context.Background()
 
@@ -72,7 +72,7 @@ func TestPayOrder(t *testing.T) {
 
 	t.Run("Internal error", func(t *testing.T) {
 		mockPaymentService := mocks.NewMockPaymentService(t)
-		apiInstance := NewAPI(mockPaymentService)
+		apiInstance := New(mockPaymentService)
 
 		ctx := context.Background()
 

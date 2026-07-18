@@ -1,0 +1,23 @@
+services:
+  payment:
+    build:
+      # Контекст должен быть корнем проекта, поэтому поднимаемся на три уровня
+      context: ./../../..
+      dockerfile: deploy/docker/payment/Dockerfile
+      platforms:
+        - linux/amd64
+
+    image: payment-service:v1.0.0
+
+    ports:
+      - "${GRPC_PORT}:${GRPC_PORT}"
+    env_file:
+      - ./.env
+    restart: unless-stopped
+
+    networks:
+      - common
+
+networks:
+  common:
+    external: true
