@@ -7,7 +7,6 @@ import (
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/bson/primitive"
 
-	"github.com/Reensef/go-microservices-course/inventory/internal/config"
 	repoModel "github.com/Reensef/go-microservices-course/inventory/internal/repository/model"
 )
 
@@ -18,7 +17,7 @@ func (env *TestEnvironment) MongoInsertPart(ctx context.Context, part *repoModel
 		"updated_at": time.Now(),
 	}
 
-	result, err := env.Mongo.Client().Database(config.AppConfig().Mongo.DatabaseName()).
+	result, err := env.Mongo.Client().Database(env.Mongo.Config().Database).
 		Collection(partsCollectionName).InsertOne(ctx, document)
 	if err != nil {
 		return "", err
@@ -28,7 +27,7 @@ func (env *TestEnvironment) MongoInsertPart(ctx context.Context, part *repoModel
 }
 
 func (env *TestEnvironment) MongoClearParts(ctx context.Context) error {
-	_, err := env.Mongo.Client().Database(config.AppConfig().Mongo.DatabaseName()).
+	_, err := env.Mongo.Client().Database(env.Mongo.Config().Database).
 		Collection(partsCollectionName).DeleteMany(ctx, bson.M{})
 
 	return err

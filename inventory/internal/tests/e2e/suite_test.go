@@ -3,7 +3,6 @@ package integration
 import (
 	"context"
 	"fmt"
-	"os"
 	"path/filepath"
 	"testing"
 	"time"
@@ -14,6 +13,7 @@ import (
 	"go.uber.org/zap"
 
 	"github.com/Reensef/go-microservices-course/platform/pkg/logger"
+	"github.com/Reensef/go-microservices-course/platform/pkg/testcontainers/path"
 )
 
 const testsTimeout = 5 * time.Minute
@@ -38,19 +38,16 @@ var _ = BeforeSuite(func() {
 
 	suiteCtx, suiteCancel = context.WithTimeout(context.Background(), testsTimeout)
 
-	// Загружаем .env файл и устанавливаем переменные в окружение
-	envVars, err := godotenv.Read(filepath.Join("..", "..", "..", "deploy", "compose", "ufo", ".env"))
+	// Загружаем .env файл — все нужные тестам переменные передаются дальше явно, как map
+	envPath := filepath.Join(path.GetProjectRoot(), "deploy", "compose", "inventory", ".env")
+
+	envVars, err := godotenv.Read(envPath)
 	if err != nil {
 		logger.Fatal(suiteCtx, "Не удалось загрузить .env файл", zap.Error(err))
 	}
 
-	// Устанавливаем переменные в окружение процесса
-	for key, value := range envVars {
-		_ = os.Setenv(key, value)
-	}
-
 	logger.Info(suiteCtx, "Запуск тестового окружения...")
-	env = setupTestEnvironment(suiteCtx)
+	env = setupTestEnvironment(suiteCtx, envVars)
 })
 
 var _ = AfterSuite(func() {

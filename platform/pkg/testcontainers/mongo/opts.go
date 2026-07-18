@@ -14,6 +14,15 @@ func WithContainerName(containerName string) Option {
 	}
 }
 
+// WithNetworkAliases задаёт дополнительные DNS-имена, по которым контейнер
+// будет резолвиться внутри сети NetworkName — в отличие от ContainerName,
+// не обязано совпадать с реальным именем контейнера в Docker.
+func WithNetworkAliases(aliases ...string) Option {
+	return func(c *Config) {
+		c.NetworkAliases = aliases
+	}
+}
+
 func WithImageName(image string) Option {
 	return func(c *Config) {
 		c.ImageName = image

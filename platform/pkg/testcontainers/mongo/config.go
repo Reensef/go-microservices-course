@@ -15,14 +15,15 @@ type Logger interface {
 }
 
 type Config struct {
-	NetworkName   string
-	ContainerName string
-	ImageName     string
-	Database      string
-	Username      string
-	Password      string
-	AuthDB        string
-	Logger        Logger
+	NetworkName    string
+	NetworkAliases []string
+	ContainerName  string
+	ImageName      string
+	Database       string
+	Username       string
+	Password       string
+	AuthDB         string
+	Logger         Logger
 
 	Host string
 	Port string

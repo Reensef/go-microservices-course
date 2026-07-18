@@ -14,6 +14,9 @@ func startMongoContainer(ctx context.Context, cfg *Config) (testcontainers.Conta
 		Name:     cfg.ContainerName,
 		Image:    cfg.ImageName,
 		Networks: []string{cfg.NetworkName},
+		NetworkAliases: map[string][]string{
+			cfg.NetworkName: cfg.NetworkAliases,
+		},
 		Env: map[string]string{
 			mongoEnvUsernameKey: cfg.Username,
 			mongoEnvPasswordKey: cfg.Password,

@@ -119,14 +119,14 @@ func streamContainerLogs(ctx context.Context, container testcontainers.Container
 		logger.Error(ctx, "failed to get container logs", zap.Error(err))
 		return
 	}
-	defer func() {
-		err = logs.Close()
-		if err != nil {
-			logger.Error(ctx, "failed to close container logs", zap.Error(err))
-		}
-	}()
-
 	go func() {
+		defer func() {
+			closeErr := logs.Close()
+			if closeErr != nil {
+				logger.Error(ctx, "failed to close container logs", zap.Error(closeErr))
+			}
+		}()
+
 		_, err = io.Copy(out, logs)
 		if err != nil && !errors.Is(err, io.EOF) {
 			logger.Error(ctx, "error copying container logs", zap.Error(err))

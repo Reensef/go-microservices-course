@@ -71,7 +71,7 @@ var _ = Describe("InventoryService", func() {
 			}
 
 			resp, err := inventoryClient.GetPart(ctx, &inventoryProto.GetPartRequest{
-				Id: part.ID,
+				Id: id,
 			})
 
 			Expect(err).ToNot(HaveOccurred())
