@@ -1,0 +1,14 @@
+syntax = "proto3";
+
+package events.v1;
+
+option go_package = "github.com/Reensef/go-microservices-course/shared/pkg/proto/events/v1;events_v1";
+
+// OrderPaid — событие об успешной оплате заказа.
+message OrderPaid {
+    string event_uuid = 1;
+    string order_uuid = 2;
+    string user_uuid = 3;
+    string transaction_uuid = 4;
+    string payment_method = 5;
+}

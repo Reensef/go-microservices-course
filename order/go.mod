@@ -1,6 +1,6 @@
 module github.com/Reensef/go-microservices-course/order
 
-go 1.24.4
+go 1.26.1
 
 require (
 	github.com/Reensef/go-microservices-course/platform v0.0.0-00010101000000-000000000000

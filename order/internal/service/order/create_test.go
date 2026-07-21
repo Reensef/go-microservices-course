@@ -17,9 +17,9 @@ import (
 func TestCreateOrder(t *testing.T) {
 	t.Run("Nil info", func(t *testing.T) {
 		repo := repoMocks.NewMockOrderRepository(t)
-		inventory := grpcMocks.NewMockIntentoryServiceClient(t)
-		payment := grpcMocks.NewMockPaymentServiceClient(t)
-		service := New(repo, inventory, payment)
+		inventory := grpcMocks.NewMockIntentoryClient(t)
+		payment := grpcMocks.NewMockPaymentClient(t)
+		service := New(repo, inventory, payment, nil)
 
 		uuid, err := service.CreateOrder(context.Background(), nil)
 
@@ -32,9 +32,9 @@ func TestCreateOrder(t *testing.T) {
 
 	t.Run("Error get parts", func(t *testing.T) {
 		repo := repoMocks.NewMockOrderRepository(t)
-		inventory := grpcMocks.NewMockIntentoryServiceClient(t)
-		payment := grpcMocks.NewMockPaymentServiceClient(t)
-		service := New(repo, inventory, payment)
+		inventory := grpcMocks.NewMockIntentoryClient(t)
+		payment := grpcMocks.NewMockPaymentClient(t)
+		service := New(repo, inventory, payment, nil)
 
 		inventory.EXPECT().ListParts(context.Background(), mock.Anything).Return(nil, fmt.Errorf("error")).Once()
 		uuid, err := service.CreateOrder(context.Background(), &model.OrderInfo{
@@ -50,9 +50,9 @@ func TestCreateOrder(t *testing.T) {
 
 	t.Run("Not enough parts", func(t *testing.T) {
 		repo := repoMocks.NewMockOrderRepository(t)
-		inventory := grpcMocks.NewMockIntentoryServiceClient(t)
-		payment := grpcMocks.NewMockPaymentServiceClient(t)
-		service := New(repo, inventory, payment)
+		inventory := grpcMocks.NewMockIntentoryClient(t)
+		payment := grpcMocks.NewMockPaymentClient(t)
+		service := New(repo, inventory, payment, nil)
 
 		parts := make([]*model.Part, 0, 5)
 		for range cap(parts) {
@@ -76,9 +76,9 @@ func TestCreateOrder(t *testing.T) {
 
 	t.Run("Nil parts", func(t *testing.T) {
 		repo := repoMocks.NewMockOrderRepository(t)
-		inventory := grpcMocks.NewMockIntentoryServiceClient(t)
-		payment := grpcMocks.NewMockPaymentServiceClient(t)
-		service := New(repo, inventory, payment)
+		inventory := grpcMocks.NewMockIntentoryClient(t)
+		payment := grpcMocks.NewMockPaymentClient(t)
+		service := New(repo, inventory, payment, nil)
 
 		inventory.EXPECT().ListParts(context.Background(), mock.Anything).Return(make([]*model.Part, 0), nil).Once()
 
@@ -98,9 +98,9 @@ func TestCreateOrder(t *testing.T) {
 
 	t.Run("Error create order", func(t *testing.T) {
 		repo := repoMocks.NewMockOrderRepository(t)
-		inventory := grpcMocks.NewMockIntentoryServiceClient(t)
-		payment := grpcMocks.NewMockPaymentServiceClient(t)
-		service := New(repo, inventory, payment)
+		inventory := grpcMocks.NewMockIntentoryClient(t)
+		payment := grpcMocks.NewMockPaymentClient(t)
+		service := New(repo, inventory, payment, nil)
 
 		inventory.EXPECT().ListParts(context.Background(), mock.Anything).Return(nil, nil).Once()
 		repo.EXPECT().CreateOrder(context.Background(), mock.Anything).Return(nil, fmt.Errorf("error")).Once()
@@ -117,9 +117,9 @@ func TestCreateOrder(t *testing.T) {
 
 	t.Run("Success", func(t *testing.T) {
 		repo := repoMocks.NewMockOrderRepository(t)
-		inventory := grpcMocks.NewMockIntentoryServiceClient(t)
-		payment := grpcMocks.NewMockPaymentServiceClient(t)
-		service := New(repo, inventory, payment)
+		inventory := grpcMocks.NewMockIntentoryClient(t)
+		payment := grpcMocks.NewMockPaymentClient(t)
+		service := New(repo, inventory, payment, nil)
 
 		parts := make([]*model.Part, 0, 5)
 		for range cap(parts) {

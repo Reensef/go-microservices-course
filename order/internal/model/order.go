@@ -21,6 +21,7 @@ const (
 	OrderStatus_PENDING_PAYMENT OrderStatus = 1
 	OrderStatus_PAID            OrderStatus = 2
 	OrderStatus_CANCELED        OrderStatus = 3
+	OrderStatus_ASSEMBLED       OrderStatus = 4
 )
 
 type OrderInfo struct {

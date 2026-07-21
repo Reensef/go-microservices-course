@@ -1,6 +1,6 @@
 module github.com/Reensef/go-microservices-course/inventory
 
-go 1.24.4
+go 1.26.1
 
 replace github.com/Reensef/go-microservices-course/shared => ../shared
 

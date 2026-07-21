@@ -8,12 +8,17 @@ import (
 
 type OrderService interface {
 	CreateOrder(ctx context.Context, info *model.OrderInfo) (*model.Order, error)
+
 	GetOrderByUUID(ctx context.Context, orderUuid string) (*model.Order, error)
+
 	CancelOrder(ctx context.Context, orderUuid string) error
+
 	PayOrder(
 		ctx context.Context,
 		orderUuid string,
 		userUuid string,
 		paymentMethod model.OrderPaymentMethod,
-	) (transactionUUID *string, err error)
+	) (transactionUUID string, err error)
+
+	AssembleOrder(ctx context.Context, orderUuid string) error
 }

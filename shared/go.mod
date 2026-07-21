@@ -1,6 +1,6 @@
 module github.com/Reensef/go-microservices-course/shared
 
-go 1.24.4
+go 1.26.1
 
 require (
 	github.com/envoyproxy/protoc-gen-validate v1.2.1

@@ -63,6 +63,6 @@ func (a *handler) PayOrder(
 	}
 
 	return &orderApi.PayOrderResponse{
-		TransactionUUID: orderApi.NewOptString(*transactionUUID),
+		TransactionUUID: orderApi.NewOptString(transactionUUID),
 	}, nil
 }

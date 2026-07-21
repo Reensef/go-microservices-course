@@ -33,4 +33,9 @@ type OrderRepository interface {
 		transactionUUID string,
 		paymentMethod model.OrderPaymentMethod,
 	) error
+
+	AssembleOrder(
+		ctx context.Context,
+		orderUuid string,
+	) error
 }

@@ -12,7 +12,7 @@ func (c *paymentClient) PayOrder(
 	ctx context.Context,
 	orderUuid, userUuid string,
 	paymentMethod model.OrderPaymentMethod,
-) (*string, error) {
+) (string, error) {
 	response, err := c.service.PayOrder(
 		ctx,
 		&paymentGrpc.PayOrderRequest{
@@ -22,10 +22,10 @@ func (c *paymentClient) PayOrder(
 		},
 	)
 	if err != nil {
-		return nil, err
+		return "", err
 	}
 
 	transactionUuid := response.GetTransactionUuid()
 
-	return &transactionUuid, nil
+	return transactionUuid, nil
 }

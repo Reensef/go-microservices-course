@@ -15,9 +15,9 @@ import (
 
 func TestPayOrder_errorFromPaymentService(t *testing.T) {
 	repo := repoMocks.NewMockOrderRepository(t)
-	inventory := grpcMocks.NewMockIntentoryServiceClient(t)
-	payment := grpcMocks.NewMockPaymentServiceClient(t)
-	service := New(repo, inventory, payment)
+	inventory := grpcMocks.NewMockIntentoryClient(t)
+	payment := grpcMocks.NewMockPaymentClient(t)
+	service := New(repo, inventory, payment, nil)
 
 	userUuid := uuid.NewString()
 	orderUuid := uuid.NewString()
@@ -30,7 +30,7 @@ func TestPayOrder_errorFromPaymentService(t *testing.T) {
 		Return(order, nil).Once()
 
 	payment.EXPECT().PayOrder(context.Background(), orderUuid, userUuid, paymentMethod).
-		Return(nil, paymentError).Once()
+		Return("", paymentError).Once()
 
 	uuid, err := service.PayOrder(context.Background(), orderUuid, userUuid, paymentMethod)
 
@@ -42,9 +42,9 @@ func TestPayOrder_errorFromPaymentService(t *testing.T) {
 
 func TestPayOrder_errorPayFromRepository(t *testing.T) {
 	repo := repoMocks.NewMockOrderRepository(t)
-	inventory := grpcMocks.NewMockIntentoryServiceClient(t)
-	payment := grpcMocks.NewMockPaymentServiceClient(t)
-	service := New(repo, inventory, payment)
+	inventory := grpcMocks.NewMockIntentoryClient(t)
+	payment := grpcMocks.NewMockPaymentClient(t)
+	service := New(repo, inventory, payment, nil)
 
 	userUuid := uuid.NewString()
 	orderUuid := uuid.NewString()
@@ -61,7 +61,7 @@ func TestPayOrder_errorPayFromRepository(t *testing.T) {
 		Return(repoError).Once()
 
 	payment.EXPECT().PayOrder(context.Background(), orderUuid, userUuid, paymentMethod).
-		Return(&transactionUuid, nil).Once()
+		Return(transactionUuid, nil).Once()
 
 	uuid, err := service.PayOrder(context.Background(), orderUuid, userUuid, paymentMethod)
 
@@ -71,9 +71,9 @@ func TestPayOrder_errorPayFromRepository(t *testing.T) {
 
 func TestPayOrder_success(t *testing.T) {
 	repo := repoMocks.NewMockOrderRepository(t)
-	inventory := grpcMocks.NewMockIntentoryServiceClient(t)
-	payment := grpcMocks.NewMockPaymentServiceClient(t)
-	service := New(repo, inventory, payment)
+	inventory := grpcMocks.NewMockIntentoryClient(t)
+	payment := grpcMocks.NewMockPaymentClient(t)
+	service := New(repo, inventory, payment, nil)
 
 	userUuid := uuid.NewString()
 	orderUuid := uuid.NewString()
@@ -86,7 +86,7 @@ func TestPayOrder_success(t *testing.T) {
 		Return(order, nil).Once()
 
 	payment.EXPECT().PayOrder(context.Background(), orderUuid, userUuid, paymentMethod).
-		Return(&transactionUuid, nil).Once()
+		Return(transactionUuid, nil).Once()
 
 	repo.EXPECT().PayOrder(context.Background(), orderUuid, transactionUuid, paymentMethod).
 		Return(nil).Once()

@@ -17,6 +17,9 @@ type config struct {
 	PaymentClient   PaymentClientConfig
 	InventoryClient InventoryClientConfig
 
+	Kafka         KafkaConfig
+	OrderProducer OrderProducerConfig
+
 	SqlMigrator SqlMigratorConfig
 
 	Postgres PostgresConfig
@@ -60,6 +63,16 @@ func Load(envFile string) error {
 		return err
 	}
 
+	kafkaCfg, err := env.NewKafkaConfig()
+	if err != nil {
+		return err
+	}
+
+	orderProducerCfg, err := env.NewOrderProducerConfig()
+	if err != nil {
+		return err
+	}
+
 	appConfig = &config{
 		Logger:          loggerCfg,
 		OrderService:    orderService,
@@ -67,6 +80,8 @@ func Load(envFile string) error {
 		InventoryClient: inventoryClient,
 		Postgres:        postgresCfg,
 		SqlMigrator:     sqlMigratorCfg,
+		Kafka:           kafkaCfg,
+		OrderProducer:   orderProducerCfg,
 	}
 
 	return nil

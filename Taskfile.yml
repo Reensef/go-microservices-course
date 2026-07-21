@@ -154,6 +154,15 @@ tasks:
       - task compose:mongo:down
       - task compose:postgres:down
       - task compose:network:down
+  assembly:run:
+      desc: "Запускает assembly сервис"
+      cmds:
+        - go run ./assembly/cmd/main.go
+
+  assembly:debug:
+    desc: "Запускает assembly сервис в режиме отладки"
+    cmds:
+      - dlv debug ./assembly/cmd/main.go --headless --listen=127.0.0.1:50001 --accept-multiclient --continue --only-same-user=false
 
   install-formatters:
     desc: "Устанавливает форматтеры gci и gofumpt в ./bin"
