@@ -19,6 +19,7 @@ type config struct {
 
 	Kafka         KafkaConfig
 	OrderProducer OrderProducerConfig
+	ShipConsumer  ShipConsumerConfig
 
 	SqlMigrator SqlMigratorConfig
 
@@ -73,6 +74,11 @@ func Load(envFile string) error {
 		return err
 	}
 
+	shipConsumerCfg, err := env.NewShipConsumerConfig()
+	if err != nil {
+		return err
+	}
+
 	appConfig = &config{
 		Logger:          loggerCfg,
 		OrderService:    orderService,
@@ -82,6 +88,7 @@ func Load(envFile string) error {
 		SqlMigrator:     sqlMigratorCfg,
 		Kafka:           kafkaCfg,
 		OrderProducer:   orderProducerCfg,
+		ShipConsumer:    shipConsumerCfg,
 	}
 
 	return nil

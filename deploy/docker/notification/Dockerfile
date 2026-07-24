@@ -31,13 +31,6 @@ COPY platform ./platform
 COPY shared ./shared
 COPY notification ./notification
 
-# Скачиваем grpc-health-probe — это утилита для проверки состояния gRPC-сервиса
-# Warning: а если её подменят? Нужно кэшировать у себя
-ADD https://github.com/grpc-ecosystem/grpc-health-probe/releases/download/v0.4.37/grpc_health_probe-linux-amd64 ./grpc-health-probe
-
-# Делаем скачанный файл исполняемым
-RUN chmod +x grpc-health-probe
-
 # Собираем бинарный файл UFO-сервиса для Linux-архитектуры без CGO
 RUN CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -o app-notification ./notification/cmd/main.go
 
@@ -60,15 +53,6 @@ USER appuser
 
 # Копируем скомпилированный бинарник из стадии builder
 COPY --from=builder /app/app-notification .
-
-# Копируем бинарь grpc-health-probe в /bin
-COPY --from=builder /app/grpc-health-probe /bin/grpc-health-probe
-
-# # Копируем .env файл для конфигурации приложения
-# COPY deploy/compose/assembly/.env .env
-
-# Экспонируем порт gRPC-сервиса
-EXPOSE 50051
 
 # Устанавливаем команду запуска — запускаем наш бинарь
 ENTRYPOINT ["./app-notification"]

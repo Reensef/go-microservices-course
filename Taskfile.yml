@@ -175,17 +175,19 @@ tasks:
       - task compose:network:up
       - task compose:postgres:up
       - task compose:mongo:up
+      - task compose:kafka:up
 
   compose:infra:down:
     cmds:
+      - task compose:kafka:down
       - task compose:mongo:down
       - task compose:postgres:down
       - task compose:network:down
 
   assembly:run:
-      desc: "Запускает assembly сервис"
-      cmds:
-        - go run ./assembly/cmd/main.go --env ./assembly/cmd/.env.dev
+    desc: "Запускает assembly сервис"
+    cmds:
+      - go run ./assembly/cmd/main.go --env ./assembly/cmd/.env.dev
 
   assembly:debug:
     desc: "Запускает assembly сервис в режиме отладки"
@@ -193,9 +195,9 @@ tasks:
       - dlv debug ./assembly/cmd/main.go --headless --listen=127.0.0.1:50001 --accept-multiclient --continue --only-same-user=false
 
   notification:run:
-      desc: "Запускает notification сервис"
-      cmds:
-        - go run ./notification/cmd/main.go --env ./notification/cmd/.env.dev
+    desc: "Запускает notification сервис"
+    cmds:
+      - go run ./notification/cmd/main.go --env ./notification/cmd/.env.dev
 
   notification:debug:
     desc: "Запускает notification сервис в режиме отладки"

@@ -4,12 +4,11 @@ import (
 	"context"
 	"fmt"
 
+	"github.com/IBM/sarama"
 	"github.com/jackc/pgx/v5/pgxpool"
 	"github.com/jackc/pgx/v5/stdlib"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/credentials/insecure"
-
-	"github.com/IBM/sarama"
 
 	orderHandler "github.com/Reensef/go-microservices-course/order/internal/api/order/v1"
 	grpcClients "github.com/Reensef/go-microservices-course/order/internal/client/grpc"
@@ -17,6 +16,7 @@ import (
 	paymentClient "github.com/Reensef/go-microservices-course/order/internal/client/grpc/payment/v1"
 	"github.com/Reensef/go-microservices-course/order/internal/config"
 	events "github.com/Reensef/go-microservices-course/order/internal/events"
+	shipconsumer "github.com/Reensef/go-microservices-course/order/internal/events/kafka/consumer/ship"
 	orderproducer "github.com/Reensef/go-microservices-course/order/internal/events/kafka/producer/order"
 	repo "github.com/Reensef/go-microservices-course/order/internal/repository"
 	orderRepo "github.com/Reensef/go-microservices-course/order/internal/repository/order"
@@ -38,6 +38,8 @@ type diContainer struct {
 	orderProducer      events.OrderProducer
 	orderKafkaProducer kafka.Producer
 	saramaSyncProducer sarama.SyncProducer
+	shipConsumer       events.ShipConsumer
+	consumerGroup      sarama.ConsumerGroup
 	inventoryClient    grpcClients.IntentoryClient
 	paymentClient      grpcClients.PaymentClient
 
@@ -121,6 +123,39 @@ func (d *diContainer) OrderSyncProducer(ctx context.Context) sarama.SyncProducer
 	}
 
 	return d.saramaSyncProducer
+}
+
+func (d *diContainer) ShipConsumer(ctx context.Context) events.ShipConsumer {
+	if d.shipConsumer == nil {
+		d.shipConsumer = shipconsumer.NewConsumer(
+			d.OrderService(ctx),
+			d.ConsumerGroup(ctx),
+			config.AppConfig().ShipConsumer.Topic(),
+		)
+	}
+
+	return d.shipConsumer
+}
+
+func (d *diContainer) ConsumerGroup(_ context.Context) sarama.ConsumerGroup {
+	if d.consumerGroup == nil {
+		group, err := sarama.NewConsumerGroup(
+			config.AppConfig().Kafka.Brokers(),
+			config.AppConfig().ShipConsumer.GroupID(),
+			config.AppConfig().ShipConsumer.Config(),
+		)
+		if err != nil {
+			panic(fmt.Sprintf("failed to create kafka consumer group: %s\n", err.Error()))
+		}
+
+		closer.AddNamed("Kafka consumer group", func(ctx context.Context) error {
+			return group.Close()
+		})
+
+		d.consumerGroup = group
+	}
+
+	return d.consumerGroup
 }
 
 func (d *diContainer) SqlMigrator(ctx context.Context) *sqlmigrator.Migrator {

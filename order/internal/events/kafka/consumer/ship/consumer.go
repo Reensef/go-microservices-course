@@ -6,14 +6,15 @@ import (
 	"fmt"
 
 	"github.com/IBM/sarama"
+	"github.com/gogo/protobuf/proto"
+	"go.uber.org/zap"
+
 	def "github.com/Reensef/go-microservices-course/order/internal/events"
 	"github.com/Reensef/go-microservices-course/order/internal/model"
 	service "github.com/Reensef/go-microservices-course/order/internal/service"
 	"github.com/Reensef/go-microservices-course/platform/pkg/kafka"
 	"github.com/Reensef/go-microservices-course/platform/pkg/logger"
 	eventsv1 "github.com/Reensef/go-microservices-course/shared/pkg/proto/events/v1"
-	"github.com/gogo/protobuf/proto"
-	"go.uber.org/zap"
 )
 
 var _ def.ShipConsumer = (*consumer)(nil)
@@ -21,22 +22,27 @@ var _ def.ShipConsumer = (*consumer)(nil)
 type consumer struct {
 	orderService service.OrderService
 	group        sarama.ConsumerGroup
-	middlewares  []kafka.Middleware
 	topics       []string
 }
 
 func NewConsumer(
 	orderService service.OrderService,
+	group sarama.ConsumerGroup,
+	topic string,
 ) *consumer {
 	return &consumer{
 		orderService: orderService,
+		group:        group,
+		topics:       []string{topic},
 	}
 }
 
 func (c *consumer) RunConsumer(ctx context.Context) error {
+	logger.Info(ctx, "Starting ship consumer service")
+
 	err := c.Consume(ctx, c.shipHandler)
 	if err != nil {
-		logger.Error(ctx, "consume from order.recorded topic error", zap.Error(err))
+		logger.Error(ctx, "consume from ship topic error", zap.Error(err))
 		return err
 	}
 
@@ -44,7 +50,7 @@ func (c *consumer) RunConsumer(ctx context.Context) error {
 }
 
 func (c *consumer) Consume(ctx context.Context, handler kafka.MessageHandler) error {
-	newGroupHandler := kafka.NewGroupHandler(handler, c.middlewares...)
+	newGroupHandler := kafka.NewGroupHandler(handler)
 
 	for {
 		if err := c.group.Consume(ctx, c.topics, newGroupHandler); err != nil {

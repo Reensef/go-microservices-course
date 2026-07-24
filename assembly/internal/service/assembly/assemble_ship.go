@@ -4,12 +4,13 @@ import (
 	"context"
 	"time"
 
-	"github.com/Reensef/go-microservices-course/assembly/internal/model"
 	"github.com/google/uuid"
+
+	"github.com/Reensef/go-microservices-course/assembly/internal/model"
 )
 
 func (s *service) AssembleShip(
-	ctx context.Context, orderUuid string, userUuid string,
+	ctx context.Context, orderUuid, userUuid string,
 ) error {
 	timeNow := time.Now()
 	// emulation of ship assembly
@@ -23,7 +24,8 @@ func (s *service) AssembleShip(
 		BuildDuration: buildDuration,
 	})
 	if err != nil {
-
+		return err
 	}
+
 	return nil
 }

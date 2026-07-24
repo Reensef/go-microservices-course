@@ -4,12 +4,13 @@ import (
 	"context"
 
 	"github.com/IBM/sarama"
+	"go.uber.org/zap"
+	"google.golang.org/protobuf/proto"
+
 	def "github.com/Reensef/go-microservices-course/order/internal/events"
 	"github.com/Reensef/go-microservices-course/order/internal/model"
 	"github.com/Reensef/go-microservices-course/platform/pkg/logger"
 	eventsv1 "github.com/Reensef/go-microservices-course/shared/pkg/proto/events/v1"
-	"go.uber.org/zap"
-	"google.golang.org/protobuf/proto"
 )
 
 var _ def.OrderProducer = (*producer)(nil)

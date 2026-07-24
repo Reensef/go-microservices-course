@@ -5,5 +5,5 @@ import (
 )
 
 type AssemblyService interface {
-	AssembleShip(ctx context.Context, orderUuid string, userUuid string) error
+	AssembleShip(ctx context.Context, orderUuid, userUuid string) error
 }
