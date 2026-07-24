@@ -1,7 +1,15 @@
 package assembly
 
-type service struct{}
+import (
+	events "github.com/Reensef/go-microservices-course/assembly/internal/events"
+)
 
-func NewService() *service {
-	return &service{}
+type service struct {
+	shipProducer events.ShipProducer
+}
+
+func NewService(shipProducer events.ShipProducer) *service {
+	return &service{
+		shipProducer: shipProducer,
+	}
 }

@@ -26,5 +26,6 @@ func New(
 		orderRepo:        orderRepo,
 		inventoryService: inventoryService,
 		paymentService:   paymentService,
+		orderProducer:    orderProducer,
 	}
 }

@@ -1,10 +1,11 @@
 go 1.26.1
 
 use (
-	./shared
-	./order
+	./assembly
 	./inventory
+	./notification
+	./order
 	./payment
 	./platform
-	./assembly
+	./shared
 )

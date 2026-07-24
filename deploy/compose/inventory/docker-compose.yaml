@@ -10,12 +10,9 @@ services:
     image: inventory-service:v1.0.0
 
     ports:
-      - "${GRPC_PORT}:8080" # Внешний порт из .env, внутренний фиксированный 8080
+      - "127.0.0.1:${GRPC_PORT}:${GRPC_PORT}" # Публикуем только на localhost хоста; порт совпадает с тем, что слушает приложение
     env_file:
       - ./.env
-    depends_on:
-      inventory-mongo:
-        condition: service_healthy # Ждём, пока база станет "здоровой", прежде чем стартовать приложение
 
     restart: unless-stopped
 

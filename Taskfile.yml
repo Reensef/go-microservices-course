@@ -87,15 +87,22 @@ tasks:
     cmds:
       - docker compose --all-resources down
 
-  compose:order:up:
-    desc: Поднять Order зависимости
-    dir: deploy/compose/order
+  compose:kafka:up:
+    dir: deploy/compose/kafka
     cmds:
-      - echo "[task] 📦 Поднимаем Order зависимости"
-      - docker compose up --build --detach
+      - docker compose --all-resources up
+
+  compose:kafka:down:
+    dir: deploy/compose/kafka
+    cmds:
+      - docker compose --all-resources down
 
   compose:order:up:
-    desc: Остановить и удалить Order зависимости
+    dir: deploy/compose/order
+    cmds:
+      - docker compose up --build --detach
+
+  compose:order:down:
     dir: deploy/compose/order
     cmds:
       - echo "[task] 🛑 Останавливаем Order зависимости"
@@ -122,11 +129,31 @@ tasks:
     dir: deploy/compose/payment
     cmds:
       - docker compose down
+    
+  compose:assembly:up:
+    dir: deploy/compose/assembly
+    cmds:
+      - docker compose up --build --detach
+
+  compose:assembly:down:
+    dir: deploy/compose/assembly
+    cmds:
+      - docker compose down
+
+  compose:notification:up:
+    dir: deploy/compose/notification
+    cmds:
+      - docker compose up --build --detach
+
+  compose:notification:down:
+    dir: deploy/compose/notification
+    cmds:
+      - docker compose down
 
   compose:mongo:up:
     dir: deploy/compose/mongo
     cmds:
-      - docker compose up --volumes --detach
+      - docker compose up --detach
 
   compose:mongo:down:
     dir: deploy/compose/mongo
@@ -136,7 +163,7 @@ tasks:
   compose:postgres:up:
     dir: deploy/compose/postgres
     cmds:
-      - docker compose up --volumes --detach
+      - docker compose up --detach
 
   compose:postgres:down:
     dir: deploy/compose/postgres
@@ -154,15 +181,26 @@ tasks:
       - task compose:mongo:down
       - task compose:postgres:down
       - task compose:network:down
+
   assembly:run:
       desc: "Запускает assembly сервис"
       cmds:
-        - go run ./assembly/cmd/main.go
+        - go run ./assembly/cmd/main.go --env ./assembly/cmd/.env.dev
 
   assembly:debug:
     desc: "Запускает assembly сервис в режиме отладки"
     cmds:
       - dlv debug ./assembly/cmd/main.go --headless --listen=127.0.0.1:50001 --accept-multiclient --continue --only-same-user=false
+
+  notification:run:
+      desc: "Запускает notification сервис"
+      cmds:
+        - go run ./notification/cmd/main.go --env ./notification/cmd/.env.dev
+
+  notification:debug:
+    desc: "Запускает notification сервис в режиме отладки"
+    cmds:
+      - dlv debug ./notification/cmd/main.go --headless --listen=127.0.0.1:50001 --accept-multiclient --continue --only-same-user=false
 
   install-formatters:
     desc: "Устанавливает форматтеры gci и gofumpt в ./bin"

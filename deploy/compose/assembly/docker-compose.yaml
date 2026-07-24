@@ -1,0 +1,22 @@
+services:
+  assembly:
+    build:
+      # Контекст должен быть корнем проекта, поэтому поднимаемся на три уровня
+      context: ./../../..
+      dockerfile: deploy/docker/assembly/Dockerfile
+      platforms:
+        - linux/amd64
+
+    image: assembly-service:v0.0.1
+
+    env_file:
+      - ./.env
+
+    restart: unless-stopped
+
+    networks:
+      - common
+
+networks:
+  common:
+    external: true

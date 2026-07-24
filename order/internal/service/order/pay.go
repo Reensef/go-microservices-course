@@ -44,10 +44,11 @@ func (s *service) PayOrder(
 	}
 
 	err = s.orderProducer.ProduceOrderPaid(ctx, model.OrderPaidEvent{
-		UUID:          transactionUuid,
-		OrderUUID:     orderUuid,
-		UserUUID:      userUuid,
-		PaymentMethod: paymentMethod,
+		UUID:            uuid.New().String(),
+		OrderUUID:       orderUuid,
+		UserUUID:        userUuid,
+		TransactionUUID: transactionUuid,
+		PaymentMethod:   paymentMethod,
 	})
 	if err != nil {
 		return "", err

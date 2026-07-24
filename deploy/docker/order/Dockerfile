@@ -3,7 +3,7 @@
 # ============================
 
 # Используем официальный образ Go на базе Alpine — лёгкий, быстрый и безопасный
-FROM golang:1.24.4-alpine AS builder
+FROM golang:1.26.1-alpine AS builder
 
 # Устанавливаем git — нужен для загрузки зависимостей из приватных и публичных репозиториев
 RUN apk add --no-cache git
@@ -14,12 +14,16 @@ WORKDIR /app
 # Копируем go.work и его контрольную сумму — это позволяет Go правильно связать модули
 COPY go.work go.work.sum ./
 
-# Копируем go.mod и go.sum всех зависимых модулей — нужно для кэширования go mod download
+# Копируем go.mod и go.sum ВСЕХ модулей, перечисленных в go.work use() —
+# go mod download в режиме workspace резолвит граф целиком, поэтому go.mod
+# каждого модуля из go.work должен быть доступен, даже если order его не импортирует.
 COPY platform/go.mod platform/go.sum ./platform/
 COPY shared/go.mod shared/go.sum ./shared/
 COPY inventory/go.mod inventory/go.sum ./inventory/
 COPY order/go.mod order/go.sum ./order/
 COPY payment/go.mod payment/go.sum ./payment/
+COPY assembly/go.mod assembly/go.sum ./assembly/
+COPY notification/go.mod notification/go.sum ./notification/
 
 # Загружаем все зависимости, указанные в модульных файлах
 RUN go mod download

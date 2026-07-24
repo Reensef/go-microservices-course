@@ -33,9 +33,11 @@ func NewProducer(syncProducer SaramaSyncProducer, topic string) *producer {
 
 func (p *producer) ProduceOrderPaid(ctx context.Context, event model.OrderPaidEvent) error {
 	msg := &eventsv1.OrderPaid{
-		EventUuid: event.UUID,
-		OrderUuid: event.OrderUUID,
-		UserUuid:  event.UserUUID,
+		EventUuid:       event.UUID,
+		OrderUuid:       event.OrderUUID,
+		UserUuid:        event.UserUUID,
+		TransactionUuid: event.TransactionUUID,
+		PaymentMethod:   event.PaymentMethod.String(),
 	}
 
 	payload, err := proto.Marshal(msg)
