@@ -2,7 +2,7 @@ version: '3'
 
 # Глобальные переменные проекта
 vars:
-  GO_VERSION: '1.24'
+  GO_VERSION: '1.26'
   GOLANGCI_LINT_VERSION: 'v2.2.0'
   GCI_VERSION: 'v0.13.6'
   GOFUMPT_VERSION: 'v0.8.0'
@@ -43,6 +43,20 @@ vars:
   MODULES: assembly inventory order payment platform iam notification
 
 tasks:
+  env:copy-examples:
+    desc: "Копирует все .env.example в .env рядом с ними (не перезаписывает существующие .env)"
+    cmds:
+      - |
+        find {{.ROOT_DIR}} -type f -name '.env.example' -not -path '*/node_modules/*' | while read -r example; do
+          target="$(dirname "$example")/.env"
+          if [ -f "$target" ]; then
+            echo "⏭️  Пропускаем $target (уже существует)"
+          else
+            cp "$example" "$target"
+            echo "✅ Создан $target из $example"
+          fi
+        done
+
   inventory:run:
     desc: "Запускает inventory сервис"
     cmds:
@@ -87,73 +101,139 @@ tasks:
     cmds:
       - docker compose --all-resources down
 
-  compose:order:up:
-    desc: Поднять Order зависимости
-    dir: deploy/compose/order
+  compose:kafka:up:
+    desc: Поднять Kafka и Kafka UI
+    dir: deploy/compose/kafka
     cmds:
-      - echo "[task] 📦 Поднимаем Order зависимости"
-      - docker compose up --build --detach
+      - docker compose --all-resources up
+
+  compose:kafka:down:
+    desc: Остановить и удалить Kafka и Kafka UI
+    dir: deploy/compose/kafka
+    cmds:
+      - docker compose --all-resources down
 
   compose:order:up:
-    desc: Остановить и удалить Order зависимости
+    desc: Собрать и поднять Order сервис
     dir: deploy/compose/order
     cmds:
-      - echo "[task] 🛑 Останавливаем Order зависимости"
+      - docker compose up --build --detach
+
+  compose:order:down:
+    desc: Остановить и удалить Order сервис
+    dir: deploy/compose/order
+    cmds:
+      - echo "[task] 🛑 Останавливаем Order сервис"
       - docker compose down --volumes
 
   compose:inventory:up:
-    desc: Поднять Inventory зависимости
+    desc: Собрать и поднять Inventory сервис
     dir: deploy/compose/inventory
     cmds:
-      - echo "[task] 📦 Поднимаем Inventory зависимости"
+      - echo "[task] 📦 Поднимаем Inventory сервис"
       - docker compose up --build --detach
 
   compose:inventory:down:
+    desc: Остановить и удалить Inventory сервис
     dir: deploy/compose/inventory
     cmds:
       - docker compose down --volumes
 
   compose:payment:up:
+    desc: Собрать и поднять Payment сервис
     dir: deploy/compose/payment
     cmds:
       - docker compose up --build --detach
 
   compose:payment:down:
+    desc: Остановить и удалить Payment сервис
     dir: deploy/compose/payment
     cmds:
       - docker compose down
 
+  compose:assembly:up:
+    desc: Собрать и поднять Assembly сервис
+    dir: deploy/compose/assembly
+    cmds:
+      - docker compose up --build --detach
+
+  compose:assembly:down:
+    desc: Остановить и удалить Assembly сервис
+    dir: deploy/compose/assembly
+    cmds:
+      - docker compose down
+
+  compose:notification:up:
+    desc: Собрать и поднять Notification сервис
+    dir: deploy/compose/notification
+    cmds:
+      - docker compose up --build --detach
+
+  compose:notification:down:
+    desc: Остановить и удалить Notification сервис
+    dir: deploy/compose/notification
+    cmds:
+      - docker compose down
+
   compose:mongo:up:
+    desc: Поднять MongoDB
     dir: deploy/compose/mongo
     cmds:
-      - docker compose up --volumes --detach
+      - docker compose up --detach
 
   compose:mongo:down:
+    desc: Остановить и удалить MongoDB вместе с volume
     dir: deploy/compose/mongo
     cmds:
       - docker compose down --volumes
 
   compose:postgres:up:
+    desc: Поднять PostgreSQL
     dir: deploy/compose/postgres
     cmds:
-      - docker compose up --volumes --detach
+      - docker compose up --detach
 
   compose:postgres:down:
+    desc: Остановить и удалить PostgreSQL вместе с volume
     dir: deploy/compose/postgres
     cmds:
       - docker compose down --volumes
 
   compose:infra:up:
+    desc: Поднять общую инфраструктуру - сеть, PostgreSQL, MongoDB, Kafka
     cmds:
       - task compose:network:up
       - task compose:postgres:up
       - task compose:mongo:up
+      - task compose:kafka:up
 
   compose:infra:down:
+    desc: Остановить и удалить общую инфраструктуру - Kafka, MongoDB, PostgreSQL, сеть
     cmds:
+      - task compose:kafka:down
       - task compose:mongo:down
       - task compose:postgres:down
       - task compose:network:down
+
+  assembly:run:
+    desc: "Запускает assembly сервис"
+    cmds:
+      - go run ./assembly/cmd/main.go --env ./assembly/cmd/.env.dev
+
+  assembly:debug:
+    desc: "Запускает assembly сервис в режиме отладки"
+    cmds:
+      - dlv debug ./assembly/cmd/main.go --headless --listen=127.0.0.1:50001 --accept-multiclient --continue --only-same-user=false
+
+  notification:run:
+    desc: "Запускает notification сервис"
+    cmds:
+      - go run ./notification/cmd/main.go --env ./notification/cmd/.env.dev
+
+  notification:debug:
+    desc: "Запускает notification сервис в режиме отладки"
+    cmds:
+      - dlv debug ./notification/cmd/main.go --headless --listen=127.0.0.1:50001 --accept-multiclient --continue --only-same-user=false
 
   install-formatters:
     desc: "Устанавливает форматтеры gci и gofumpt в ./bin"
@@ -481,6 +561,7 @@ tasks:
     summary: |
       Запускает юнит-тесты для указанных модулей проекта.
       Можно указать конкретные модули через переменную MODULES.
+      Интеграционные тесты (build tag "integration") сюда не попадают — см. test:integration.
     cmds:
       - |
         ERR=0
@@ -488,6 +569,24 @@ tasks:
           if [ -d "$mod" ]; then
             echo "🧪 Тестируем модуль $mod"
             go test -v ./$mod/... || ERR=1
+          fi
+        done
+        exit $ERR
+
+  test:integration:
+    desc: "Запускает интеграционные тесты (testcontainers, требуется Docker)"
+    summary: |
+      Запускает тесты с build tag "integration" — они собирают и поднимают
+      реальные Docker-контейнеры (testcontainers) для проверки сервисов end-to-end.
+      Ищет пакет internal/tests/e2e в каждом модуле из MODULES; если такого пакета
+      в модуле нет — модуль пропускается.
+    cmds:
+      - |
+        ERR=0
+        for mod in {{.MODULES}}; do
+          if [ -d "$mod/internal/tests/e2e" ]; then
+            echo "🧪🐳 Интеграционные тесты модуля $mod"
+            go test -tags=integration -v ./$mod/internal/tests/e2e/... || ERR=1
           fi
         done
         exit $ERR

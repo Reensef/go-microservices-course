@@ -38,6 +38,63 @@ func (_m *MockOrderRepository) EXPECT() *MockOrderRepository_Expecter {
 	return &MockOrderRepository_Expecter{mock: &_m.Mock}
 }
 
+// AssembleOrder provides a mock function for the type MockOrderRepository
+func (_mock *MockOrderRepository) AssembleOrder(ctx context.Context, orderUuid string) error {
+	ret := _mock.Called(ctx, orderUuid)
+
+	if len(ret) == 0 {
+		panic("no return value specified for AssembleOrder")
+	}
+
+	var r0 error
+	if returnFunc, ok := ret.Get(0).(func(context.Context, string) error); ok {
+		r0 = returnFunc(ctx, orderUuid)
+	} else {
+		r0 = ret.Error(0)
+	}
+	return r0
+}
+
+// MockOrderRepository_AssembleOrder_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'AssembleOrder'
+type MockOrderRepository_AssembleOrder_Call struct {
+	*mock.Call
+}
+
+// AssembleOrder is a helper method to define mock.On call
+//   - ctx context.Context
+//   - orderUuid string
+func (_e *MockOrderRepository_Expecter) AssembleOrder(ctx interface{}, orderUuid interface{}) *MockOrderRepository_AssembleOrder_Call {
+	return &MockOrderRepository_AssembleOrder_Call{Call: _e.mock.On("AssembleOrder", ctx, orderUuid)}
+}
+
+func (_c *MockOrderRepository_AssembleOrder_Call) Run(run func(ctx context.Context, orderUuid string)) *MockOrderRepository_AssembleOrder_Call {
+	_c.Call.Run(func(args mock.Arguments) {
+		var arg0 context.Context
+		if args[0] != nil {
+			arg0 = args[0].(context.Context)
+		}
+		var arg1 string
+		if args[1] != nil {
+			arg1 = args[1].(string)
+		}
+		run(
+			arg0,
+			arg1,
+		)
+	})
+	return _c
+}
+
+func (_c *MockOrderRepository_AssembleOrder_Call) Return(err error) *MockOrderRepository_AssembleOrder_Call {
+	_c.Call.Return(err)
+	return _c
+}
+
+func (_c *MockOrderRepository_AssembleOrder_Call) RunAndReturn(run func(ctx context.Context, orderUuid string) error) *MockOrderRepository_AssembleOrder_Call {
+	_c.Call.Return(run)
+	return _c
+}
+
 // CancelOrder provides a mock function for the type MockOrderRepository
 func (_mock *MockOrderRepository) CancelOrder(ctx context.Context, orderUuid string) error {
 	ret := _mock.Called(ctx, orderUuid)

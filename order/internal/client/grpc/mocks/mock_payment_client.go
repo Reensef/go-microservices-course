@@ -39,24 +39,22 @@ func (_m *MockPaymentClient) EXPECT() *MockPaymentClient_Expecter {
 }
 
 // PayOrder provides a mock function for the type MockPaymentClient
-func (_mock *MockPaymentClient) PayOrder(ctx context.Context, orderUuid string, userUuid string, paymentMethod model.OrderPaymentMethod) (*string, error) {
+func (_mock *MockPaymentClient) PayOrder(ctx context.Context, orderUuid string, userUuid string, paymentMethod model.OrderPaymentMethod) (string, error) {
 	ret := _mock.Called(ctx, orderUuid, userUuid, paymentMethod)
 
 	if len(ret) == 0 {
 		panic("no return value specified for PayOrder")
 	}
 
-	var r0 *string
+	var r0 string
 	var r1 error
-	if returnFunc, ok := ret.Get(0).(func(context.Context, string, string, model.OrderPaymentMethod) (*string, error)); ok {
+	if returnFunc, ok := ret.Get(0).(func(context.Context, string, string, model.OrderPaymentMethod) (string, error)); ok {
 		return returnFunc(ctx, orderUuid, userUuid, paymentMethod)
 	}
-	if returnFunc, ok := ret.Get(0).(func(context.Context, string, string, model.OrderPaymentMethod) *string); ok {
+	if returnFunc, ok := ret.Get(0).(func(context.Context, string, string, model.OrderPaymentMethod) string); ok {
 		r0 = returnFunc(ctx, orderUuid, userUuid, paymentMethod)
 	} else {
-		if ret.Get(0) != nil {
-			r0 = ret.Get(0).(*string)
-		}
+		r0 = ret.Get(0).(string)
 	}
 	if returnFunc, ok := ret.Get(1).(func(context.Context, string, string, model.OrderPaymentMethod) error); ok {
 		r1 = returnFunc(ctx, orderUuid, userUuid, paymentMethod)
@@ -108,12 +106,12 @@ func (_c *MockPaymentClient_PayOrder_Call) Run(run func(ctx context.Context, ord
 	return _c
 }
 
-func (_c *MockPaymentClient_PayOrder_Call) Return(transactionUuid *string, err error) *MockPaymentClient_PayOrder_Call {
+func (_c *MockPaymentClient_PayOrder_Call) Return(transactionUuid string, err error) *MockPaymentClient_PayOrder_Call {
 	_c.Call.Return(transactionUuid, err)
 	return _c
 }
 
-func (_c *MockPaymentClient_PayOrder_Call) RunAndReturn(run func(ctx context.Context, orderUuid string, userUuid string, paymentMethod model.OrderPaymentMethod) (*string, error)) *MockPaymentClient_PayOrder_Call {
+func (_c *MockPaymentClient_PayOrder_Call) RunAndReturn(run func(ctx context.Context, orderUuid string, userUuid string, paymentMethod model.OrderPaymentMethod) (string, error)) *MockPaymentClient_PayOrder_Call {
 	_c.Call.Return(run)
 	return _c
 }

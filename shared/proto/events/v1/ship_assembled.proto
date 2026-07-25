@@ -1,0 +1,15 @@
+syntax = "proto3";
+
+package events.v1;
+
+import "google/protobuf/duration.proto";
+
+option go_package = "github.com/Reensef/go-microservices-course/shared/pkg/proto/events/v1;events_v1";
+
+// ShipAssembled — событие об успешной сборке корабля из заказа.
+message ShipAssembled {
+    string event_uuid = 1;
+    string order_uuid = 2;
+    string user_uuid = 3;
+    google.protobuf.Duration build_duration = 4;
+}

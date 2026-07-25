@@ -14,6 +14,23 @@ const (
 	OrderPaymentMethod_INVESTOR_MONEY OrderPaymentMethod = 4
 )
 
+func (m OrderPaymentMethod) String() string {
+	switch m {
+	case OrderPaymentMethod_UNSPECIFIED:
+		return "UNSPECIFIED"
+	case OrderPaymentMethod_CARD:
+		return "CARD"
+	case OrderPaymentMethod_CREDIT_CARD:
+		return "CREDIT_CARD"
+	case OrderPaymentMethod_SBP:
+		return "SBP"
+	case OrderPaymentMethod_INVESTOR_MONEY:
+		return "INVESTOR_MONEY"
+	default:
+		return "UNKNOWN"
+	}
+}
+
 type OrderStatus int32
 
 const (
@@ -21,6 +38,7 @@ const (
 	OrderStatus_PENDING_PAYMENT OrderStatus = 1
 	OrderStatus_PAID            OrderStatus = 2
 	OrderStatus_CANCELED        OrderStatus = 3
+	OrderStatus_ASSEMBLED       OrderStatus = 4
 )
 
 type OrderInfo struct {

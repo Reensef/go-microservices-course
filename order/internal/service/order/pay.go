@@ -13,34 +13,45 @@ func (s *service) PayOrder(
 	orderUuid string,
 	userUuid string,
 	paymentMethod model.OrderPaymentMethod,
-) (*string, error) {
+) (string, error) {
 	if uuid.Validate(orderUuid) != nil {
-		return nil, model.ErrOrderUuidInvalidFormat
+		return "", model.ErrOrderUuidInvalidFormat
 	}
 	if uuid.Validate(userUuid) != nil {
-		return nil, model.ErrUserUuidInvalidFormat
+		return "", model.ErrUserUuidInvalidFormat
 	}
 	if paymentMethod == model.OrderPaymentMethod_UNSPECIFIED {
-		return nil, model.ErrPaymentMethodUnspecified
+		return "", model.ErrPaymentMethodUnspecified
 	}
 
 	order, err := s.orderRepo.GetOrderByUUID(ctx, orderUuid)
 	if err != nil {
-		return nil, err
+		return "", err
 	}
 
 	if order.Info.Status == model.OrderStatus_PAID {
-		return nil, model.ErrOrderAlreadyPaid
+		return "", model.ErrOrderAlreadyPaid
 	}
 
 	transactionUuid, err := s.paymentService.PayOrder(ctx, orderUuid, userUuid, paymentMethod)
 	if err != nil {
-		return nil, err
+		return "", err
 	}
 
-	err = s.orderRepo.PayOrder(ctx, orderUuid, *transactionUuid, paymentMethod)
+	err = s.orderRepo.PayOrder(ctx, orderUuid, transactionUuid, paymentMethod)
 	if err != nil {
-		return nil, err
+		return "", err
+	}
+
+	err = s.orderProducer.ProduceOrderPaid(ctx, model.OrderPaidEvent{
+		UUID:            uuid.New().String(),
+		OrderUUID:       orderUuid,
+		UserUUID:        userUuid,
+		TransactionUUID: transactionUuid,
+		PaymentMethod:   paymentMethod,
+	})
+	if err != nil {
+		return "", err
 	}
 
 	return transactionUuid, nil

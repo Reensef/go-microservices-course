@@ -10,6 +10,7 @@ import (
 	"github.com/go-chi/chi/v5"
 	"github.com/go-chi/chi/v5/middleware"
 	"go.uber.org/zap"
+	"golang.org/x/sync/errgroup"
 
 	"github.com/Reensef/go-microservices-course/order/internal/config"
 	closer "github.com/Reensef/go-microservices-course/platform/pkg/closer"
@@ -34,7 +35,17 @@ func New(ctx context.Context) (*App, error) {
 }
 
 func (a *App) Run(ctx context.Context) error {
-	return a.runOrderHttpServer(ctx)
+	eg, egCtx := errgroup.WithContext(ctx)
+
+	eg.Go(func() error {
+		return a.runOrderHttpServer(egCtx)
+	})
+
+	eg.Go(func() error {
+		return a.diContainer.ShipConsumer(egCtx).RunConsumer(egCtx)
+	})
+
+	return eg.Wait()
 }
 
 func (a *App) initDeps(ctx context.Context) error {

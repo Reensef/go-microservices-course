@@ -16,5 +16,5 @@ type PaymentClient interface {
 		ctx context.Context,
 		orderUuid, userUuid string,
 		paymentMethod model.OrderPaymentMethod,
-	) (transactionUuid *string, err error)
+	) (transactionUuid string, err error)
 }

@@ -11,7 +11,7 @@ services:
     image: order-service:v1.0.0
 
     ports:
-      - "${HTTP_PORT}:8080" # Внешний порт из .env, внутренний фиксированный 8080
+      - "127.0.0.1:${HTTP_PORT}:${HTTP_PORT}" # Публикуем только на localhost хоста; порт совпадает с тем, что слушает приложение
     env_file:
       - ./.env
 

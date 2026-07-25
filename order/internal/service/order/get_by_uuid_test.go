@@ -16,9 +16,9 @@ import (
 func TestGetOrderByUUID(t *testing.T) {
 	t.Run("Error get from repo", func(t *testing.T) {
 		repo := repoMocks.NewMockOrderRepository(t)
-		inventory := grpcMocks.NewMockIntentoryServiceClient(t)
-		payment := grpcMocks.NewMockPaymentServiceClient(t)
-		service := New(repo, inventory, payment)
+		inventory := grpcMocks.NewMockIntentoryClient(t)
+		payment := grpcMocks.NewMockPaymentClient(t)
+		service := New(repo, inventory, payment, nil)
 
 		repoError := fmt.Errorf("error")
 

@@ -19,8 +19,7 @@ func init() {
 func BenchmarkGlobalLogger(b *testing.B) {
 	ctx := context.Background()
 
-	b.ResetTimer()
-	for i := 0; i < b.N; i++ {
+	for b.Loop() {
 		Info(ctx, "test message")
 	}
 }
@@ -29,8 +28,7 @@ func BenchmarkWithLogger(b *testing.B) {
 	log := With(zap.String("static_field", "static_value"))
 	ctx := context.Background()
 
-	b.ResetTimer()
-	for i := 0; i < b.N; i++ {
+	for b.Loop() {
 		log.Info(ctx, "test message")
 	}
 }
@@ -39,8 +37,7 @@ func BenchmarkWithContextLogger(b *testing.B) {
 	ctx := context.WithValue(context.Background(), traceIDKey, "trace-123")
 	ctx = context.WithValue(ctx, userIDKey, "user-456")
 
-	b.ResetTimer()
-	for i := 0; i < b.N; i++ {
+	for b.Loop() {
 		WithContext(ctx).Info(ctx, "test message")
 	}
 }
@@ -51,8 +48,7 @@ func BenchmarkChainLogger(b *testing.B) {
 
 	log := With(zap.String("static_field", "static_value"))
 
-	b.ResetTimer()
-	for i := 0; i < b.N; i++ {
+	for b.Loop() {
 		log.Info(ctx, "test message")
 	}
 }
