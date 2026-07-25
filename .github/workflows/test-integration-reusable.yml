@@ -30,6 +30,7 @@ jobs:
         uses: arduino/setup-task@v2.0.0
 
       - name: 🧪🐳 Run integration tests via Taskfile
+        continue-on-error: true
         env:
           MODULES: ${{ inputs.modules }}
         run: task test:integration

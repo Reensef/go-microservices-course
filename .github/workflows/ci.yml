@@ -42,7 +42,6 @@ jobs:
     name: test-integration (optional)
     uses: ./.github/workflows/test-integration-reusable.yml
     needs: [ extract-vars, lint ]
-    continue-on-error: true
     with:
       modules: ${{ needs.extract-vars.outputs.modules }}
       go-version: ${{ needs.extract-vars.outputs.go-version }}
