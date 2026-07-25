@@ -1,0 +1,35 @@
+name: Run Integration Tests
+
+on:
+  workflow_call:
+    inputs:
+      modules:
+        required: true
+        type: string
+      go-version:
+        required: true
+        type: string
+
+jobs:
+  test-integration:
+    name: Run integration tests (testcontainers)
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+
+    steps:
+      - name: 📦 Checkout code
+        uses: actions/checkout@v4.2.2
+
+      - name: 🛠 Set up Go
+        uses: actions/setup-go@v5.4.0
+        with:
+          go-version: ${{ inputs.go-version }}
+          cache: false # отключаем кэш go.sum в корне
+
+      - name: 📌 Install Task
+        uses: arduino/setup-task@v2.0.0
+
+      - name: 🧪🐳 Run integration tests via Taskfile
+        env:
+          MODULES: ${{ inputs.modules }}
+        run: task test:integration
