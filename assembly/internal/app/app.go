@@ -2,10 +2,8 @@ package app
 
 import (
 	"context"
-	"net"
 
 	"golang.org/x/sync/errgroup"
-	"google.golang.org/grpc"
 
 	"github.com/Reensef/go-microservices-course/assembly/internal/config"
 	closer "github.com/Reensef/go-microservices-course/platform/pkg/closer"
@@ -14,8 +12,6 @@ import (
 
 type App struct {
 	diContainer *diContainer
-	grpcServer  *grpc.Server
-	listener    net.Listener
 }
 
 func New(ctx context.Context) (*App, error) {

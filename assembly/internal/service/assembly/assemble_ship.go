@@ -13,8 +13,16 @@ func (s *service) AssembleShip(
 	ctx context.Context, orderUuid, userUuid string,
 ) error {
 	timeNow := time.Now()
+
 	// emulation of ship assembly
-	time.Sleep(5 * time.Second)
+	wait := time.After(5 * time.Second)
+
+	select {
+	case <-ctx.Done():
+		return ctx.Err()
+	case <-wait:
+	}
+
 	buildDuration := time.Since(timeNow)
 
 	err := s.shipProducer.ProduceShipAssembled(ctx, model.ShipAssembledEvent{

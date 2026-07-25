@@ -23,7 +23,6 @@ import (
 	service "github.com/Reensef/go-microservices-course/order/internal/service"
 	orderService "github.com/Reensef/go-microservices-course/order/internal/service/order"
 	closer "github.com/Reensef/go-microservices-course/platform/pkg/closer"
-	kafka "github.com/Reensef/go-microservices-course/platform/pkg/kafka"
 	"github.com/Reensef/go-microservices-course/platform/pkg/sqlmigrator"
 	orderApi "github.com/Reensef/go-microservices-course/shared/pkg/openapi/order/v1"
 	inventoryGrpc "github.com/Reensef/go-microservices-course/shared/pkg/proto/inventory/v1"
@@ -36,7 +35,6 @@ type diContainer struct {
 	orderService       service.OrderService
 	orderRepo          repo.OrderRepository
 	orderProducer      events.OrderProducer
-	orderKafkaProducer kafka.Producer
 	saramaSyncProducer sarama.SyncProducer
 	shipConsumer       events.ShipConsumer
 	consumerGroup      sarama.ConsumerGroup
