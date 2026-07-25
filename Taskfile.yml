@@ -43,6 +43,20 @@ vars:
   MODULES: assembly inventory order payment platform iam notification
 
 tasks:
+  env:copy-examples:
+    desc: "Копирует все .env.example в .env рядом с ними (не перезаписывает существующие .env)"
+    cmds:
+      - |
+        find {{.ROOT_DIR}} -type f -name '.env.example' -not -path '*/node_modules/*' | while read -r example; do
+          target="$(dirname "$example")/.env"
+          if [ -f "$target" ]; then
+            echo "⏭️  Пропускаем $target (уже существует)"
+          else
+            cp "$example" "$target"
+            echo "✅ Создан $target из $example"
+          fi
+        done
+
   inventory:run:
     desc: "Запускает inventory сервис"
     cmds:
