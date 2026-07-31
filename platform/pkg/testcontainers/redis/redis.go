@@ -4,10 +4,9 @@ import (
 	"context"
 	"net"
 
+	goredis "github.com/redis/go-redis/v9"
 	"github.com/testcontainers/testcontainers-go"
 	"go.uber.org/zap"
-
-	goredis "github.com/redis/go-redis/v9"
 )
 
 type Container struct {
@@ -40,7 +39,7 @@ func NewContainer(ctx context.Context, opts ...Option) (*Container, error) {
 
 	addr := net.JoinHostPort(cfg.Host, cfg.Port)
 
-	client, err := connectRedisClient(ctx, addr, cfg.Password)
+	client, err := connectRedisClient(ctx, addr, cfg.Password, cfg.Logger)
 	if err != nil {
 		return nil, err
 	}
