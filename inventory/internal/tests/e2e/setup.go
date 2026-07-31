@@ -4,7 +4,6 @@ package integration
 
 import (
 	"context"
-	"maps"
 	"os"
 	"time"
 
@@ -25,9 +24,6 @@ const (
 	inventoryAppName    = "inventory-app"
 	inventoryDockerfile = "deploy/docker/inventory/Dockerfile"
 
-	// Переменные окружения приложения
-	grpcPortKey = "GRPC_PORT"
-
 	// Значения переменных окружения
 	loggerLevelValue = "debug"
 	startupTimeout   = 3 * time.Minute
@@ -40,8 +36,10 @@ type TestEnvironment struct {
 	App     *app.Container
 }
 
-// setupTestEnvironment — подготавливает тестовое окружение: сеть, контейнеры и возвращает структуру с ресурсами
-func setupTestEnvironment(ctx context.Context, envVars map[string]string) *TestEnvironment {
+// setupTestEnvironment — подготавливает тестовое окружение: сеть, контейнеры и возвращает структуру с ресурсами.
+// Все настройки (порты, креды, имя образа) заданы в коде константами этого пакета,
+// а не читаются из .env-файлов — тестовое окружение не зависит от deploy/compose.
+func setupTestEnvironment(ctx context.Context) *TestEnvironment {
 	logger.Info(ctx, "🚀 Подготовка тестового окружения...")
 
 	// Шаг 1: Создаём общую Docker-сеть
@@ -51,27 +49,19 @@ func setupTestEnvironment(ctx context.Context, envVars map[string]string) *TestE
 	}
 	logger.Info(ctx, "✅ Сеть успешно создана")
 
-	// Получаем переменные окружения для MongoDB с проверкой на наличие
-	mongoUsername := getEnvWithLogging(ctx, envVars, testcontainers.MongoUsernameKey)
-	mongoPassword := getEnvWithLogging(ctx, envVars, testcontainers.MongoPasswordKey)
-	mongoImageName := getEnvWithLogging(ctx, envVars, testcontainers.MongoImageNameKey)
-	mongoDatabase := getEnvWithLogging(ctx, envVars, testcontainers.MongoDatabaseKey)
-
-	// Получаем порт gRPC для waitStrategy
-	grpcPort := getEnvWithLogging(ctx, envVars, grpcPortKey)
-
 	// Шаг 2: Запускаем контейнер с MongoDB
-	// Алиас сети совпадает с MONGO_HOST из .env, поэтому приложению не нужно
-	// объяснять контейнеру, где искать Mongo, — .env работает как есть, без подмен.
+	// Алиас сети (mongoHostValue) — это DNS-имя, по которому приложение внутри
+	// той же сети найдёт Mongo (передаётся ему через MONGO_HOST ниже).
 	// Само имя контейнера при этом остаётся отдельным (testcontainers.MongoContainerName),
 	// чтобы не конфликтовать с контейнером Mongo из локального docker-compose разработчика.
 	generatedMongo, err := mongo.NewContainer(ctx,
 		mongo.WithNetworkName(generatedNetwork.Name()),
 		mongo.WithContainerName(testcontainers.MongoContainerName),
-		mongo.WithNetworkAliases(envVars[testcontainers.MongoHostKey]),
-		mongo.WithImageName(mongoImageName),
-		mongo.WithDatabase(mongoDatabase),
-		mongo.WithAuth(mongoUsername, mongoPassword),
+		mongo.WithNetworkAliases(mongoHostValue),
+		mongo.WithImageName(mongoImageNameValue),
+		mongo.WithDatabase(mongoDatabaseValue),
+		mongo.WithAuth(mongoUsernameValue, mongoPasswordValue),
+		mongo.WithAuthDB(mongoAuthDBValue),
 		mongo.WithLogger(logger.Logger()),
 	)
 	if err != nil {
@@ -80,18 +70,31 @@ func setupTestEnvironment(ctx context.Context, envVars map[string]string) *TestE
 	}
 	logger.Info(ctx, "✅ Контейнер MongoDB успешно запущен")
 
-	// Шаг 3: Запускаем контейнер с приложением
+	// Шаг 3: Запускаем контейнер с приложением.
+	// MONGO_PORT — это порт Mongo *внутри* Docker-сети (testcontainers.MongoPort),
+	// а не внешний порт, который testcontainers пробрасывает наружу для клиента тестов.
 	projectRoot := path.GetProjectRoot()
 
-	appEnv := maps.Clone(envVars)
+	appEnv := map[string]string{
+		"GRPC_HOST":                     grpcHostValue,
+		"GRPC_PORT":                     grpcPortValue,
+		"LOGGER_LEVEL":                  loggerLevelValue,
+		"LOGGER_AS_JSON":                loggerAsJSONValue,
+		testcontainers.MongoHostKey:     mongoHostValue,
+		testcontainers.MongoPortKey:     testcontainers.MongoPort,
+		testcontainers.MongoDatabaseKey: mongoDatabaseValue,
+		testcontainers.MongoAuthDBKey:   mongoAuthDBValue,
+		testcontainers.MongoUsernameKey: mongoUsernameValue,
+		testcontainers.MongoPasswordKey: mongoPasswordValue,
+	}
 
 	// Создаем настраиваемую стратегию ожидания с увеличенным таймаутом
-	waitStrategy := wait.ForListeningPort(nat.Port(grpcPort + "/tcp")).
+	waitStrategy := wait.ForListeningPort(nat.Port(grpcPortValue + "/tcp")).
 		WithStartupTimeout(startupTimeout)
 
 	appContainer, err := app.NewContainer(ctx,
 		app.WithName(inventoryAppName),
-		app.WithPort(grpcPort),
+		app.WithPort(grpcPortValue),
 		app.WithDockerfile(projectRoot, inventoryDockerfile),
 		app.WithNetwork(generatedNetwork.Name()),
 		app.WithEnv(appEnv),
@@ -111,14 +114,4 @@ func setupTestEnvironment(ctx context.Context, envVars map[string]string) *TestE
 		Mongo:   generatedMongo,
 		App:     appContainer,
 	}
-}
-
-// getEnvWithLogging возвращает значение переменной окружения из .env с логированием при отсутствии
-func getEnvWithLogging(ctx context.Context, envVars map[string]string, key string) string {
-	value := envVars[key]
-	if value == "" {
-		logger.Warn(ctx, "Переменная окружения не установлена", zap.String("key", key))
-	}
-
-	return value
 }

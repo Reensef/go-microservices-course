@@ -1,0 +1,43 @@
+syntax = "proto3";
+
+package iam.v1;
+
+import "iam/v1/common.proto";
+import "validate/validate.proto";
+
+option go_package = "github.com/Reensef/go-microservices-course/shared/pkg/proto/iam/v1;iam_v1";
+
+// Cервис для управления пользователями
+service UserService {
+    // Метод для регистрации нового пользователя
+    rpc Register(RegisterRequest) returns (RegisterResponse);
+
+    // Метод для получения пользователя по UUID
+    rpc GetUser(GetUserRequest) returns (GetUserResponse);
+}
+
+// Данные для регистрации пользователя
+message UserRegistrationInfo {
+    UserInfo info = 1; // Основная информация пользователя
+    string password = 2; // Пароль
+}
+
+// Запрос для метода Register
+message RegisterRequest {
+    UserRegistrationInfo info = 1; // Данные для регистрации
+}
+
+// Ответ для метода Register
+message RegisterResponse {
+    string user_uuid = 1 [(validate.rules).string.uuid = true]; // UUID созданного пользователя
+}
+
+// Запрос для метода GetUser
+message GetUserRequest {
+    string user_uuid = 1 [(validate.rules).string.uuid = true]; // UUID пользователя
+}
+
+// Ответ для метода GetUser
+message GetUserResponse {
+    User user = 1; // Пользователь
+}

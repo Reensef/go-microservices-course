@@ -61,39 +61,27 @@ tasks:
     desc: "Запускает inventory сервис"
     cmds:
       - go run ./inventory/cmd/main.go --env ./inventory/cmd/.env.dev
-  
-  inventory:debug:
-    desc: "Запускает inventory сервис в режиме отладки"
-    summary: |
-      "https://stackoverflow.com/questions/69506371/why-does-debugging-go-with-vs-code-and-wsl-hang-delve"
-    cmds:
-      - dlv debug ./inventory/cmd/main.go --headless --listen=127.0.0.1:50001 --accept-multiclient --continue --only-same-user=false
 
   order:run:
       desc: "Запускает order сервис"
       cmds:
         - go run ./order/cmd/main.go --env ./order/cmd/.env.dev
-  
-  order:debug:
-      desc: "Запускает order сервис в режиме отладки"
-      cmds:
-        - dlv debug ./order/cmd/main.go --headless --listen=127.0.0.1:50001 --accept-multiclient --continue --only-same-user=false
 
   payment:run:
       desc: "Запускает payment сервис"
       cmds:
         - go run ./payment/cmd/main.go --env ./payment/cmd/.env.dev
-  
-  payment:debug:
-    desc: "Запускает payment сервис в режиме отладки"
+
+  iam:run:
+    desc: "Запускает iam сервис"
     cmds:
-      - dlv debug ./payment/cmd/main.go --headless --listen=127.0.0.1:50001 --accept-multiclient --continue --only-same-user=false
+      - go run ./iam/cmd/main.go --env ./iam/cmd/.env.dev
 
   compose:network:up:
     desc: Поднять сеть
     dir: deploy/compose/network
     cmds:
-      - docker compose --all-resources up
+      - docker compose --all-resources up --detach
 
   compose:network:down:
     desc: Удалить сеть
@@ -105,7 +93,7 @@ tasks:
     desc: Поднять Kafka и Kafka UI
     dir: deploy/compose/kafka
     cmds:
-      - docker compose --all-resources up
+      - docker compose --all-resources up --detach
 
   compose:kafka:down:
     desc: Остановить и удалить Kafka и Kafka UI
@@ -175,6 +163,18 @@ tasks:
     cmds:
       - docker compose down
 
+  compose:iam:up:
+    desc: Собрать и поднять IAM сервис
+    dir: deploy/compose/iam
+    cmds:
+      - docker compose up --build --detach
+
+  compose:iam:down:
+    desc: Остановить и удалить IAM сервис
+    dir: deploy/compose/iam
+    cmds:
+      - docker compose down
+
   compose:mongo:up:
     desc: Поднять MongoDB
     dir: deploy/compose/mongo
@@ -199,17 +199,31 @@ tasks:
     cmds:
       - docker compose down --volumes
 
+  compose:redis:up:
+    desc: Поднять Redis для IAM сервиса
+    dir: deploy/compose/redis
+    cmds:
+      - docker compose up --detach
+
+  compose:redis:down:
+    desc: Остановить и удалить Redis IAM сервиса вместе с volume
+    dir: deploy/compose/redis
+    cmds:
+      - docker compose down --volumes
+
   compose:infra:up:
-    desc: Поднять общую инфраструктуру - сеть, PostgreSQL, MongoDB, Kafka
+    desc: Поднять общую инфраструктуру - сеть, PostgreSQL, MongoDB, Kafka, Redis
     cmds:
       - task compose:network:up
       - task compose:postgres:up
       - task compose:mongo:up
       - task compose:kafka:up
+      - task compose:redis:up
 
   compose:infra:down:
-    desc: Остановить и удалить общую инфраструктуру - Kafka, MongoDB, PostgreSQL, сеть
+    desc: Остановить и удалить общую инфраструктуру - Kafka, MongoDB, PostgreSQL, сеть, Redis
     cmds:
+      - task compose:redis:down
       - task compose:kafka:down
       - task compose:mongo:down
       - task compose:postgres:down
@@ -220,20 +234,10 @@ tasks:
     cmds:
       - go run ./assembly/cmd/main.go --env ./assembly/cmd/.env.dev
 
-  assembly:debug:
-    desc: "Запускает assembly сервис в режиме отладки"
-    cmds:
-      - dlv debug ./assembly/cmd/main.go --headless --listen=127.0.0.1:50001 --accept-multiclient --continue --only-same-user=false
-
   notification:run:
     desc: "Запускает notification сервис"
     cmds:
       - go run ./notification/cmd/main.go --env ./notification/cmd/.env.dev
-
-  notification:debug:
-    desc: "Запускает notification сервис в режиме отладки"
-    cmds:
-      - dlv debug ./notification/cmd/main.go --headless --listen=127.0.0.1:50001 --accept-multiclient --continue --only-same-user=false
 
   install-formatters:
     desc: "Устанавливает форматтеры gci и gofumpt в ./bin"

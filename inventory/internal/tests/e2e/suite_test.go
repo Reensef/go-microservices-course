@@ -5,17 +5,13 @@ package integration
 import (
 	"context"
 	"fmt"
-	"path/filepath"
 	"testing"
 	"time"
 
-	"github.com/joho/godotenv"
 	. "github.com/onsi/ginkgo/v2"
 	. "github.com/onsi/gomega"
-	"go.uber.org/zap"
 
 	"github.com/Reensef/go-microservices-course/platform/pkg/logger"
-	"github.com/Reensef/go-microservices-course/platform/pkg/testcontainers/path"
 )
 
 const testsTimeout = 5 * time.Minute
@@ -40,16 +36,8 @@ var _ = BeforeSuite(func() {
 
 	suiteCtx, suiteCancel = context.WithTimeout(context.Background(), testsTimeout)
 
-	// Загружаем .env файл — все нужные тестам переменные передаются дальше явно, как map
-	envPath := filepath.Join(path.GetProjectRoot(), "deploy", "compose", "inventory", ".env")
-
-	envVars, err := godotenv.Read(envPath)
-	if err != nil {
-		logger.Fatal(suiteCtx, "Не удалось загрузить .env файл", zap.Error(err))
-	}
-
 	logger.Info(suiteCtx, "Запуск тестового окружения...")
-	env = setupTestEnvironment(suiteCtx, envVars)
+	env = setupTestEnvironment(suiteCtx)
 })
 
 var _ = AfterSuite(func() {

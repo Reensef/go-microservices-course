@@ -1,5 +1,6 @@
 services:
-  order-postgres:
+  # Microservice Course Postgres
+  mc-postgres:
     image: postgres:17.0-alpine3.20
 
     env_file:
@@ -9,6 +10,9 @@ services:
       - postgres_data:/var/lib/postgresql/data
       # Определяем том, который будет использоваться для хранения данных PostgreSQL
       # Он сохраняет данные между перезапусками контейнера
+      - ./init:/docker-entrypoint-initdb.d
+      # Скрипты отсюда выполняются один раз при первом старте (когда том выше ещё пуст)
+      # и создают базы для сервисов, перечисленные в POSTGRES_MULTIPLE_DATABASES
 
     ports:
       - "${POSTGRES_PORT}:5432"

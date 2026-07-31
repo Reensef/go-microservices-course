@@ -1,0 +1,25 @@
+services:
+  iam:
+    build:
+      # Контекст должен быть корнем проекта, поэтому поднимаемся на три уровня
+      context: ./../../..
+      dockerfile: deploy/docker/iam/Dockerfile
+      platforms:
+        - linux/amd64
+
+    image: iam-service:v1.0.0
+
+    ports:
+      - "127.0.0.1:${GRPC_PORT}:${GRPC_PORT}" # Публикуем только на localhost хоста; порт совпадает с тем, что слушает приложение
+    env_file:
+      - ./.env
+
+    restart: unless-stopped
+
+    networks:
+      - common
+
+
+networks:
+  common:
+    external: true
