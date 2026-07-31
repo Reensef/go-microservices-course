@@ -14,9 +14,8 @@ type UserInfo struct {
 }
 
 type User struct {
-	Uuid         string
-	Info         UserInfo
-	PasswordHash string
-	CreatedAt    time.Time
-	UpdatedAt    time.Time
+	Uuid      string
+	Info      UserInfo
+	CreatedAt time.Time
+	UpdatedAt time.Time
 }

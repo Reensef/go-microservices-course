@@ -14,6 +14,7 @@ func connectRedisClient(ctx context.Context, addr, password string) (*goredis.Cl
 	})
 
 	if err := client.Ping(ctx).Err(); err != nil {
+		_ = client.Close()
 		return nil, errors.Errorf("failed to ping redis: %v", err)
 	}
 

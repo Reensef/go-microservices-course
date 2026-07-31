@@ -14,6 +14,7 @@ func connectPostgresPool(ctx context.Context, uri string) (*pgxpool.Pool, error)
 	}
 
 	if err = pool.Ping(ctx); err != nil {
+		pool.Close()
 		return nil, errors.Errorf("failed to ping postgres: %v", err)
 	}
 

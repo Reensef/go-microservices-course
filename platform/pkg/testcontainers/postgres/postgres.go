@@ -66,6 +66,7 @@ func (c *Container) Terminate(ctx context.Context) error {
 
 	if err := c.container.Terminate(ctx); err != nil {
 		c.cfg.Logger.Error(ctx, "failed to terminate postgres container", zap.Error(err))
+		return err
 	}
 
 	c.cfg.Logger.Info(ctx, "Postgres container terminated")

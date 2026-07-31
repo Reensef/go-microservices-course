@@ -81,7 +81,7 @@ tasks:
     desc: Поднять сеть
     dir: deploy/compose/network
     cmds:
-      - docker compose --all-resources up
+      - docker compose --all-resources up --detach
 
   compose:network:down:
     desc: Удалить сеть
@@ -93,7 +93,7 @@ tasks:
     desc: Поднять Kafka и Kafka UI
     dir: deploy/compose/kafka
     cmds:
-      - docker compose --all-resources up
+      - docker compose --all-resources up --detach
 
   compose:kafka:down:
     desc: Остановить и удалить Kafka и Kafka UI
@@ -199,18 +199,6 @@ tasks:
     cmds:
       - docker compose down --volumes
 
-  compose:iam-postgres:up:
-    desc: Поднять PostgreSQL для IAM сервиса
-    dir: deploy/compose/iam-postgres
-    cmds:
-      - docker compose up --detach
-
-  compose:iam-postgres:down:
-    desc: Остановить и удалить PostgreSQL IAM сервиса вместе с volume
-    dir: deploy/compose/iam-postgres
-    cmds:
-      - docker compose down --volumes
-
   compose:redis:up:
     desc: Поднять Redis для IAM сервиса
     dir: deploy/compose/redis
@@ -224,20 +212,18 @@ tasks:
       - docker compose down --volumes
 
   compose:infra:up:
-    desc: Поднять общую инфраструктуру - сеть, PostgreSQL, MongoDB, Kafka, IAM PostgreSQL, Redis
+    desc: Поднять общую инфраструктуру - сеть, PostgreSQL, MongoDB, Kafka, Redis
     cmds:
       - task compose:network:up
       - task compose:postgres:up
       - task compose:mongo:up
       - task compose:kafka:up
-      - task compose:iam-postgres:up
       - task compose:redis:up
 
   compose:infra:down:
-    desc: Остановить и удалить общую инфраструктуру - Kafka, MongoDB, PostgreSQL, сеть, IAM PostgreSQL, Redis
+    desc: Остановить и удалить общую инфраструктуру - Kafka, MongoDB, PostgreSQL, сеть, Redis
     cmds:
       - task compose:redis:down
-      - task compose:iam-postgres:down
       - task compose:kafka:down
       - task compose:mongo:down
       - task compose:postgres:down
