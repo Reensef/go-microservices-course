@@ -72,6 +72,11 @@ tasks:
       cmds:
         - go run ./payment/cmd/main.go --env ./payment/cmd/.env.dev
 
+  iam:run:
+    desc: "Запускает iam сервис"
+    cmds:
+      - go run ./iam/cmd/main.go --env ./iam/cmd/.env.dev
+
   compose:network:up:
     desc: Поднять сеть
     dir: deploy/compose/network
@@ -158,6 +163,18 @@ tasks:
     cmds:
       - docker compose down
 
+  compose:iam:up:
+    desc: Собрать и поднять IAM сервис
+    dir: deploy/compose/iam
+    cmds:
+      - docker compose up --build --detach
+
+  compose:iam:down:
+    desc: Остановить и удалить IAM сервис
+    dir: deploy/compose/iam
+    cmds:
+      - docker compose down
+
   compose:mongo:up:
     desc: Поднять MongoDB
     dir: deploy/compose/mongo
@@ -182,17 +199,45 @@ tasks:
     cmds:
       - docker compose down --volumes
 
+  compose:iam-postgres:up:
+    desc: Поднять PostgreSQL для IAM сервиса
+    dir: deploy/compose/iam-postgres
+    cmds:
+      - docker compose up --detach
+
+  compose:iam-postgres:down:
+    desc: Остановить и удалить PostgreSQL IAM сервиса вместе с volume
+    dir: deploy/compose/iam-postgres
+    cmds:
+      - docker compose down --volumes
+
+  compose:redis:up:
+    desc: Поднять Redis для IAM сервиса
+    dir: deploy/compose/redis
+    cmds:
+      - docker compose up --detach
+
+  compose:redis:down:
+    desc: Остановить и удалить Redis IAM сервиса вместе с volume
+    dir: deploy/compose/redis
+    cmds:
+      - docker compose down --volumes
+
   compose:infra:up:
-    desc: Поднять общую инфраструктуру - сеть, PostgreSQL, MongoDB, Kafka
+    desc: Поднять общую инфраструктуру - сеть, PostgreSQL, MongoDB, Kafka, IAM PostgreSQL, Redis
     cmds:
       - task compose:network:up
       - task compose:postgres:up
       - task compose:mongo:up
       - task compose:kafka:up
+      - task compose:iam-postgres:up
+      - task compose:redis:up
 
   compose:infra:down:
-    desc: Остановить и удалить общую инфраструктуру - Kafka, MongoDB, PostgreSQL, сеть
+    desc: Остановить и удалить общую инфраструктуру - Kafka, MongoDB, PostgreSQL, сеть, IAM PostgreSQL, Redis
     cmds:
+      - task compose:redis:down
+      - task compose:iam-postgres:down
       - task compose:kafka:down
       - task compose:mongo:down
       - task compose:postgres:down

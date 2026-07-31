@@ -1,0 +1,33 @@
+services:
+  mc-redis:
+    image: redis:7.4-alpine
+
+    env_file:
+      - ./.env
+
+    volumes:
+      - redis_data:/data
+      # Определяем том, который будет использоваться для хранения данных Redis
+      # Он сохраняет данные между перезапусками контейнера
+
+    ports:
+      - "${REDIS_PORT}:6379"
+      # Пробрасываем внутренний порт Redis (6379) на порт хоста
+
+    healthcheck:
+      test: [ "CMD", "redis-cli", "ping" ]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+    restart: unless-stopped
+
+    networks:
+      - common
+
+volumes:
+  redis_data:
+
+networks:
+  common:
+    external: true
