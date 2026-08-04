@@ -81,25 +81,13 @@ func (*ConflictError) payOrderRes()    {}
 
 // Ref: #/components/schemas/create_order_request
 type CreateOrderRequest struct {
-	// UUID пользователя.
-	UserUUID string `json:"user_uuid"`
 	// Список ID деталей.
 	PartIds []string `json:"part_ids"`
-}
-
-// GetUserUUID returns the value of UserUUID.
-func (s *CreateOrderRequest) GetUserUUID() string {
-	return s.UserUUID
 }
 
 // GetPartIds returns the value of PartIds.
 func (s *CreateOrderRequest) GetPartIds() []string {
 	return s.PartIds
-}
-
-// SetUserUUID sets the value of UserUUID.
-func (s *CreateOrderRequest) SetUserUUID(val string) {
-	s.UserUUID = val
 }
 
 // SetPartIds sets the value of PartIds.
@@ -136,6 +124,39 @@ func (s *CreateOrderResponse) SetTotalPrice(val float64) {
 }
 
 func (*CreateOrderResponse) createOrderRes() {}
+
+// Ref: #/components/schemas/forbidden_error
+type ForbiddenError struct {
+	// HTTP-код ошибки.
+	Code int `json:"code"`
+	// Сообщение об ошибке.
+	Message string `json:"message"`
+}
+
+// GetCode returns the value of Code.
+func (s *ForbiddenError) GetCode() int {
+	return s.Code
+}
+
+// GetMessage returns the value of Message.
+func (s *ForbiddenError) GetMessage() string {
+	return s.Message
+}
+
+// SetCode sets the value of Code.
+func (s *ForbiddenError) SetCode(val int) {
+	s.Code = val
+}
+
+// SetMessage sets the value of Message.
+func (s *ForbiddenError) SetMessage(val string) {
+	s.Message = val
+}
+
+func (*ForbiddenError) cancelOrderRes()    {}
+func (*ForbiddenError) createOrderRes()    {}
+func (*ForbiddenError) getOrderByUUIDRes() {}
+func (*ForbiddenError) payOrderRes()       {}
 
 // Ref: #/components/schemas/generic_error
 type GenericError struct {

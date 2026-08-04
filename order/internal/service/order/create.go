@@ -2,12 +2,24 @@ package order
 
 import (
 	"context"
+	"encoding/hex"
 	"fmt"
 
 	"github.com/google/uuid"
 
 	"github.com/Reensef/go-microservices-course/order/internal/model"
 )
+
+// objectIDHexLen — длина hex-строки MongoDB ObjectID (12 байт = 24 hex-символа).
+const objectIDHexLen = 24
+
+func isValidObjectIDHex(id string) bool {
+	if len(id) != objectIDHexLen {
+		return false
+	}
+	_, err := hex.DecodeString(id)
+	return err == nil
+}
 
 func (s *service) CreateOrder(
 	ctx context.Context,
@@ -22,7 +34,7 @@ func (s *service) CreateOrder(
 	}
 
 	for _, partId := range info.PartIds {
-		if uuid.Validate(partId) != nil {
+		if !isValidObjectIDHex(partId) {
 			return nil, model.ErrPartIdInvalidFormat
 		}
 	}

@@ -17,15 +17,22 @@ func (a *api) PayOrder(
 	ctx context.Context,
 	req *paymentV1.PayOrderRequest,
 ) (*paymentV1.PayOrderResponse, error) {
-	orderUuid := req.GetOrderUuid()
 	userUuid := req.GetUserUuid()
+	authenticatedUser, ok := model.UserFromContext(ctx)
+	if !ok {
+		return nil, status.Errorf(codes.Internal, "internal server error")
+	}
 
-	transactionUuid, err := a.service.Pay(
-		ctx,
-		orderUuid,
-		userUuid,
-		converter.ToModelPaymentMethod(req.GetPaymentMethod()),
-	)
+	if authenticatedUser.Uuid != userUuid {
+		return nil, status.Errorf(
+			codes.PermissionDenied, "authenticated user does not match user_uuid in request",
+		)
+	}
+
+	paymentMethod := converter.ToModelPaymentMethod(req.GetPaymentMethod())
+	orderUuid := req.GetOrderUuid()
+
+	transactionUuid, err := a.service.Pay(ctx, orderUuid, userUuid, paymentMethod)
 	if err != nil {
 		log.Printf("api: error paying order: %s", err.Error())
 

@@ -6,8 +6,8 @@ import (
 	"fmt"
 
 	"github.com/IBM/sarama"
-	"github.com/gogo/protobuf/proto"
 	"go.uber.org/zap"
+	"google.golang.org/protobuf/proto"
 
 	def "github.com/Reensef/go-microservices-course/order/internal/events"
 	"github.com/Reensef/go-microservices-course/order/internal/model"

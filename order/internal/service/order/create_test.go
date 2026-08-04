@@ -3,6 +3,7 @@ package order
 import (
 	"context"
 	"fmt"
+	"strings"
 	"testing"
 
 	"github.com/google/uuid"
@@ -13,6 +14,11 @@ import (
 	"github.com/Reensef/go-microservices-course/order/internal/model"
 	repoMocks "github.com/Reensef/go-microservices-course/order/internal/repository/mocks"
 )
+
+// randomObjectIDHex — валидный по формату (24 hex-символа) идентификатор детали для тестов.
+func randomObjectIDHex() string {
+	return strings.ReplaceAll(uuid.NewString(), "-", "")[:24]
+}
 
 func TestCreateOrder(t *testing.T) {
 	t.Run("Nil info", func(t *testing.T) {
@@ -39,7 +45,7 @@ func TestCreateOrder(t *testing.T) {
 		inventory.EXPECT().ListParts(context.Background(), mock.Anything).Return(nil, fmt.Errorf("error")).Once()
 		uuid, err := service.CreateOrder(context.Background(), &model.OrderInfo{
 			UserUuid: uuid.NewString(),
-			PartIds:  []string{uuid.NewString()},
+			PartIds:  []string{randomObjectIDHex()},
 		})
 
 		assert.Nil(t, uuid)
@@ -63,7 +69,7 @@ func TestCreateOrder(t *testing.T) {
 		orderInfo := &model.OrderInfo{}
 		orderInfo.UserUuid = uuid.NewString()
 		for range 10 {
-			orderInfo.PartIds = append(orderInfo.PartIds, uuid.NewString())
+			orderInfo.PartIds = append(orderInfo.PartIds, randomObjectIDHex())
 		}
 		uuid, err := service.CreateOrder(context.Background(), orderInfo)
 
@@ -85,7 +91,7 @@ func TestCreateOrder(t *testing.T) {
 		orderInfo := &model.OrderInfo{}
 		orderInfo.UserUuid = uuid.NewString()
 		for range 10 {
-			orderInfo.PartIds = append(orderInfo.PartIds, uuid.NewString())
+			orderInfo.PartIds = append(orderInfo.PartIds, randomObjectIDHex())
 		}
 		uuid, err := service.CreateOrder(context.Background(), orderInfo)
 

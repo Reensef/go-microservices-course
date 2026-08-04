@@ -16,6 +16,7 @@ type config struct {
 	OrderService    OrderServiceConfig
 	PaymentClient   PaymentClientConfig
 	InventoryClient InventoryClientConfig
+	IAMClient       IAMClientConfig
 
 	Kafka         KafkaConfig
 	OrderProducer OrderProducerConfig
@@ -54,6 +55,11 @@ func Load(envFile string) error {
 		return err
 	}
 
+	iamClient, err := env.NewIAMClientConfig()
+	if err != nil {
+		return err
+	}
+
 	postgresCfg, err := env.NewPostgresConfig()
 	if err != nil {
 		return err
@@ -84,6 +90,7 @@ func Load(envFile string) error {
 		OrderService:    orderService,
 		PaymentClient:   paymentClient,
 		InventoryClient: inventoryClient,
+		IAMClient:       iamClient,
 		Postgres:        postgresCfg,
 		SqlMigrator:     sqlMigratorCfg,
 		Kafka:           kafkaCfg,

@@ -11,7 +11,7 @@ type OrderService interface {
 
 	GetOrderByUUID(ctx context.Context, orderUuid string) (*model.Order, error)
 
-	CancelOrder(ctx context.Context, orderUuid string) error
+	CancelOrder(ctx context.Context, orderUuid, requesterUuid string) error
 
 	PayOrder(
 		ctx context.Context,

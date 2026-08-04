@@ -19,6 +19,12 @@ post:
         application/json:
           schema:
             $ref: '../components/pay_order_response.yaml'
+    '403':
+      description: Доступ к заказу запрещён
+      content:
+        application/json:
+          schema:
+            $ref: '../components/errors/forbidden_error.yaml'
     '404':
       description: Заказ не найден
       content:

@@ -13,6 +13,7 @@ var appConfig *config
 type config struct {
 	Logger         LoggerConfig
 	PaymentService PaymentServiceConfig
+	IAMClient      IAMClientConfig
 }
 
 func Load(envFile string) error {
@@ -33,9 +34,15 @@ func Load(envFile string) error {
 		return err
 	}
 
+	iamClient, err := env.NewIAMClientConfig()
+	if err != nil {
+		return err
+	}
+
 	appConfig = &config{
 		Logger:         loggerCfg,
 		PaymentService: paymentService,
+		IAMClient:      iamClient,
 	}
 
 	return nil

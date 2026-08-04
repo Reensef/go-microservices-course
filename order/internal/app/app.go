@@ -95,6 +95,7 @@ func (a *App) initOrderRouter(ctx context.Context) error {
 	a.orderRouter.Use(middleware.Logger)
 	a.orderRouter.Use(middleware.Recoverer)
 	a.orderRouter.Use(middleware.Timeout(10 * time.Second))
+	a.orderRouter.Use(a.diContainer.AuthMiddleware(ctx))
 
 	a.orderRouter.Mount("/", a.diContainer.OrderApi(ctx))
 

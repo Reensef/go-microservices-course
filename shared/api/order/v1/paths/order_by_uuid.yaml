@@ -13,6 +13,12 @@ get:
         application/json:
           schema:
             $ref: '../components/get_order_response.yaml'
+    '403':
+      description: Доступ к заказу запрещён
+      content:
+        application/json:
+          schema:
+            $ref: '../components/errors/forbidden_error.yaml'
     '404':
       description: Заказ не найден
       content:

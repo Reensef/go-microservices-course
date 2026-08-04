@@ -3,6 +3,7 @@ package app
 import (
 	"context"
 	"fmt"
+	"net/http"
 
 	"github.com/IBM/sarama"
 	"github.com/jackc/pgx/v5/pgxpool"
@@ -10,8 +11,10 @@ import (
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/credentials/insecure"
 
+	orderMiddleware "github.com/Reensef/go-microservices-course/order/internal/api/middleware"
 	orderHandler "github.com/Reensef/go-microservices-course/order/internal/api/order/v1"
 	grpcClients "github.com/Reensef/go-microservices-course/order/internal/client/grpc"
+	iamClient "github.com/Reensef/go-microservices-course/order/internal/client/grpc/iam/v1"
 	inventoryClient "github.com/Reensef/go-microservices-course/order/internal/client/grpc/inventory/v1"
 	paymentClient "github.com/Reensef/go-microservices-course/order/internal/client/grpc/payment/v1"
 	"github.com/Reensef/go-microservices-course/order/internal/config"
@@ -25,6 +28,7 @@ import (
 	closer "github.com/Reensef/go-microservices-course/platform/pkg/closer"
 	"github.com/Reensef/go-microservices-course/platform/pkg/sqlmigrator"
 	orderApi "github.com/Reensef/go-microservices-course/shared/pkg/openapi/order/v1"
+	iamGrpc "github.com/Reensef/go-microservices-course/shared/pkg/proto/iam/v1"
 	inventoryGrpc "github.com/Reensef/go-microservices-course/shared/pkg/proto/inventory/v1"
 	paymentGrpc "github.com/Reensef/go-microservices-course/shared/pkg/proto/payment/v1"
 )
@@ -40,9 +44,13 @@ type diContainer struct {
 	consumerGroup      sarama.ConsumerGroup
 	inventoryClient    grpcClients.IntentoryClient
 	paymentClient      grpcClients.PaymentClient
+	iamClient          grpcClients.IAMClient
 
 	inventoryGrpc inventoryGrpc.InventoryServiceClient
 	paymentGrpc   paymentGrpc.PaymentServiceClient
+	iamGrpc       iamGrpc.AuthServiceClient
+
+	authMiddleware func(http.Handler) http.Handler
 
 	postgresPool *pgxpool.Pool
 	sqlMigrator  *sqlmigrator.Migrator
@@ -203,6 +211,7 @@ func (d *diContainer) InventoryGrpc(ctx context.Context) inventoryGrpc.Inventory
 		conn, err := grpc.NewClient(
 			config.AppConfig().InventoryClient.Address(),
 			grpc.WithTransportCredentials(insecure.NewCredentials()),
+			grpc.WithUnaryInterceptor(grpcClients.UnaryClientInterceptor()),
 		)
 		if err != nil {
 			panic(fmt.Sprintf("failed to connect to inventory service: %v\n", err))
@@ -234,6 +243,7 @@ func (d *diContainer) PaymentGrpc(ctx context.Context) paymentGrpc.PaymentServic
 		conn, err := grpc.NewClient(
 			config.AppConfig().PaymentClient.Address(),
 			grpc.WithTransportCredentials(insecure.NewCredentials()),
+			grpc.WithUnaryInterceptor(grpcClients.UnaryClientInterceptor()),
 		)
 		if err != nil {
 			panic(fmt.Sprintf("failed to connect to payment service: %v\n", err))
@@ -250,4 +260,43 @@ func (d *diContainer) PaymentGrpc(ctx context.Context) paymentGrpc.PaymentServic
 	}
 
 	return d.paymentGrpc
+}
+
+func (d *diContainer) IAMClient(ctx context.Context) grpcClients.IAMClient {
+	if d.iamClient == nil {
+		d.iamClient = iamClient.New(d.IAMGrpc(ctx))
+	}
+
+	return d.iamClient
+}
+
+func (d *diContainer) IAMGrpc(ctx context.Context) iamGrpc.AuthServiceClient {
+	if d.iamGrpc == nil {
+		conn, err := grpc.NewClient(
+			config.AppConfig().IAMClient.Address(),
+			grpc.WithTransportCredentials(insecure.NewCredentials()),
+		)
+		if err != nil {
+			panic(fmt.Sprintf("failed to connect to iam service: %v\n", err))
+		}
+
+		closer.AddNamed("IAM gRPC client", func(ctx context.Context) error {
+			if err := conn.Close(); err != nil {
+				return err
+			}
+			return nil
+		})
+
+		d.iamGrpc = iamGrpc.NewAuthServiceClient(conn)
+	}
+
+	return d.iamGrpc
+}
+
+func (d *diContainer) AuthMiddleware(ctx context.Context) func(http.Handler) http.Handler {
+	if d.authMiddleware == nil {
+		d.authMiddleware = orderMiddleware.NewAuthMiddleware(d.IAMClient(ctx))
+	}
+
+	return d.authMiddleware
 }

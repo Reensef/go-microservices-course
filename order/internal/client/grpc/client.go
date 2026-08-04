@@ -18,3 +18,7 @@ type PaymentClient interface {
 		paymentMethod model.OrderPaymentMethod,
 	) (transactionUuid string, err error)
 }
+
+type IAMClient interface {
+	Whoami(ctx context.Context, sessionUUID string) (model.User, error)
+}

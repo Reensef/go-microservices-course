@@ -27,7 +27,7 @@ func TestPayOrder_errorFromPaymentService(t *testing.T) {
 	paymentMethod := model.OrderPaymentMethod_CARD
 	paymentError := fmt.Errorf("error")
 
-	order := &model.Order{}
+	order := &model.Order{Info: model.OrderInfo{UserUuid: userUuid}}
 
 	repo.EXPECT().GetOrderByUUID(context.Background(), orderUuid).
 		Return(order, nil).Once()
@@ -56,7 +56,7 @@ func TestPayOrder_errorPayFromRepository(t *testing.T) {
 	repoError := fmt.Errorf("error")
 	transactionUuid := uuid.NewString()
 
-	order := &model.Order{}
+	order := &model.Order{Info: model.OrderInfo{UserUuid: userUuid}}
 
 	repo.EXPECT().GetOrderByUUID(context.Background(), orderUuid).
 		Return(order, nil).Once()
@@ -85,7 +85,7 @@ func TestPayOrder_success(t *testing.T) {
 	paymentMethod := model.OrderPaymentMethod_CARD
 	transactionUuid := uuid.NewString()
 
-	order := &model.Order{}
+	order := &model.Order{Info: model.OrderInfo{UserUuid: userUuid}}
 
 	repo.EXPECT().GetOrderByUUID(context.Background(), orderUuid).
 		Return(order, nil).Once()
@@ -105,4 +105,30 @@ func TestPayOrder_success(t *testing.T) {
 	assert.Equal(t, transactionUuid, uuid)
 
 	assert.Empty(t, inventory.Calls)
+}
+
+func TestPayOrder_accessDenied(t *testing.T) {
+	repo := repoMocks.NewMockOrderRepository(t)
+	inventory := grpcMocks.NewMockIntentoryClient(t)
+	payment := grpcMocks.NewMockPaymentClient(t)
+	producer := eventMocks.NewMockOrderProducer(t)
+	service := New(repo, inventory, payment, producer)
+
+	userUuid := uuid.NewString()
+	ownerUuid := uuid.NewString()
+	orderUuid := uuid.NewString()
+	paymentMethod := model.OrderPaymentMethod_CARD
+
+	order := &model.Order{Info: model.OrderInfo{UserUuid: ownerUuid}}
+
+	repo.EXPECT().GetOrderByUUID(context.Background(), orderUuid).
+		Return(order, nil).Once()
+
+	transactionUuid, err := service.PayOrder(context.Background(), orderUuid, userUuid, paymentMethod)
+
+	assert.Empty(t, transactionUuid)
+	assert.ErrorIs(t, err, model.ErrOrderAccessDenied)
+
+	assert.Empty(t, payment.Calls)
+	assert.Empty(t, producer.Calls)
 }

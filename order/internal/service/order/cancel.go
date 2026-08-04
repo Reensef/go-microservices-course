@@ -8,7 +8,7 @@ import (
 	"github.com/Reensef/go-microservices-course/order/internal/model"
 )
 
-func (s *service) CancelOrder(ctx context.Context, orderUuid string) error {
+func (s *service) CancelOrder(ctx context.Context, orderUuid, requesterUuid string) error {
 	if uuid.Validate(orderUuid) != nil {
 		return model.ErrOrderUuidInvalidFormat
 	}
@@ -16,6 +16,10 @@ func (s *service) CancelOrder(ctx context.Context, orderUuid string) error {
 	order, err := s.orderRepo.GetOrderByUUID(ctx, orderUuid)
 	if err != nil {
 		return err
+	}
+
+	if order.Info.UserUuid != requesterUuid {
+		return model.ErrOrderAccessDenied
 	}
 
 	if order.Info.Status == model.OrderStatus_PAID {

@@ -21,4 +21,26 @@ const (
 	mongoAuthDBValue    = "admin"
 	mongoUsernameValue  = "inventory_admin"
 	mongoPasswordValue  = "inventory_secret" //nolint:gosec
+
+	// Параметры контейнера iam — нужен, чтобы auth-interceptor inventory мог
+	// провалидировать сессию через AuthService.Whoami
+	iamAppName         = "iam-app"
+	iamDockerfile      = "deploy/docker/iam/Dockerfile"
+	iamGrpcHostValue   = "0.0.0.0"
+	iamGrpcPortValue   = "50054"
+	iamSessionTTLValue = "1h"
+	iamMigrationsDir   = "./migrations"
+
+	// Конфигурация Postgres для iam внутри тестового окружения
+	iamPostgresImageNameValue = "postgres:16-alpine"
+	iamPostgresHostValue      = "iam-postgres"
+	iamPostgresDatabaseValue  = "iam"
+	iamPostgresUsernameValue  = "iam"
+	iamPostgresPasswordValue  = "iam_secret" //nolint:gosec
+
+	// Конфигурация Redis для iam внутри тестового окружения
+	iamRedisImageNameValue = "redis:7-alpine"
+	iamRedisHostValue      = "iam-redis"
+	iamRedisPasswordValue  = ""
+	iamRedisDBValue        = "0"
 )
