@@ -13,8 +13,16 @@ func (a *handler) CreateOrder(
 	ctx context.Context,
 	req *orderApi.CreateOrderRequest,
 ) (orderApi.CreateOrderRes, error) {
+	user, ok := model.UserFromContext(ctx)
+	if !ok {
+		return &orderApi.ForbiddenError{
+			Code:    403,
+			Message: "access denied",
+		}, nil
+	}
+
 	orderInfo := &model.OrderInfo{
-		UserUuid: req.GetUserUUID(),
+		UserUuid: user.Uuid,
 		PartIds:  req.GetPartIds(),
 	}
 	order, err := a.orderService.CreateOrder(

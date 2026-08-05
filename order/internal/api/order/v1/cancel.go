@@ -14,13 +14,26 @@ func (a *handler) CancelOrder(
 	ctx context.Context,
 	params orderApi.CancelOrderParams,
 ) (orderApi.CancelOrderRes, error) {
-	err := a.orderService.CancelOrder(ctx, params.OrderUUID)
+	user, ok := model.UserFromContext(ctx)
+	if !ok {
+		return &orderApi.ForbiddenError{
+			Code:    403,
+			Message: "access denied",
+		}, nil
+	}
+
+	err := a.orderService.CancelOrder(ctx, params.OrderUUID, user.Uuid)
 	if err != nil {
 		switch {
 		case errors.Is(err, model.ErrOrderUuidInvalidFormat):
 			return &orderApi.ValidationError{
 				Code:    422,
 				Message: "order must be UUID format",
+			}, nil
+		case errors.Is(err, model.ErrOrderAccessDenied):
+			return &orderApi.ForbiddenError{
+				Code:    403,
+				Message: fmt.Sprintf("order with UUID '%s' does not belong to the authenticated user", params.OrderUUID),
 			}, nil
 		case errors.Is(err, model.ErrOrderNotFound):
 			return &orderApi.NotFoundError{

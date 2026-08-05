@@ -8,3 +8,7 @@ type LoggerConfig interface {
 type PaymentServiceConfig interface {
 	Address() string
 }
+
+type IAMClientConfig interface {
+	Address() string
+}

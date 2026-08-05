@@ -9,6 +9,12 @@ post:
   responses:
     '204':
       description: Заказ успешно отменен
+    '403':
+      description: Доступ к заказу запрещён
+      content:
+        application/json:
+          schema:
+            $ref: '../components/errors/forbidden_error.yaml'
     '404':
       description: Заказ не найден
       content:

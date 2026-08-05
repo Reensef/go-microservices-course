@@ -22,6 +22,12 @@ post:
         application/json:
           schema:
             $ref: '../components/errors/bad_request_error.yaml'
+    '403':
+      description: Доступ запрещён
+      content:
+        application/json:
+          schema:
+            $ref: '../components/errors/forbidden_error.yaml'
     '404':
       description: Детали не найдены
       content:

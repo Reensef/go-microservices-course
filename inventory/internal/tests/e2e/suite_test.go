@@ -14,7 +14,9 @@ import (
 	"github.com/Reensef/go-microservices-course/platform/pkg/logger"
 )
 
-const testsTimeout = 5 * time.Minute
+// Стенд собирает два Docker-образа (inventory-app и iam-app, нужен для auth-interceptor),
+// поэтому бюджет вдвое больше, чем у наборов с одним образом (например, iam).
+const testsTimeout = 10 * time.Minute
 
 var (
 	env *TestEnvironment

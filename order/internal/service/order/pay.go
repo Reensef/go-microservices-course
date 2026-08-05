@@ -29,6 +29,10 @@ func (s *service) PayOrder(
 		return "", err
 	}
 
+	if order.Info.UserUuid != userUuid {
+		return "", model.ErrOrderAccessDenied
+	}
+
 	if order.Info.Status == model.OrderStatus_PAID {
 		return "", model.ErrOrderAlreadyPaid
 	}

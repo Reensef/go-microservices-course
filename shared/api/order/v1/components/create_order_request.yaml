@@ -1,13 +1,9 @@
 type: object
 properties:
-  user_uuid:
-    type: string
-    description: UUID пользователя
   part_ids:
     type: array
     items:
       type: string
     description: Список ID деталей
 required:
-  - user_uuid
-  - part_uuids
+  - part_ids

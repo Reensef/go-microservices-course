@@ -13,4 +13,7 @@ var (
 	ErrPartIdInvalidFormat    = errors.New("part ID must be ObjectID format")
 
 	ErrPaymentMethodUnspecified = errors.New("payment method unspecified")
+
+	ErrInvalidSession    = errors.New("invalid or expired session")
+	ErrOrderAccessDenied = errors.New("access to order denied")
 )

@@ -6,8 +6,6 @@ import (
 	"fmt"
 	"log"
 
-	"github.com/google/uuid"
-
 	"github.com/Reensef/go-microservices-course/order/internal/api/order/v1/converter"
 	"github.com/Reensef/go-microservices-course/order/internal/model"
 	orderApi "github.com/Reensef/go-microservices-course/shared/pkg/openapi/order/v1"
@@ -18,7 +16,15 @@ func (a *handler) PayOrder(
 	req *orderApi.PayOrderRequest,
 	params orderApi.PayOrderParams,
 ) (orderApi.PayOrderRes, error) {
-	userUuid := uuid.NewString()
+	user, ok := model.UserFromContext(ctx)
+	if !ok {
+		return &orderApi.ForbiddenError{
+			Code:    403,
+			Message: "access denied",
+		}, nil
+	}
+
+	userUuid := user.Uuid
 	transactionUUID, err := a.orderService.PayOrder(
 		ctx,
 		params.OrderUUID,
@@ -29,6 +35,11 @@ func (a *handler) PayOrder(
 		log.Printf("api: error paying order: %s", err)
 
 		switch {
+		case errors.Is(err, model.ErrOrderAccessDenied):
+			return &orderApi.ForbiddenError{
+				Code:    403,
+				Message: fmt.Sprintf("order with UUID '%s' does not belong to the authenticated user", params.OrderUUID),
+			}, nil
 		case errors.Is(err, model.ErrOrderNotFound):
 			return &orderApi.NotFoundError{
 				Code:    404,

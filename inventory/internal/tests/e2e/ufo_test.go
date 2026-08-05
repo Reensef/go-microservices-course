@@ -32,6 +32,9 @@ var _ = Describe("InventoryService", func() {
 		Expect(err).ToNot(HaveOccurred(), "expected successful connection to gRPC server")
 
 		inventoryClient = inventoryProto.NewInventoryServiceClient(conn)
+
+		sessionUUID := loginRandomUser(ctx)
+		ctx = withAuthorization(ctx, sessionUUID)
 	})
 
 	AfterEach(func() {

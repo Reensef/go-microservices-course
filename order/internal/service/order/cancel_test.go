@@ -16,12 +16,13 @@ func TestCancelOrder(t *testing.T) {
 		repo := mocks.NewMockOrderRepository(t)
 		service := New(repo, nil, nil, nil)
 
-		uuid := uuid.NewString()
-		repo.EXPECT().GetOrderByUUID(context.Background(), uuid).
+		orderUuid := uuid.NewString()
+		requesterUuid := uuid.NewString()
+		repo.EXPECT().GetOrderByUUID(context.Background(), orderUuid).
 			Return(nil, model.ErrOrderNotFound).
 			Once()
 
-		err := service.CancelOrder(context.Background(), uuid)
+		err := service.CancelOrder(context.Background(), orderUuid, requesterUuid)
 
 		assert.Equal(t, model.ErrOrderNotFound, err)
 	})
@@ -30,17 +31,35 @@ func TestCancelOrder(t *testing.T) {
 		repo := mocks.NewMockOrderRepository(t)
 		service := New(repo, nil, nil, nil)
 
-		uuid := uuid.NewString()
-		order := &model.Order{}
-		repo.EXPECT().GetOrderByUUID(context.Background(), uuid).
+		orderUuid := uuid.NewString()
+		requesterUuid := uuid.NewString()
+		order := &model.Order{Info: model.OrderInfo{UserUuid: requesterUuid}}
+		repo.EXPECT().GetOrderByUUID(context.Background(), orderUuid).
 			Return(order, nil).
 			Once()
 
-		repo.EXPECT().CancelOrder(context.Background(), uuid).
+		repo.EXPECT().CancelOrder(context.Background(), orderUuid).
 			Return(nil).Once()
 
-		err := service.CancelOrder(context.Background(), uuid)
+		err := service.CancelOrder(context.Background(), orderUuid, requesterUuid)
 
 		assert.NoError(t, err)
+	})
+
+	t.Run("Access denied", func(t *testing.T) {
+		repo := mocks.NewMockOrderRepository(t)
+		service := New(repo, nil, nil, nil)
+
+		orderUuid := uuid.NewString()
+		requesterUuid := uuid.NewString()
+		ownerUuid := uuid.NewString()
+		order := &model.Order{Info: model.OrderInfo{UserUuid: ownerUuid}}
+		repo.EXPECT().GetOrderByUUID(context.Background(), orderUuid).
+			Return(order, nil).
+			Once()
+
+		err := service.CancelOrder(context.Background(), orderUuid, requesterUuid)
+
+		assert.ErrorIs(t, err, model.ErrOrderAccessDenied)
 	})
 }
