@@ -155,6 +155,11 @@ func setupTestEnvironment(ctx context.Context) *TestEnvironment {
 	// а не внешний порт, который testcontainers пробрасывает наружу для клиента тестов.
 	// IAM_CLIENT_HOST/PORT указывают на контейнер iam-app в этой же сети — auth-interceptor
 	// inventory использует их, чтобы независимо валидировать сессию через AuthService.Whoami.
+	// Шаг 3: Запускаем контейнер с приложением.
+	// MONGO_PORT — это порт Mongo *внутри* Docker-сети (testcontainers.MongoPort),
+	// а не внешний порт, который testcontainers пробрасывает наружу для клиента тестов.
+	projectRoot := path.GetProjectRoot()
+
 	appEnv := map[string]string{
 		"GRPC_HOST":                     grpcHostValue,
 		"GRPC_PORT":                     grpcPortValue,
