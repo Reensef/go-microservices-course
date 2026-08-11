@@ -18,7 +18,7 @@ func TestGetByFilter(t *testing.T) {
 
 	dataLen := 10
 
-	repoMock.EXPECT().GetByFilter(t.Context(), mock.Anything).Return(make([]*model.Part, dataLen), nil).Once()
+	repoMock.EXPECT().GetByFilter(mock.Anything, mock.Anything).Return(make([]*model.Part, dataLen), nil).Once()
 
 	service := New(repoMock)
 

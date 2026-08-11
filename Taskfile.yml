@@ -211,18 +211,32 @@ tasks:
     cmds:
       - docker compose down --volumes
 
+  compose:otel:up:
+    desc: Поднять OTel Collector + Jaeger
+    dir: deploy/compose/otel
+    cmds:
+      - docker compose up --detach
+
+  compose:otel:down:
+    desc: Остановить и удалить OTel Collector + Jaeger
+    dir: deploy/compose/otel
+    cmds:
+      - docker compose down --volumes
+
   compose:infra:up:
-    desc: Поднять общую инфраструктуру - сеть, PostgreSQL, MongoDB, Kafka, Redis
+    desc: Поднять общую инфраструктуру - сеть, PostgreSQL, MongoDB, Kafka, Redis, OTel
     cmds:
       - task compose:network:up
       - task compose:postgres:up
       - task compose:mongo:up
       - task compose:kafka:up
       - task compose:redis:up
+      - task compose:otel:up
 
   compose:infra:down:
-    desc: Остановить и удалить общую инфраструктуру - Kafka, MongoDB, PostgreSQL, сеть, Redis
+    desc: Остановить и удалить общую инфраструктуру - OTel, Kafka, MongoDB, PostgreSQL, сеть, Redis
     cmds:
+      - task compose:otel:down
       - task compose:redis:down
       - task compose:kafka:down
       - task compose:mongo:down

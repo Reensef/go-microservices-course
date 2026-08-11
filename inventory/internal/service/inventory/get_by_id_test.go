@@ -5,6 +5,7 @@ import (
 	"testing"
 
 	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/mock"
 
 	"github.com/Reensef/go-microservices-course/inventory/internal/model"
 	"github.com/Reensef/go-microservices-course/inventory/internal/repository/mocks"
@@ -16,7 +17,7 @@ func TestGetByUuid_Exists(t *testing.T) {
 
 	id := "aaaaaaaabbbbbbbbcccccccc"
 
-	repoMock.EXPECT().GetByID(t.Context(), id).Return(&model.Part{}, nil).Once()
+	repoMock.EXPECT().GetByID(mock.Anything, id).Return(&model.Part{}, nil).Once()
 
 	service := New(repoMock)
 
@@ -32,7 +33,7 @@ func TestGetByUuid_NotExists(t *testing.T) {
 
 	id := "aaaaaaaabbbbbbbbcccccccc"
 
-	repoMock.EXPECT().GetByID(t.Context(), id).Return(nil, fmt.Errorf("error")).Once()
+	repoMock.EXPECT().GetByID(mock.Anything, id).Return(nil, fmt.Errorf("error")).Once()
 
 	service := New(repoMock)
 

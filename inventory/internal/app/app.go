@@ -5,7 +5,9 @@ import (
 	"fmt"
 
 	"github.com/Reensef/go-microservices-course/inventory/internal/config"
+	"github.com/Reensef/go-microservices-course/inventory/internal/tracing"
 	"github.com/Reensef/go-microservices-course/platform/pkg/closer"
+	"go.uber.org/zap/zapcore"
 	"github.com/Reensef/go-microservices-course/platform/pkg/logger"
 )
 
@@ -32,6 +34,7 @@ func (a *App) initDeps(ctx context.Context) error {
 	inits := []func(context.Context) error{
 		a.initDI,
 		a.initLogger,
+		a.initTracing,
 		a.initCloser,
 	}
 
@@ -52,9 +55,24 @@ func (a *App) initDI(_ context.Context) error {
 
 func (a *App) initLogger(_ context.Context) error {
 	return logger.Init(
-		config.AppConfig().Logger.Level(),
-		config.AppConfig().Logger.AsJson(),
+		[]zapcore.Core{
+			logger.NewStdoutCore(logger.StdoutCoreConfig{
+				Level:  config.AppConfig().Logger.Level(),
+				AsJSON: config.AppConfig().Logger.AsJson(),
+			}),
+		},
+		logger.DefaultZapOpts()...,
 	)
+}
+
+func (a *App) initTracing(ctx context.Context) error {
+	if err := tracing.Init(ctx, config.AppConfig().Tracing); err != nil {
+		return err
+	}
+
+	closer.AddNamed("tracer", tracing.Shutdown)
+
+	return nil
 }
 
 func (a *App) initCloser(_ context.Context) error {

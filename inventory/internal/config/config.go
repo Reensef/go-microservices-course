@@ -15,6 +15,7 @@ type config struct {
 	InventoryService InventoryServiceConfig
 	Mongo            MongoConfig
 	IAMClient        IAMClientConfig
+	Tracing          TracingConfig
 }
 
 func Load(envFile string) error {
@@ -45,11 +46,17 @@ func Load(envFile string) error {
 		return err
 	}
 
+	tracingConfig, err := env.NewTracingConfig()
+	if err != nil {
+		return err
+	}
+
 	appConfig = &config{
 		Logger:           loggerConfig,
 		InventoryService: inventoryServiceConfig,
 		Mongo:            mongoConfig,
 		IAMClient:        iamClientConfig,
+		Tracing:          tracingConfig,
 	}
 
 	return nil
