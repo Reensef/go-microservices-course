@@ -10,6 +10,7 @@ import (
 	"google.golang.org/protobuf/proto"
 
 	events "github.com/Reensef/go-microservices-course/assembly/internal/events"
+	"github.com/Reensef/go-microservices-course/assembly/internal/metric"
 	"github.com/Reensef/go-microservices-course/assembly/internal/model"
 	service "github.com/Reensef/go-microservices-course/assembly/internal/service"
 	"github.com/Reensef/go-microservices-course/platform/pkg/kafka"
@@ -66,6 +67,8 @@ func (c *consumer) Close() error {
 }
 
 func (c *consumer) OrderHandler(ctx context.Context, msg kafka.Message) error {
+	metric.IncOrdersReceived(ctx)
+
 	event, err := c.OrderDecode(msg.Value)
 	if err != nil {
 		logger.Error(ctx, "Failed to decode OrderPaid", zap.Error(err))

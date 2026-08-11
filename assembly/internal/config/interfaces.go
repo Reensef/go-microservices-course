@@ -21,3 +21,7 @@ type ShipProducerConfig interface {
 	Topic() string
 	Config() *sarama.Config
 }
+
+type MetricsConfig interface {
+	OTLPEndpoint() string
+}
