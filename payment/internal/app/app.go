@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"net"
 
+	"go.uber.org/zap/zapcore"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/credentials/insecure"
 	"google.golang.org/grpc/reflection"
@@ -15,6 +16,7 @@ import (
 	"github.com/Reensef/go-microservices-course/platform/pkg/closer"
 	"github.com/Reensef/go-microservices-course/platform/pkg/grpc/health"
 	"github.com/Reensef/go-microservices-course/platform/pkg/logger"
+	"github.com/Reensef/go-microservices-course/platform/pkg/tracer"
 	paymentProtoApi "github.com/Reensef/go-microservices-course/shared/pkg/proto/payment/v1"
 )
 
@@ -43,6 +45,7 @@ func (a *App) initDeps(ctx context.Context) error {
 	inits := []func(context.Context) error{
 		a.initDI,
 		a.initLogger,
+		a.initTracing,
 		a.initCloser,
 		a.initListener,
 		a.initGRPCServer,
@@ -64,10 +67,30 @@ func (a *App) initDI(_ context.Context) error {
 }
 
 func (a *App) initLogger(_ context.Context) error {
-	return logger.Init(
-		config.AppConfig().Logger.Level(),
-		config.AppConfig().Logger.AsJson(),
-	)
+	var level zapcore.Level
+	_ = level.UnmarshalText([]byte(config.AppConfig().Logger.Level()))
+	opts := []logger.Option{logger.WithJSON(config.AppConfig().Logger.AsJson())}
+	if endpoint := config.AppConfig().Logger.OTLPEndpoint(); endpoint != "" {
+		opts = append(opts, logger.WithOTLP(endpoint, "payment-service", "dev"))
+	}
+	return logger.Init(level, opts...)
+}
+
+func (a *App) initTracing(ctx context.Context) error {
+	cfg := config.AppConfig().Tracing
+	if err := tracer.Init(ctx,
+		cfg.CollectorEndpoint(),
+		cfg.ServiceName(),
+		cfg.Environment(),
+		tracer.WithServiceVersion(cfg.ServiceVersion()),
+		tracer.WithInsecure(),
+	); err != nil {
+		return err
+	}
+
+	closer.AddNamed("tracer", tracer.Shutdown)
+
+	return nil
 }
 
 func (a *App) initCloser(_ context.Context) error {
@@ -97,7 +120,10 @@ func (a *App) initListener(_ context.Context) error {
 func (a *App) initGRPCServer(ctx context.Context) error {
 	a.grpcServer = grpc.NewServer(
 		grpc.Creds(insecure.NewCredentials()),
-		grpc.ChainUnaryInterceptor(interceptor.NewAuthInterceptor(a.diContainer.IAMClient(ctx))),
+		grpc.ChainUnaryInterceptor(
+			tracer.UnaryServerInterceptor(),
+			interceptor.NewAuthInterceptor(a.diContainer.IAMClient(ctx)),
+		),
 	)
 	closer.AddNamed("gRPC server", func(ctx context.Context) error {
 		a.grpcServer.GracefulStop()
@@ -115,7 +141,7 @@ func (a *App) initGRPCServer(ctx context.Context) error {
 }
 
 func (a *App) runGRPCServer(ctx context.Context) error {
-	logger.Info(ctx, fmt.Sprintf(
+	logger.Info(fmt.Sprintf(
 		"🚀 gRPC PaymentService server listening on %s",
 		config.AppConfig().PaymentService.Address(),
 	))

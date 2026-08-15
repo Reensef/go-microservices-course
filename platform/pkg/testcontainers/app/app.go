@@ -23,8 +23,8 @@ const (
 )
 
 type Logger interface {
-	Info(ctx context.Context, msg string, fields ...zap.Field)
-	Error(ctx context.Context, msg string, fields ...zap.Field)
+	Info(msg string, fields ...zap.Field)
+	Error(msg string, fields ...zap.Field)
 }
 
 type Config struct {
@@ -55,7 +55,7 @@ func NewContainer(ctx context.Context, opts ...Option) (*Container, error) {
 		LogOutput:     io.Discard,
 		StartupWait:   wait.ForListeningPort(defaultAppPort + "/tcp").WithStartupTimeout(defaultStartupTimeout),
 		Env:           make(map[string]string),
-		Logger:        &logger.DummyLogger{},
+		Logger:        zap.NewNop(),
 	}
 	for _, opt := range opts {
 		opt(cfg)
@@ -95,7 +95,7 @@ func NewContainer(ctx context.Context, opts ...Option) (*Container, error) {
 
 	go streamContainerLogs(ctx, genericContainer, cfg.LogOutput)
 
-	cfg.Logger.Info(ctx, "App container started", zap.String("uri:", net.JoinHostPort(host, mappedPort.Port())))
+	cfg.Logger.Info("App container started", zap.String("uri:", net.JoinHostPort(host, mappedPort.Port())))
 
 	return &Container{
 		container:    genericContainer,
@@ -116,20 +116,20 @@ func (a *Container) Terminate(ctx context.Context) error {
 func streamContainerLogs(ctx context.Context, container testcontainers.Container, out io.Writer) {
 	logs, err := container.Logs(ctx)
 	if err != nil {
-		logger.Error(ctx, "failed to get container logs", zap.Error(err))
+		logger.Error("failed to get container logs", zap.Error(err))
 		return
 	}
 	go func() {
 		defer func() {
 			closeErr := logs.Close()
 			if closeErr != nil {
-				logger.Error(ctx, "failed to close container logs", zap.Error(closeErr))
+				logger.Error("failed to close container logs", zap.Error(closeErr))
 			}
 		}()
 
 		_, err = io.Copy(out, logs)
 		if err != nil && !errors.Is(err, io.EOF) {
-			logger.Error(ctx, "error copying container logs", zap.Error(err))
+			logger.Error("error copying container logs", zap.Error(err))
 		}
 	}()
 }

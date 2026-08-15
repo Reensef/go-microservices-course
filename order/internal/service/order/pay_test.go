@@ -29,10 +29,10 @@ func TestPayOrder_errorFromPaymentService(t *testing.T) {
 
 	order := &model.Order{Info: model.OrderInfo{UserUuid: userUuid}}
 
-	repo.EXPECT().GetOrderByUUID(context.Background(), orderUuid).
+	repo.EXPECT().GetOrderByUUID(mock.Anything, orderUuid).
 		Return(order, nil).Once()
 
-	payment.EXPECT().PayOrder(context.Background(), orderUuid, userUuid, paymentMethod).
+	payment.EXPECT().PayOrder(mock.Anything, orderUuid, userUuid, paymentMethod).
 		Return("", paymentError).Once()
 
 	uuid, err := service.PayOrder(context.Background(), orderUuid, userUuid, paymentMethod)
@@ -58,13 +58,13 @@ func TestPayOrder_errorPayFromRepository(t *testing.T) {
 
 	order := &model.Order{Info: model.OrderInfo{UserUuid: userUuid}}
 
-	repo.EXPECT().GetOrderByUUID(context.Background(), orderUuid).
+	repo.EXPECT().GetOrderByUUID(mock.Anything, orderUuid).
 		Return(order, nil).Once()
 
-	repo.EXPECT().PayOrder(context.Background(), orderUuid, transactionUuid, paymentMethod).
+	repo.EXPECT().PayOrder(mock.Anything, orderUuid, transactionUuid, paymentMethod).
 		Return(repoError).Once()
 
-	payment.EXPECT().PayOrder(context.Background(), orderUuid, userUuid, paymentMethod).
+	payment.EXPECT().PayOrder(mock.Anything, orderUuid, userUuid, paymentMethod).
 		Return(transactionUuid, nil).Once()
 
 	uuid, err := service.PayOrder(context.Background(), orderUuid, userUuid, paymentMethod)
@@ -87,16 +87,16 @@ func TestPayOrder_success(t *testing.T) {
 
 	order := &model.Order{Info: model.OrderInfo{UserUuid: userUuid}}
 
-	repo.EXPECT().GetOrderByUUID(context.Background(), orderUuid).
+	repo.EXPECT().GetOrderByUUID(mock.Anything, orderUuid).
 		Return(order, nil).Once()
 
-	payment.EXPECT().PayOrder(context.Background(), orderUuid, userUuid, paymentMethod).
+	payment.EXPECT().PayOrder(mock.Anything, orderUuid, userUuid, paymentMethod).
 		Return(transactionUuid, nil).Once()
 
-	repo.EXPECT().PayOrder(context.Background(), orderUuid, transactionUuid, paymentMethod).
+	repo.EXPECT().PayOrder(mock.Anything, orderUuid, transactionUuid, paymentMethod).
 		Return(nil).Once()
 
-	producer.EXPECT().ProduceOrderPaid(context.Background(), mock.Anything).
+	producer.EXPECT().ProduceOrderPaid(mock.Anything, mock.Anything).
 		Return(nil).Once()
 
 	uuid, err := service.PayOrder(context.Background(), orderUuid, userUuid, paymentMethod)
@@ -121,7 +121,7 @@ func TestPayOrder_accessDenied(t *testing.T) {
 
 	order := &model.Order{Info: model.OrderInfo{UserUuid: ownerUuid}}
 
-	repo.EXPECT().GetOrderByUUID(context.Background(), orderUuid).
+	repo.EXPECT().GetOrderByUUID(mock.Anything, orderUuid).
 		Return(order, nil).Once()
 
 	transactionUuid, err := service.PayOrder(context.Background(), orderUuid, userUuid, paymentMethod)

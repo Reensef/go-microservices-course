@@ -5,6 +5,8 @@ import (
 
 	"golang.org/x/sync/errgroup"
 
+	"go.uber.org/zap/zapcore"
+
 	"github.com/Reensef/go-microservices-course/notification/internal/config"
 	closer "github.com/Reensef/go-microservices-course/platform/pkg/closer"
 	"github.com/Reensef/go-microservices-course/platform/pkg/logger"
@@ -26,16 +28,26 @@ func New(ctx context.Context) (*App, error) {
 }
 
 func (a *App) Run(ctx context.Context) error {
-	logger.Info(ctx, "🚀 notification service started")
+	logger.Info("notification service started")
 
 	eg, egCtx := errgroup.WithContext(ctx)
 
+	notificationConsumer, err := a.diContainer.NotificationConsumer(egCtx)
+	if err != nil {
+		return err
+	}
+
+	telegramBot, err := a.diContainer.TelegramBot(egCtx)
+	if err != nil {
+		return err
+	}
+
 	eg.Go(func() error {
-		return a.diContainer.NotificationConsumer(egCtx).RunConsumer(egCtx)
+		return notificationConsumer.RunConsumer(egCtx)
 	})
 
 	eg.Go(func() error {
-		a.diContainer.TelegramBot(egCtx).Start(egCtx)
+		telegramBot.Start(egCtx)
 		return nil
 	})
 
@@ -65,10 +77,22 @@ func (a *App) initDI(_ context.Context) error {
 }
 
 func (a *App) initLogger(_ context.Context) error {
-	return logger.Init(
-		config.AppConfig().Logger.Level(),
-		config.AppConfig().Logger.AsJson(),
-	)
+	var level zapcore.Level
+	err := level.UnmarshalText([]byte(config.AppConfig().Logger.Level()))
+	if err != nil {
+		return err
+	}
+
+	opts := []logger.Option{
+		logger.WithJSON(config.AppConfig().Logger.AsJson()),
+	}
+
+	endpoint := config.AppConfig().Logger.OTLPEndpoint()
+	if endpoint != "" {
+		opts = append(opts, logger.WithOTLP(endpoint, "notification-service", "dev"))
+	}
+
+	return logger.Init(level, opts...)
 }
 
 func (a *App) initCloser(_ context.Context) error {

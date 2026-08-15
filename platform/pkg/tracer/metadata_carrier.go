@@ -1,4 +1,4 @@
-package tracing
+package tracer
 
 import "google.golang.org/grpc/metadata"
 

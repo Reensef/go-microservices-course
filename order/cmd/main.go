@@ -34,13 +34,13 @@ func main() {
 
 	a, err := app.New(appCtx)
 	if err != nil {
-		logger.Error(appCtx, "error create application", zap.Error(err))
+		logger.Error("error create application", zap.Error(err))
 		return
 	}
 
 	err = a.Run(appCtx)
 	if err != nil {
-		logger.Error(appCtx, "error running application", zap.Error(err))
+		logger.Error("error running application", zap.Error(err))
 		return
 	}
 }
@@ -50,6 +50,6 @@ func gracefulShutdown() {
 	defer cancel()
 
 	if err := closer.CloseAll(ctx); err != nil {
-		logger.Error(ctx, "Error shutting down", zap.Error(err))
+		logger.Error("Error shutting down", zap.Error(err))
 	}
 }

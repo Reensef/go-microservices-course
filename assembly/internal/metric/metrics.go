@@ -86,7 +86,7 @@ func initInstruments() error {
 	}
 
 	assemblyDuration, err := m.Float64Histogram(
-		namespace+"_assembly_duration_seconds",
+		"assembly_duration_seconds",
 		metric.WithDescription("Duration of ship assembly"),
 		metric.WithUnit("s"),
 		metric.WithExplicitBucketBoundaries(

@@ -5,6 +5,8 @@ import "github.com/IBM/sarama"
 type LoggerConfig interface {
 	Level() string
 	AsJson() bool
+	EnableOTLP() bool
+	OTLPEndpoint() string
 }
 
 type OrderServiceConfig interface {
@@ -49,4 +51,15 @@ type ShipConsumerConfig interface {
 	GroupID() string
 	Topic() string
 	Config() *sarama.Config
+}
+
+type MetricsConfig interface {
+	OTLPEndpoint() string
+}
+
+type TracingConfig interface {
+	CollectorEndpoint() string
+	ServiceName() string
+	Environment() string
+	ServiceVersion() string
 }

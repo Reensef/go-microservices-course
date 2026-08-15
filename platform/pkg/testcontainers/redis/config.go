@@ -1,17 +1,13 @@
 package redis
 
 import (
-	"context"
-
 	"github.com/docker/docker/api/types/container"
 	"go.uber.org/zap"
-
-	"github.com/Reensef/go-microservices-course/platform/pkg/logger"
 )
 
 type Logger interface {
-	Info(ctx context.Context, msg string, fields ...zap.Field)
-	Error(ctx context.Context, msg string, fields ...zap.Field)
+	Info(msg string, fields ...zap.Field)
+	Error(msg string, fields ...zap.Field)
 }
 
 type Config struct {
@@ -31,7 +27,7 @@ func buildConfig(opts ...Option) *Config {
 		NetworkName:   "test-network",
 		ContainerName: "redis-container",
 		ImageName:     "redis:7-alpine",
-		Logger:        &logger.DummyLogger{},
+		Logger:        zap.NewNop(),
 	}
 
 	for _, opt := range opts {

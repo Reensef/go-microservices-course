@@ -50,7 +50,7 @@ func NewConsumer(
 }
 
 func (c *consumer) RunConsumer(ctx context.Context) error {
-	logger.Info(ctx, "Starting notification consumer service")
+	logger.Info("Starting notification consumer service")
 
 	topics := []string{c.orderPaidTopic, c.shipAssembledTopic}
 	groupHandler := kafka.NewGroupHandler(c.handleMessage)
@@ -61,7 +61,7 @@ func (c *consumer) RunConsumer(ctx context.Context) error {
 				return nil
 			}
 
-			logger.Error(ctx, "consume from notification topics error", zap.Error(err))
+			logger.Error("consume from notification topics error", zap.Error(err))
 			return err
 		}
 
@@ -69,7 +69,7 @@ func (c *consumer) RunConsumer(ctx context.Context) error {
 			return ctx.Err()
 		}
 
-		logger.Info(ctx, "Kafka consumer group rebalancing...")
+		logger.Info("Kafka consumer group rebalancing...")
 	}
 }
 
@@ -85,7 +85,7 @@ func (c *consumer) handleMessage(ctx context.Context, msg kafka.Message) error {
 	case c.shipAssembledTopic:
 		return c.handleShipAssembled(ctx, msg)
 	default:
-		logger.Warn(ctx, "received message from unknown topic", zap.String("topic", msg.Topic))
+		logger.Warn("received message from unknown topic", zap.String("topic", msg.Topic))
 		return nil
 	}
 }
@@ -93,7 +93,7 @@ func (c *consumer) handleMessage(ctx context.Context, msg kafka.Message) error {
 func (c *consumer) handleOrderPaid(ctx context.Context, msg kafka.Message) error {
 	var pb eventsv1.OrderPaid
 	if err := proto.Unmarshal(msg.Value, &pb); err != nil {
-		logger.Error(ctx, "failed to unmarshal OrderPaid", zap.Error(err))
+		logger.Error("failed to unmarshal OrderPaid", zap.Error(err))
 		return fmt.Errorf("failed to unmarshal OrderPaid: %w", err)
 	}
 
@@ -105,7 +105,7 @@ func (c *consumer) handleOrderPaid(ctx context.Context, msg kafka.Message) error
 		PaymentMethod:   pb.PaymentMethod,
 	}
 
-	logger.Info(ctx, "Processing OrderPaid message",
+	logger.Info("Processing OrderPaid message",
 		zap.String("topic", msg.Topic),
 		zap.Any("partition", msg.Partition),
 		zap.Any("offset", msg.Offset),
@@ -114,7 +114,7 @@ func (c *consumer) handleOrderPaid(ctx context.Context, msg kafka.Message) error
 	)
 
 	if err := c.notificationService.NotifyOrderPaid(ctx, event); err != nil {
-		logger.Error(ctx, "failed to notify OrderPaid", zap.Error(err))
+		logger.Error("failed to notify OrderPaid", zap.Error(err))
 		return fmt.Errorf("failed to notify OrderPaid: %w", err)
 	}
 
@@ -124,7 +124,7 @@ func (c *consumer) handleOrderPaid(ctx context.Context, msg kafka.Message) error
 func (c *consumer) handleShipAssembled(ctx context.Context, msg kafka.Message) error {
 	var pb eventsv1.ShipAssembled
 	if err := proto.Unmarshal(msg.Value, &pb); err != nil {
-		logger.Error(ctx, "failed to unmarshal ShipAssembled", zap.Error(err))
+		logger.Error("failed to unmarshal ShipAssembled", zap.Error(err))
 		return fmt.Errorf("failed to unmarshal ShipAssembled: %w", err)
 	}
 
@@ -137,7 +137,7 @@ func (c *consumer) handleShipAssembled(ctx context.Context, msg kafka.Message) e
 		event.BuildDuration = pb.BuildDuration.AsDuration()
 	}
 
-	logger.Info(ctx, "Processing ShipAssembled message",
+	logger.Info("Processing ShipAssembled message",
 		zap.String("topic", msg.Topic),
 		zap.Any("partition", msg.Partition),
 		zap.Any("offset", msg.Offset),
@@ -146,7 +146,7 @@ func (c *consumer) handleShipAssembled(ctx context.Context, msg kafka.Message) e
 	)
 
 	if err := c.notificationService.NotifyShipAssembled(ctx, event); err != nil {
-		logger.Error(ctx, "failed to notify ShipAssembled", zap.Error(err))
+		logger.Error("failed to notify ShipAssembled", zap.Error(err))
 		return fmt.Errorf("failed to notify ShipAssembled: %w", err)
 	}
 

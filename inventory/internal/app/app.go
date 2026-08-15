@@ -5,10 +5,10 @@ import (
 	"fmt"
 
 	"github.com/Reensef/go-microservices-course/inventory/internal/config"
-	"github.com/Reensef/go-microservices-course/inventory/internal/tracing"
 	"github.com/Reensef/go-microservices-course/platform/pkg/closer"
-	"go.uber.org/zap/zapcore"
 	"github.com/Reensef/go-microservices-course/platform/pkg/logger"
+	"github.com/Reensef/go-microservices-course/platform/pkg/tracer"
+	"go.uber.org/zap/zapcore"
 )
 
 type App struct {
@@ -54,23 +54,29 @@ func (a *App) initDI(_ context.Context) error {
 }
 
 func (a *App) initLogger(_ context.Context) error {
-	return logger.Init(
-		[]zapcore.Core{
-			logger.NewStdoutCore(logger.StdoutCoreConfig{
-				Level:  config.AppConfig().Logger.Level(),
-				AsJSON: config.AppConfig().Logger.AsJson(),
-			}),
-		},
-		logger.DefaultZapOpts()...,
-	)
+	var level zapcore.Level
+	_ = level.UnmarshalText([]byte(config.AppConfig().Logger.Level()))
+	opts := []logger.Option{logger.WithJSON(config.AppConfig().Logger.AsJson())}
+	if endpoint := config.AppConfig().Logger.OTLPEndpoint(); endpoint != "" {
+		opts = append(opts, logger.WithOTLP(endpoint, "inventory-service", "dev"))
+	}
+	return logger.Init(level, opts...)
 }
 
 func (a *App) initTracing(ctx context.Context) error {
-	if err := tracing.Init(ctx, config.AppConfig().Tracing); err != nil {
+	cfg := config.AppConfig().Tracing
+
+	if err := tracer.Init(ctx,
+		cfg.CollectorEndpoint(),
+		cfg.ServiceName(),
+		cfg.Environment(),
+		tracer.WithServiceVersion(cfg.ServiceVersion()),
+		tracer.WithInsecure(),
+	); err != nil {
 		return err
 	}
 
-	closer.AddNamed("tracer", tracing.Shutdown)
+	closer.AddNamed("tracer", tracer.Shutdown)
 
 	return nil
 }
@@ -81,7 +87,7 @@ func (a *App) initCloser(_ context.Context) error {
 }
 
 func (a *App) runGRPCServer(ctx context.Context) error {
-	logger.Info(ctx, fmt.Sprintf(
+	logger.Info(fmt.Sprintf(
 		"🚀 gRPC InventoryService server listening on %s",
 		a.di.InventoryListener(ctx).Addr(),
 	))

@@ -3,10 +3,10 @@ package env
 import "github.com/caarlos0/env/v11"
 
 type tracingEnvConfig struct {
-	CollectorEndpointValue string `env:"OTEL_EXPORTER_OTLP_ENDPOINT,required"`
-	ServiceNameValue       string `env:"OTEL_SERVICE_NAME,required"`
-	EnvironmentValue       string `env:"OTEL_ENVIRONMENT,required"`
-	ServiceVersionValue    string `env:"OTEL_SERVICE_VERSION,required"`
+	CollectorEndpointValue string `env:"OTEL_EXPORTER_OTLP_ENDPOINT"`
+	ServiceNameValue       string `env:"OTEL_SERVICE_NAME"`
+	EnvironmentValue       string `env:"OTEL_ENVIRONMENT"`
+	ServiceVersionValue    string `env:"OTEL_SERVICE_VERSION"`
 }
 
 type tracingConfig struct {

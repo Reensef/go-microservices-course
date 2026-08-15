@@ -48,7 +48,7 @@ func (p *producer) ProduceShipAssembled(ctx context.Context, event model.ShipAss
 
 	payload, err := proto.Marshal(msg)
 	if err != nil {
-		logger.Error(ctx, "failed to marshal ShipAssembled", zap.Error(err))
+		logger.Error("failed to marshal ShipAssembled", zap.Error(err))
 		return err
 	}
 
@@ -58,9 +58,14 @@ func (p *producer) ProduceShipAssembled(ctx context.Context, event model.ShipAss
 		Value: sarama.ByteEncoder(payload),
 	})
 	if err != nil {
-		logger.Error(ctx, "failed to publish ShipAssembled", zap.Error(err))
+		logger.Error("failed to publish ShipAssembled", zap.Error(err))
 		return err
 	}
+
+	logger.Info("ShipAssembled published",
+		zap.String("order_uuid", event.OrderUUID),
+		zap.String("user_uuid", event.UserUUID),
+	)
 
 	return nil
 }

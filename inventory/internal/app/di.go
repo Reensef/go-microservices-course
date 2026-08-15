@@ -23,7 +23,7 @@ import (
 	inventoryService "github.com/Reensef/go-microservices-course/inventory/internal/service/inventory"
 	"github.com/Reensef/go-microservices-course/platform/pkg/closer"
 	"github.com/Reensef/go-microservices-course/platform/pkg/grpc/health"
-	"github.com/Reensef/go-microservices-course/platform/pkg/tracing"
+	"github.com/Reensef/go-microservices-course/platform/pkg/tracer"
 	iamGrpc "github.com/Reensef/go-microservices-course/shared/pkg/proto/iam/v1"
 	inventoryProtoApi "github.com/Reensef/go-microservices-course/shared/pkg/proto/inventory/v1"
 )
@@ -68,7 +68,7 @@ func (d *diContainer) InventoryGrpcServer(ctx context.Context) *grpc.Server {
 		grpcServer := grpc.NewServer(
 			grpc.Creds(insecure.NewCredentials()),
 			grpc.ChainUnaryInterceptor(
-				tracing.UnaryServerInterceptor(),
+				tracer.UnaryServerInterceptor(),
 				interceptor.NewAuthInterceptor(d.IAMClient(ctx)),
 			),
 		)
@@ -163,7 +163,7 @@ func (d *diContainer) IAMGrpc(ctx context.Context) iamGrpc.AuthServiceClient {
 		conn, err := grpc.NewClient(
 			config.AppConfig().IAMClient.Address(),
 			grpc.WithTransportCredentials(insecure.NewCredentials()),
-			grpc.WithUnaryInterceptor(tracing.UnaryClientInterceptor()),
+			grpc.WithUnaryInterceptor(tracer.UnaryClientInterceptor()),
 		)
 		if err != nil {
 			panic(fmt.Sprintf("failed to connect to iam service: %v\n", err))

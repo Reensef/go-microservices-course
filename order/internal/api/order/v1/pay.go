@@ -4,11 +4,13 @@ import (
 	"context"
 	"errors"
 	"fmt"
-	"log"
+
+	"go.uber.org/zap"
 
 	"github.com/Reensef/go-microservices-course/order/internal/api/order/v1/converter"
 	"github.com/Reensef/go-microservices-course/order/internal/model"
 	orderApi "github.com/Reensef/go-microservices-course/shared/pkg/openapi/order/v1"
+	"github.com/Reensef/go-microservices-course/platform/pkg/logger"
 )
 
 func (a *handler) PayOrder(
@@ -32,8 +34,6 @@ func (a *handler) PayOrder(
 		converter.ToModelPaymentMethod(req.GetPaymentMethod()),
 	)
 	if err != nil {
-		log.Printf("api: error paying order: %s", err)
-
 		switch {
 		case errors.Is(err, model.ErrOrderAccessDenied):
 			return &orderApi.ForbiddenError{
@@ -66,6 +66,8 @@ func (a *handler) PayOrder(
 				Message: "user UUID must be UUID format",
 			}, nil
 		default:
+			logger.Error("api: error paying order", zap.Error(err))
+
 			return &orderApi.InternalServerError{
 				Code:    500,
 				Message: "internal server error",

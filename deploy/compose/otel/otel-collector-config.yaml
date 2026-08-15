@@ -11,14 +11,26 @@ processors:
     send_batch_max_size: 1000
   probabilistic_sampler:
     sampling_percentage: 100
+  resource:
+    attributes:
+      - key: deployment.environment
+        value: dev
+        action: insert
 
 exporters:
   otlp/jaeger:
     endpoint: jaeger:4317
     tls:
       insecure: true
-  debug:
-    verbosity: detailed
+  elasticsearch:
+    endpoints: ["http://elasticsearch:9200"]
+    tls:
+      insecure: true
+    logs_index: "logs"
+    mapping:
+      mode: ecs
+  prometheusremotewrite:
+    endpoint: http://prometheus:9090/api/v1/write
 
 service:
   telemetry:
@@ -28,4 +40,12 @@ service:
     traces:
       receivers: [otlp]
       processors: [probabilistic_sampler, batch]
-      exporters: [otlp/jaeger, debug]
+      exporters: [otlp/jaeger]
+    logs:
+      receivers: [otlp]
+      processors: [resource, batch]
+      exporters: [elasticsearch]
+    metrics:
+      receivers: [otlp]
+      processors: [batch]
+      exporters: [prometheusremotewrite]

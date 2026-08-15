@@ -16,7 +16,7 @@ func connectRedisClient(ctx context.Context, addr, password string, logger Logge
 
 	if err := client.Ping(ctx).Err(); err != nil {
 		if closeErr := client.Close(); closeErr != nil {
-			logger.Error(ctx, "failed to close redis client", zap.Error(closeErr))
+			logger.Error("failed to close redis client", zap.Error(closeErr))
 		}
 		return nil, errors.Errorf("failed to ping redis: %v", err)
 	}

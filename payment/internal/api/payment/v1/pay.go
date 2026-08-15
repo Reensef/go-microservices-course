@@ -5,11 +5,13 @@ import (
 	"errors"
 	"log"
 
+	"go.uber.org/zap"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
 
 	converter "github.com/Reensef/go-microservices-course/payment/internal/api/payment/v1/converter"
 	"github.com/Reensef/go-microservices-course/payment/internal/model"
+	"github.com/Reensef/go-microservices-course/platform/pkg/logger"
 	paymentV1 "github.com/Reensef/go-microservices-course/shared/pkg/proto/payment/v1"
 )
 
@@ -48,7 +50,10 @@ func (a *api) PayOrder(
 		}
 	}
 
-	log.Println("Оплата прошла успешно, transaction_uuid:", transactionUuid)
+	logger.Info("payment succeeded",
+		zap.String("order_uuid", orderUuid),
+		zap.String("transaction_uuid", *transactionUuid),
+	)
 
 	return &paymentV1.PayOrderResponse{
 		TransactionUuid: *transactionUuid,

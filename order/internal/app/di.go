@@ -14,6 +14,7 @@ import (
 	orderMiddleware "github.com/Reensef/go-microservices-course/order/internal/api/middleware"
 	orderHandler "github.com/Reensef/go-microservices-course/order/internal/api/order/v1"
 	grpcClients "github.com/Reensef/go-microservices-course/order/internal/client/grpc"
+	"github.com/Reensef/go-microservices-course/platform/pkg/tracer"
 	iamClient "github.com/Reensef/go-microservices-course/order/internal/client/grpc/iam/v1"
 	inventoryClient "github.com/Reensef/go-microservices-course/order/internal/client/grpc/inventory/v1"
 	paymentClient "github.com/Reensef/go-microservices-course/order/internal/client/grpc/payment/v1"
@@ -243,7 +244,10 @@ func (d *diContainer) PaymentGrpc(ctx context.Context) paymentGrpc.PaymentServic
 		conn, err := grpc.NewClient(
 			config.AppConfig().PaymentClient.Address(),
 			grpc.WithTransportCredentials(insecure.NewCredentials()),
-			grpc.WithUnaryInterceptor(grpcClients.UnaryClientInterceptor()),
+			grpc.WithChainUnaryInterceptor(
+				tracer.UnaryClientInterceptor(),
+				grpcClients.UnaryClientInterceptor(),
+			),
 		)
 		if err != nil {
 			panic(fmt.Sprintf("failed to connect to payment service: %v\n", err))

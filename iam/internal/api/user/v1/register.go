@@ -5,11 +5,13 @@ import (
 	"errors"
 	"log"
 
+	"go.uber.org/zap"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
 
 	converter "github.com/Reensef/go-microservices-course/iam/internal/api/converter"
 	"github.com/Reensef/go-microservices-course/iam/internal/model"
+	"github.com/Reensef/go-microservices-course/platform/pkg/logger"
 	iamV1 "github.com/Reensef/go-microservices-course/shared/pkg/proto/iam/v1"
 )
 
@@ -33,6 +35,8 @@ func (a *api) Register(
 			return nil, status.Errorf(codes.Internal, "internal server error")
 		}
 	}
+
+	logger.Info("user registered", zap.String("user_uuid", user.Uuid))
 
 	return &iamV1.RegisterResponse{
 		UserUuid: user.Uuid,

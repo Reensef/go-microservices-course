@@ -89,6 +89,18 @@ tasks:
     cmds:
       - docker compose --all-resources down
 
+  compose:xray:up:
+    desc: Поднять Xray прокси
+    dir: deploy/compose/xray
+    cmds:
+      - docker compose up --build --detach
+
+  compose:xray:down:
+    desc: Остановить и удалить Xray прокси
+    dir: deploy/compose/xray
+    cmds:
+      - docker compose down
+
   compose:kafka:up:
     desc: Поднять Kafka и Kafka UI
     dir: deploy/compose/kafka
@@ -212,13 +224,13 @@ tasks:
       - docker compose down --volumes
 
   compose:otel:up:
-    desc: Поднять OTel Collector + Jaeger
+    desc: Поднять OTel стек (Collector, Jaeger, Elasticsearch, Kibana, Prometheus, Grafana)
     dir: deploy/compose/otel
     cmds:
       - docker compose up --detach
 
   compose:otel:down:
-    desc: Остановить и удалить OTel Collector + Jaeger
+    desc: Остановить и удалить OTel стек (Collector, Jaeger, Elasticsearch, Kibana, Prometheus, Grafana)
     dir: deploy/compose/otel
     cmds:
       - docker compose down --volumes
@@ -242,6 +254,26 @@ tasks:
       - task compose:mongo:down
       - task compose:postgres:down
       - task compose:network:down
+
+  compose:all:up:
+    desc: Собрать и поднять все сервисы (iam, inventory, payment, order, assembly, notification)
+    deps:
+      - compose:iam:up
+      - compose:inventory:up
+      - compose:payment:up
+      - compose:order:up
+      - compose:assembly:up
+      - compose:notification:up
+
+  compose:all:down:
+    desc: Остановить и удалить все сервисы (iam, inventory, payment, order, assembly, notification)
+    deps:
+      - compose:iam:down
+      - compose:inventory:down
+      - compose:payment:down
+      - compose:order:down
+      - compose:assembly:down
+      - compose:notification:down
 
   assembly:run:
     desc: "Запускает assembly сервис"
@@ -623,4 +655,6 @@ tasks:
       gRPC) и localhost:50052 (order — HTTP); переопределяются через
       APITEST_*_ADDR / APITEST_ORDER_BASE_URL, см. apitest/internal/env.
     cmds:
-      - go test -v ./apitest/scenarios/...
+      # -count=1 отключает кэш: результат зависит от состояния поднятого стека,
+      # а его Go в ключ кэша не закладывает и переиспользовал бы старый вердикт
+      - go test -count=1 -v ./apitest/scenarios/...

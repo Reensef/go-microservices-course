@@ -46,14 +46,14 @@ type TestEnvironment struct {
 // Все настройки (порты, креды, имя образа) заданы в коде константами этого пакета,
 // а не читаются из .env-файлов — тестовое окружение не зависит от deploy/compose.
 func setupTestEnvironment(ctx context.Context) *TestEnvironment {
-	logger.Info(ctx, "🚀 Подготовка тестового окружения...")
+	logger.Info("🚀 Подготовка тестового окружения...")
 
 	// Шаг 1: Создаём общую Docker-сеть
 	generatedNetwork, err := network.NewNetwork(ctx, projectName)
 	if err != nil {
-		logger.Fatal(ctx, "не удалось создать общую сеть", zap.Error(err))
+		logger.Fatal("не удалось создать общую сеть", zap.Error(err))
 	}
-	logger.Info(ctx, "✅ Сеть успешно создана")
+	logger.Info("✅ Сеть успешно создана")
 
 	// Шаг 2: Запускаем контейнер с MongoDB
 	// Алиас сети (mongoHostValue) — это DNS-имя, по которому приложение внутри
@@ -72,9 +72,9 @@ func setupTestEnvironment(ctx context.Context) *TestEnvironment {
 	)
 	if err != nil {
 		cleanupTestEnvironment(ctx, &TestEnvironment{Network: generatedNetwork})
-		logger.Fatal(ctx, "не удалось запустить контейнер MongoDB", zap.Error(err))
+		logger.Fatal("не удалось запустить контейнер MongoDB", zap.Error(err))
 	}
-	logger.Info(ctx, "✅ Контейнер MongoDB успешно запущен")
+	logger.Info("✅ Контейнер MongoDB успешно запущен")
 
 	// Шаг 3: Запускаем контейнеры iam (Postgres + Redis + приложение) — auth-interceptor
 	// inventory ходит в AuthService.Whoami, поэтому валидному запросу к inventory
@@ -89,9 +89,9 @@ func setupTestEnvironment(ctx context.Context) *TestEnvironment {
 	)
 	if err != nil {
 		cleanupTestEnvironment(ctx, &TestEnvironment{Network: generatedNetwork, Mongo: generatedMongo})
-		logger.Fatal(ctx, "не удалось запустить контейнер Postgres для iam", zap.Error(err))
+		logger.Fatal("не удалось запустить контейнер Postgres для iam", zap.Error(err))
 	}
-	logger.Info(ctx, "✅ Контейнер Postgres для iam успешно запущен")
+	logger.Info("✅ Контейнер Postgres для iam успешно запущен")
 
 	generatedIamRedis, err := redis.NewContainer(ctx,
 		redis.WithNetworkName(generatedNetwork.Name()),
@@ -104,9 +104,9 @@ func setupTestEnvironment(ctx context.Context) *TestEnvironment {
 		cleanupTestEnvironment(ctx, &TestEnvironment{
 			Network: generatedNetwork, Mongo: generatedMongo, IamPostgres: generatedIamPostgres,
 		})
-		logger.Fatal(ctx, "не удалось запустить контейнер Redis для iam", zap.Error(err))
+		logger.Fatal("не удалось запустить контейнер Redis для iam", zap.Error(err))
 	}
-	logger.Info(ctx, "✅ Контейнер Redis для iam успешно запущен")
+	logger.Info("✅ Контейнер Redis для iam успешно запущен")
 
 	projectRoot := path.GetProjectRoot()
 
@@ -146,20 +146,15 @@ func setupTestEnvironment(ctx context.Context) *TestEnvironment {
 			Network: generatedNetwork, Mongo: generatedMongo,
 			IamPostgres: generatedIamPostgres, IamRedis: generatedIamRedis,
 		})
-		logger.Fatal(ctx, "не удалось запустить контейнер приложения iam", zap.Error(err))
+		logger.Fatal("не удалось запустить контейнер приложения iam", zap.Error(err))
 	}
-	logger.Info(ctx, "✅ Контейнер приложения iam успешно запущен")
+	logger.Info("✅ Контейнер приложения iam успешно запущен")
 
 	// Шаг 4: Запускаем контейнер с приложением.
 	// MONGO_PORT — это порт Mongo *внутри* Docker-сети (testcontainers.MongoPort),
 	// а не внешний порт, который testcontainers пробрасывает наружу для клиента тестов.
 	// IAM_CLIENT_HOST/PORT указывают на контейнер iam-app в этой же сети — auth-interceptor
 	// inventory использует их, чтобы независимо валидировать сессию через AuthService.Whoami.
-	// Шаг 3: Запускаем контейнер с приложением.
-	// MONGO_PORT — это порт Mongo *внутри* Docker-сети (testcontainers.MongoPort),
-	// а не внешний порт, который testcontainers пробрасывает наружу для клиента тестов.
-	projectRoot := path.GetProjectRoot()
-
 	appEnv := map[string]string{
 		"GRPC_HOST":                     grpcHostValue,
 		"GRPC_PORT":                     grpcPortValue,
@@ -194,11 +189,11 @@ func setupTestEnvironment(ctx context.Context) *TestEnvironment {
 			Network: generatedNetwork, Mongo: generatedMongo,
 			IamPostgres: generatedIamPostgres, IamRedis: generatedIamRedis, IamApp: iamAppContainer,
 		})
-		logger.Fatal(ctx, "не удалось запустить контейнер приложения", zap.Error(err))
+		logger.Fatal("не удалось запустить контейнер приложения", zap.Error(err))
 	}
-	logger.Info(ctx, "✅ Контейнер приложения успешно запущен")
+	logger.Info("✅ Контейнер приложения успешно запущен")
 
-	logger.Info(ctx, "🎉 Тестовое окружение готово")
+	logger.Info("🎉 Тестовое окружение готово")
 	return &TestEnvironment{
 		Network:     generatedNetwork,
 		Mongo:       generatedMongo,

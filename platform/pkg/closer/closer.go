@@ -18,8 +18,8 @@ import (
 const shutdownTimeout = 5 * time.Second
 
 type Logger interface {
-	Info(ctx context.Context, msg string, fields ...zap.Field)
-	Error(ctx context.Context, msg string, fields ...zap.Field)
+	Info(msg string, fields ...zap.Field)
+	Error(msg string, fields ...zap.Field)
 }
 
 // Closer управляет процессом graceful shutdown приложения
@@ -32,7 +32,7 @@ type Closer struct {
 }
 
 // Глобальный экземпляр для использования по всему приложению
-var globalCloser = NewWithLogger(&logger.DummyLogger{})
+var globalCloser = NewWithLogger(zap.NewNop())
 
 // AddNamed добавляет функцию закрытия с именем зависимости для логирования в глобальный closer
 func AddNamed(name string, f func(context.Context) error) {
@@ -92,13 +92,13 @@ func (c *Closer) handleSignals(signals ...os.Signal) {
 
 	select {
 	case <-ch:
-		c.logger.Info(context.Background(), "🛑 Получен системный сигнал, начинаем graceful shutdown...")
+		c.logger.Info("Получен системный сигнал, начинаем graceful shutdown...")
 
 		shutdownCtx, shutdownCancel := context.WithTimeout(context.Background(), shutdownTimeout)
 		defer shutdownCancel()
 
 		if err := c.CloseAll(shutdownCtx); err != nil {
-			c.logger.Error(context.Background(), "❌ Ошибка при закрытии ресурсов: %v", zap.Error(err))
+			c.logger.Error("Ошибка при закрытии ресурсов: %v", zap.Error(err))
 		}
 
 	case <-c.done:
@@ -110,15 +110,15 @@ func (c *Closer) handleSignals(signals ...os.Signal) {
 func (c *Closer) AddNamed(name string, f func(context.Context) error) {
 	c.Add(func(ctx context.Context) error {
 		start := time.Now()
-		c.logger.Info(ctx, fmt.Sprintf("🧩 Закрываем %s...", name))
+		c.logger.Info(fmt.Sprintf("Закрываем %s...", name))
 
 		err := f(ctx)
 
 		duration := time.Since(start)
 		if err != nil {
-			c.logger.Error(ctx, fmt.Sprintf("❌ Ошибка при закрытии %s: %v (заняло %s)", name, err, duration))
+			c.logger.Error(fmt.Sprintf("Ошибка при закрытии %s: %v (заняло %s)", name, err, duration))
 		} else {
-			c.logger.Info(ctx, fmt.Sprintf("✅ %s успешно закрыт за %s", name, duration))
+			c.logger.Info(fmt.Sprintf("%s успешно закрыт за %s", name, duration))
 		}
 		return err
 	})
@@ -145,11 +145,11 @@ func (c *Closer) CloseAll(ctx context.Context) error {
 		c.mu.Unlock()
 
 		if len(funcs) == 0 {
-			c.logger.Info(ctx, "ℹ️ Нет функций для закрытия.")
+			c.logger.Info("Нет функций для закрытия")
 			return
 		}
 
-		c.logger.Info(ctx, "🚦 Начинаем процесс graceful shutdown...")
+		c.logger.Info("Начинаем процесс graceful shutdown...")
 
 		errCh := make(chan error, len(funcs))
 		var wg sync.WaitGroup
@@ -165,7 +165,7 @@ func (c *Closer) CloseAll(ctx context.Context) error {
 				defer func() {
 					if r := recover(); r != nil {
 						errCh <- errors.New("panic recovered in closer")
-						c.logger.Error(ctx, "⚠️ Panic в функции закрытия", zap.Any("error", r))
+						c.logger.Error("Panic в функции закрытия", zap.Any("error", r))
 					}
 				}()
 
@@ -185,17 +185,17 @@ func (c *Closer) CloseAll(ctx context.Context) error {
 		for {
 			select {
 			case <-ctx.Done():
-				c.logger.Info(ctx, "⚠️ Контекст отменён во время закрытия", zap.Error(ctx.Err()))
+				c.logger.Info("Контекст отменён во время закрытия", zap.Error(ctx.Err()))
 				if result == nil {
 					result = ctx.Err()
 				}
 				return
 			case err, ok := <-errCh:
 				if !ok {
-					c.logger.Info(ctx, "✅ Все ресурсы успешно закрыты")
+					c.logger.Info("Все ресурсы успешно закрыты")
 					return
 				}
-				c.logger.Error(ctx, "❌ Ошибка при закрытии", zap.Error(err))
+				c.logger.Error("Ошибка при закрытии", zap.Error(err))
 				if result == nil {
 					result = err
 				}

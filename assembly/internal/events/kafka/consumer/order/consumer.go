@@ -39,7 +39,7 @@ func NewConsumer(
 }
 
 func (c *consumer) RunConsumer(ctx context.Context) error {
-	logger.Info(ctx, "Starting order consumer service")
+	logger.Info("Starting order consumer service")
 
 	groupHandler := kafka.NewGroupHandler(c.OrderHandler)
 
@@ -49,7 +49,7 @@ func (c *consumer) RunConsumer(ctx context.Context) error {
 				return nil
 			}
 
-			logger.Error(ctx, "consume from order topic error", zap.Error(err))
+			logger.Error("consume from order topic error", zap.Error(err))
 			return err
 		}
 
@@ -57,7 +57,7 @@ func (c *consumer) RunConsumer(ctx context.Context) error {
 			return ctx.Err()
 		}
 
-		logger.Info(ctx, "Kafka consumer group rebalancing...")
+		logger.Info("Kafka consumer group rebalancing...")
 	}
 }
 
@@ -71,9 +71,14 @@ func (c *consumer) OrderHandler(ctx context.Context, msg kafka.Message) error {
 
 	event, err := c.OrderDecode(msg.Value)
 	if err != nil {
-		logger.Error(ctx, "Failed to decode OrderPaid", zap.Error(err))
+		logger.Error("Failed to decode OrderPaid", zap.Error(err))
 		return err
 	}
+
+	logger.Info("Processing OrderPaid message",
+		zap.String("order_uuid", event.OrderUUID),
+		zap.String("user_uuid", event.UserUUID),
+	)
 
 	err = c.assemblyService.AssembleShip(ctx, event.OrderUUID, event.UserUUID)
 	if err != nil {

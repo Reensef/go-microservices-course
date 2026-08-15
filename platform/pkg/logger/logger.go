@@ -3,211 +3,242 @@ package logger
 import (
 	"context"
 	"os"
-	"strings"
 	"sync"
 
+	"go.opentelemetry.io/otel/attribute"
+	"go.opentelemetry.io/otel/exporters/otlp/otlplog/otlploggrpc"
+	otelLog "go.opentelemetry.io/otel/log"
+	otelLogSdk "go.opentelemetry.io/otel/sdk/log"
+	"go.opentelemetry.io/otel/sdk/resource"
 	"go.uber.org/zap"
 	"go.uber.org/zap/zapcore"
 )
 
-type Key string
 
-const (
-	traceIDKey Key = "trace_id"
-	userIDKey  Key = "user_id"
-)
-
-// Глобальный singleton логгер
 var (
 	globalLogger *logger
 	initOnce     sync.Once
 	dynamicLevel zap.AtomicLevel
+	otelProvider *otelLogSdk.LoggerProvider
 )
 
-// logger обёртка над zap.Logger с enrich поддержкой контекста
 type logger struct {
 	zapLogger *zap.Logger
 }
 
-// Init инициализирует глобальный логгер.
-func Init(levelStr string, asJSON bool) error {
+// init устанавливает no-op логгер по умолчанию — вызовы до Init не паникуют.
+func init() {
+	globalLogger = &logger{zapLogger: zap.NewNop()}
+}
+
+// Option задаёт параметр инициализации логгера.
+type Option func(*initConfig)
+
+type initConfig struct {
+	level           zapcore.Level
+	asJSON          bool
+	otlpEndpoint    string
+	otlpServiceName string
+	otlpEnvironment string
+}
+
+// WithLevel задаёт уровень логирования. По умолчанию "info".
+func WithLevel(level zapcore.Level) Option {
+	return func(c *initConfig) { c.level = level }
+}
+
+// WithJSON включает JSON-формат вывода. По умолчанию консольный формат.
+func WithJSON(enabled bool) Option {
+	return func(c *initConfig) { c.asJSON = enabled }
+}
+
+// WithOTLP включает экспорт логов в OpenTelemetry коллектор через gRPC.
+// Если подключение не удаётся, логгер продолжает работать только со stdout.
+func WithOTLP(endpoint, serviceName, environment string) Option {
+	return func(c *initConfig) {
+		c.otlpEndpoint = endpoint
+		c.otlpServiceName = serviceName
+		c.otlpEnvironment = environment
+	}
+}
+
+// Init инициализирует глобальный логгер
+func Init(level zapcore.Level, opts ...Option) error {
+	cfg := &initConfig{}
+	for _, opt := range opts {
+		opt(cfg)
+	}
+
+	cfg.level = level
+
 	initOnce.Do(func() {
-		dynamicLevel = zap.NewAtomicLevelAt(parseLevel(levelStr))
+		stdoutCore := newStdoutCore(cfg)
+		cores := []zapcore.Core{stdoutCore}
 
-		encoderCfg := buildProductionEncoderConfig()
-
-		var encoder zapcore.Encoder
-		if asJSON {
-			encoder = zapcore.NewJSONEncoder(encoderCfg)
-		} else {
-			encoder = zapcore.NewConsoleEncoder(encoderCfg)
+		var otlpErr error
+		if cfg.otlpEndpoint != "" {
+			otlpCore, err := newOTLPCore(cfg)
+			if err != nil {
+				otlpErr = err
+			} else {
+				cores = append(cores, otlpCore)
+			}
 		}
 
-		core := zapcore.NewCore(
-			encoder,
-			zapcore.AddSync(os.Stdout),
-			dynamicLevel,
-		)
-
-		zapLogger := zap.New(core, zap.AddCaller(), zap.AddCallerSkip(2))
+		var core zapcore.Core
+		if len(cores) == 1 {
+			core = cores[0]
+		} else {
+			core = zapcore.NewTee(cores...)
+		}
 
 		globalLogger = &logger{
-			zapLogger: zapLogger,
+			zapLogger: zap.New(core, zap.AddCaller(), zap.AddCallerSkip(2)),
+		}
+
+		if otlpErr != nil {
+			globalLogger.zapLogger.Warn("OTLP init failed, continuing without it", zap.Error(otlpErr))
 		}
 	})
-
 	return nil
 }
 
-func buildProductionEncoderConfig() zapcore.EncoderConfig {
-	return zapcore.EncoderConfig{
-		TimeKey:        "timestamp",                 // время
-		LevelKey:       "level",                     // уровень логирования
-		NameKey:        "logger",                    // имя логгера, если используется
-		CallerKey:      "caller",                    // откуда вызван лог
-		MessageKey:     "message",                   // текст сообщения
-		StacktraceKey:  "stacktrace",                // стектрейс для ошибок
-		LineEnding:     zapcore.DefaultLineEnding,   // перенос строки
-		EncodeLevel:    zapcore.CapitalLevelEncoder, // INFO, ERROR
-		EncodeTime:     zapcore.ISO8601TimeEncoder,  // читаемый ISO 8601 формат
-		EncodeDuration: zapcore.SecondsDurationEncoder,
-		EncodeCaller:   zapcore.ShortCallerEncoder, // короткий caller
-		EncodeName:     zapcore.FullNameEncoder,
+func newStdoutCore(cfg *initConfig) zapcore.Core {
+	dynamicLevel = zap.NewAtomicLevelAt(cfg.level)
+
+	encCfg := defaultEncoderConfig()
+	var encoder zapcore.Encoder
+	if cfg.asJSON {
+		encoder = zapcore.NewJSONEncoder(encCfg)
+	} else {
+		encoder = zapcore.NewConsoleEncoder(encCfg)
 	}
+
+	return zapcore.NewCore(encoder, zapcore.AddSync(os.Stdout), dynamicLevel)
 }
 
-// SetLevel динамически меняет уровень логирования
-func SetLevel(levelStr string) {
+func newOTLPCore(cfg *initConfig) (*simpleOTLPCore, error) {
+	ctx := context.Background()
+
+	exporter, err := otlploggrpc.New(ctx,
+		otlploggrpc.WithEndpoint(cfg.otlpEndpoint),
+		otlploggrpc.WithInsecure(),
+	)
+	if err != nil {
+		return nil, err
+	}
+
+	rs, err := resource.New(ctx,
+		resource.WithAttributes(
+			attribute.String("service.name", cfg.otlpServiceName),
+			attribute.String("deployment.environment", cfg.otlpEnvironment),
+		),
+	)
+	if err != nil {
+		return nil, err
+	}
+
+	provider := otelLogSdk.NewLoggerProvider(
+		otelLogSdk.WithResource(rs),
+		otelLogSdk.WithProcessor(otelLogSdk.NewBatchProcessor(exporter)),
+	)
+	otelProvider = provider
+
+	var otlpLogger otelLog.Logger = provider.Logger("app")
+	return newSimpleOTLPCore(otlpLogger, dynamicLevel), nil
+}
+
+// SetLevel динамически меняет уровень логирования.
+func SetLevel(level zapcore.Level) {
 	if dynamicLevel == (zap.AtomicLevel{}) {
 		return
 	}
-
-	dynamicLevel.SetLevel(parseLevel(levelStr))
+	dynamicLevel.SetLevel(level)
 }
 
-// logger возвращает глобальный enrich-aware логгер
+// Logger возвращает глобальный логгер.
 func Logger() *logger {
 	return globalLogger
 }
 
-// NopLogger устанавливает глобальный логгер в no-op режим.
-// Идеально для юнит-тестов.
-func SetNopLogger() {
-	globalLogger = &logger{
-		zapLogger: zap.NewNop(),
-	}
-}
-
-// Sync сбрасывает буферы логгера
+// Sync сбрасывает буферы логгера.
 func Sync() error {
 	if globalLogger != nil {
 		return globalLogger.zapLogger.Sync()
 	}
-
 	return nil
 }
 
-// With создает новый enrich-aware логгер с дополнительными полями
+// Close корректно завершает работу OTLP provider. Вызывать при graceful shutdown.
+func Close(ctx context.Context) error {
+	if otelProvider != nil {
+		return otelProvider.Shutdown(ctx)
+	}
+	return nil
+}
+
+// defaultEncoderConfig возвращает стандартный EncoderConfig платформы.
+func defaultEncoderConfig() zapcore.EncoderConfig {
+	return zapcore.EncoderConfig{
+		TimeKey:        "timestamp",
+		LevelKey:       "level",
+		NameKey:        "logger",
+		CallerKey:      "caller",
+		MessageKey:     "message",
+		StacktraceKey:  "stacktrace",
+		LineEnding:     zapcore.DefaultLineEnding,
+		EncodeLevel:    zapcore.CapitalLevelEncoder,
+		EncodeTime:     zapcore.ISO8601TimeEncoder,
+		EncodeDuration: zapcore.SecondsDurationEncoder,
+		EncodeCaller:   zapcore.ShortCallerEncoder,
+		EncodeName:     zapcore.FullNameEncoder,
+	}
+}
+
+// With создаёт логгер с дополнительными постоянными полями.
 func With(fields ...zap.Field) *logger {
 	if globalLogger == nil {
 		return &logger{zapLogger: zap.NewNop()}
 	}
-
-	return &logger{
-		zapLogger: globalLogger.zapLogger.With(fields...),
-	}
+	return &logger{zapLogger: globalLogger.zapLogger.With(fields...)}
 }
 
-// WithContext создает enrich-aware логгер с контекстом
-func WithContext(ctx context.Context) *logger {
-	if globalLogger == nil {
-		return &logger{zapLogger: zap.NewNop()}
-	}
-
-	return &logger{
-		zapLogger: globalLogger.zapLogger.With(fieldsFromContext(ctx)...),
-	}
+func Debug(msg string, fields ...zap.Field) {
+	globalLogger.zapLogger.Debug(msg, fields...)
 }
 
-// Debug enrich-aware debug log
-func Debug(ctx context.Context, msg string, fields ...zap.Field) {
-	globalLogger.Debug(ctx, msg, fields...)
+func Info(msg string, fields ...zap.Field) {
+	globalLogger.zapLogger.Info(msg, fields...)
 }
 
-// Info enrich-aware info log
-func Info(ctx context.Context, msg string, fields ...zap.Field) {
-	globalLogger.Info(ctx, msg, fields...)
+func Warn(msg string, fields ...zap.Field) {
+	globalLogger.zapLogger.Warn(msg, fields...)
 }
 
-// Warn enrich-aware warn log
-func Warn(ctx context.Context, msg string, fields ...zap.Field) {
-	globalLogger.Warn(ctx, msg, fields...)
+func Error(msg string, fields ...zap.Field) {
+	globalLogger.zapLogger.Error(msg, fields...)
 }
 
-// Error enrich-aware error log
-func Error(ctx context.Context, msg string, fields ...zap.Field) {
-	globalLogger.Error(ctx, msg, fields...)
+func Fatal(msg string, fields ...zap.Field) {
+	globalLogger.zapLogger.Fatal(msg, fields...)
 }
 
-// Fatal enrich-aware fatal log
-func Fatal(ctx context.Context, msg string, fields ...zap.Field) {
-	globalLogger.Fatal(ctx, msg, fields...)
+func (l *logger) Debug(msg string, fields ...zap.Field) {
+	l.zapLogger.Debug(msg, fields...)
 }
 
-// Instance methods для enrich loggers (logger)
-
-func (l *logger) Debug(ctx context.Context, msg string, fields ...zap.Field) {
-	allFields := append(fieldsFromContext(ctx), fields...)
-	l.zapLogger.Debug(msg, allFields...)
+func (l *logger) Info(msg string, fields ...zap.Field) {
+	l.zapLogger.Info(msg, fields...)
 }
 
-func (l *logger) Info(ctx context.Context, msg string, fields ...zap.Field) {
-	allFields := append(fieldsFromContext(ctx), fields...)
-	l.zapLogger.Info(msg, allFields...)
+func (l *logger) Warn(msg string, fields ...zap.Field) {
+	l.zapLogger.Warn(msg, fields...)
 }
 
-func (l *logger) Warn(ctx context.Context, msg string, fields ...zap.Field) {
-	allFields := append(fieldsFromContext(ctx), fields...)
-	l.zapLogger.Warn(msg, allFields...)
+func (l *logger) Error(msg string, fields ...zap.Field) {
+	l.zapLogger.Error(msg, fields...)
 }
 
-func (l *logger) Error(ctx context.Context, msg string, fields ...zap.Field) {
-	allFields := append(fieldsFromContext(ctx), fields...)
-	l.zapLogger.Error(msg, allFields...)
-}
-
-func (l *logger) Fatal(ctx context.Context, msg string, fields ...zap.Field) {
-	allFields := append(fieldsFromContext(ctx), fields...)
-	l.zapLogger.Fatal(msg, allFields...)
-}
-
-// parseLevel конвертирует строковый уровень в zapcore.Level
-func parseLevel(levelStr string) zapcore.Level {
-	switch strings.ToLower(levelStr) {
-	case "debug":
-		return zapcore.DebugLevel
-	case "info":
-		return zapcore.InfoLevel
-	case "warn", "warning":
-		return zapcore.WarnLevel
-	case "error":
-		return zapcore.ErrorLevel
-	default:
-		return zapcore.InfoLevel
-	}
-}
-
-// fieldsFromContext вытаскивает enrich-поля из контекста
-func fieldsFromContext(ctx context.Context) []zap.Field {
-	fields := make([]zap.Field, 0)
-
-	if traceID, ok := ctx.Value(traceIDKey).(string); ok && traceID != "" {
-		fields = append(fields, zap.String(string(traceIDKey), traceID))
-	}
-
-	if userID, ok := ctx.Value(userIDKey).(string); ok && userID != "" {
-		fields = append(fields, zap.String(string(userIDKey), userID))
-	}
-
-	return fields
+func (l *logger) Fatal(msg string, fields ...zap.Field) {
+	l.zapLogger.Fatal(msg, fields...)
 }

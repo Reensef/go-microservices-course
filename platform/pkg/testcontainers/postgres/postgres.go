@@ -26,7 +26,7 @@ func NewContainer(ctx context.Context, opts ...Option) (*Container, error) {
 	defer func() {
 		if !success {
 			if err = container.Terminate(ctx); err != nil {
-				cfg.Logger.Error(ctx, "failed to terminate postgres container", zap.Error(err))
+				cfg.Logger.Error("failed to terminate postgres container", zap.Error(err))
 			}
 		}
 	}()
@@ -43,7 +43,7 @@ func NewContainer(ctx context.Context, opts ...Option) (*Container, error) {
 		return nil, err
 	}
 
-	cfg.Logger.Info(ctx, "Postgres container started", zap.String("uri", uri))
+	cfg.Logger.Info("Postgres container started", zap.String("uri", uri))
 	success = true
 
 	return &Container{
@@ -65,11 +65,11 @@ func (c *Container) Terminate(ctx context.Context) error {
 	c.pool.Close()
 
 	if err := c.container.Terminate(ctx); err != nil {
-		c.cfg.Logger.Error(ctx, "failed to terminate postgres container", zap.Error(err))
+		c.cfg.Logger.Error("failed to terminate postgres container", zap.Error(err))
 		return err
 	}
 
-	c.cfg.Logger.Info(ctx, "Postgres container terminated")
+	c.cfg.Logger.Info("Postgres container terminated")
 
 	return nil
 }

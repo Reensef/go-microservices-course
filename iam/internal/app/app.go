@@ -4,6 +4,8 @@ import (
 	"context"
 	"fmt"
 
+	"go.uber.org/zap/zapcore"
+
 	"github.com/Reensef/go-microservices-course/iam/internal/config"
 	"github.com/Reensef/go-microservices-course/platform/pkg/closer"
 	"github.com/Reensef/go-microservices-course/platform/pkg/logger"
@@ -52,10 +54,13 @@ func (a *App) initDI(_ context.Context) error {
 }
 
 func (a *App) initLogger(_ context.Context) error {
-	return logger.Init(
-		config.AppConfig().Logger.Level(),
-		config.AppConfig().Logger.AsJson(),
-	)
+	var level zapcore.Level
+	_ = level.UnmarshalText([]byte(config.AppConfig().Logger.Level()))
+	opts := []logger.Option{logger.WithJSON(config.AppConfig().Logger.AsJson())}
+	if endpoint := config.AppConfig().Logger.OTLPEndpoint(); endpoint != "" {
+		opts = append(opts, logger.WithOTLP(endpoint, "iam-service", "dev"))
+	}
+	return logger.Init(level, opts...)
 }
 
 func (a *App) applyMigrations(ctx context.Context) error {
@@ -68,7 +73,7 @@ func (a *App) initCloser(_ context.Context) error {
 }
 
 func (a *App) runGRPCServer(ctx context.Context) error {
-	logger.Info(ctx, fmt.Sprintf(
+	logger.Info(fmt.Sprintf(
 		"🚀 gRPC IAM server (AuthService, UserService) listening on %s",
 		a.di.Listener(ctx).Addr(),
 	))

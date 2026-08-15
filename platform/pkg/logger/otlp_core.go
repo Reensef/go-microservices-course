@@ -11,41 +11,38 @@ import (
 
 const emitTimeout = 500 * time.Millisecond
 
-// SimpleOTLPCore конвертирует zap-записи в OpenTelemetry Records и отправляет их в OTLP коллектор.
-type SimpleOTLPCore struct {
+// simpleOTLPCore конвертирует zap-записи в OpenTelemetry Records и отправляет их в OTLP коллектор.
+type simpleOTLPCore struct {
 	otlpLogger otelLog.Logger
 	level      zapcore.LevelEnabler
 	fields     []zapcore.Field // аккумулированные поля из With()
 }
 
-// NewSimpleOTLPCore создает новый OTLP core.
-func NewSimpleOTLPCore(otlpLogger otelLog.Logger, level zapcore.LevelEnabler) *SimpleOTLPCore {
-	return &SimpleOTLPCore{
+func newSimpleOTLPCore(otlpLogger otelLog.Logger, level zapcore.LevelEnabler) *simpleOTLPCore {
+	return &simpleOTLPCore{
 		otlpLogger: otlpLogger,
 		level:      level,
 	}
 }
 
-// Enabled проверяет уровень логирования.
-func (c *SimpleOTLPCore) Enabled(level zapcore.Level) bool {
+func (c *simpleOTLPCore) Enabled(level zapcore.Level) bool {
 	return c.level.Enabled(level)
 }
 
 // With создает копию core с дополнительными полями.
 // Поля аккумулируются и включаются в каждую запись — в отличие от примера, где они терялись.
-func (c *SimpleOTLPCore) With(fields []zapcore.Field) zapcore.Core {
+func (c *simpleOTLPCore) With(fields []zapcore.Field) zapcore.Core {
 	accumulated := make([]zapcore.Field, len(c.fields)+len(fields))
 	copy(accumulated, c.fields)
 	copy(accumulated[len(c.fields):], fields)
-	return &SimpleOTLPCore{
+	return &simpleOTLPCore{
 		otlpLogger: c.otlpLogger,
 		level:      c.level,
 		fields:     accumulated,
 	}
 }
 
-// Check добавляет core в список получателей, если уровень подходит.
-func (c *SimpleOTLPCore) Check(entry zapcore.Entry, ce *zapcore.CheckedEntry) *zapcore.CheckedEntry {
+func (c *simpleOTLPCore) Check(entry zapcore.Entry, ce *zapcore.CheckedEntry) *zapcore.CheckedEntry {
 	if c.Enabled(entry.Level) {
 		return ce.AddCore(entry, c)
 	}
@@ -53,7 +50,7 @@ func (c *SimpleOTLPCore) Check(entry zapcore.Entry, ce *zapcore.CheckedEntry) *z
 }
 
 // Write конвертирует zap Entry + накопленные поля в OTLP Record и отправляет с таймаутом.
-func (c *SimpleOTLPCore) Write(entry zapcore.Entry, fields []zapcore.Field) error {
+func (c *simpleOTLPCore) Write(entry zapcore.Entry, fields []zapcore.Field) error {
 	severity := mapZapToOtelSeverity(entry.Level)
 	record := makeBaseRecord(entry, severity)
 
@@ -69,7 +66,7 @@ func (c *SimpleOTLPCore) Write(entry zapcore.Entry, fields []zapcore.Field) erro
 }
 
 // Sync — батчинг делает OTLP SDK, явная синхронизация не нужна.
-func (c *SimpleOTLPCore) Sync() error { return nil }
+func (c *simpleOTLPCore) Sync() error { return nil }
 
 func mapZapToOtelSeverity(level zapcore.Level) otelLog.Severity {
 	switch level {
@@ -123,7 +120,7 @@ func encodeFieldsToAttrs(fields []zapcore.Field) []attribute.KeyValue {
 	return attrs
 }
 
-func (c *SimpleOTLPCore) emitWithTimeout(record otelLog.Record) {
+func (c *simpleOTLPCore) emitWithTimeout(record otelLog.Record) {
 	if c.otlpLogger == nil {
 		return
 	}

@@ -1,4 +1,4 @@
-package tracing
+package tracer
 
 import (
 	"context"
@@ -31,7 +31,7 @@ func UnaryServerInterceptor() grpc.UnaryServerInterceptor {
 		)
 		defer span.End()
 
-		ctx = AddTraceIDToResponse(ctx)
+		ctx = addTraceIDToResponse(ctx)
 
 		resp, err := handler(ctx, req)
 		if err != nil {
@@ -69,14 +69,14 @@ func UnaryClientInterceptor() grpc.UnaryClientInterceptor {
 	}
 }
 
-func AddTraceIDToResponse(ctx context.Context) context.Context {
-	span := trace.SpanFromContext(ctx)
-	if !span.SpanContext().IsValid() {
+func addTraceIDToResponse(ctx context.Context) context.Context {
+	traceID := TraceIDFromContext(ctx)
+	if traceID == "" {
 		return ctx
 	}
 
 	md := extractOutgoingMetadata(ctx)
-	md.Set(TraceIDHeader, span.SpanContext().TraceID().String())
+	md.Set(TraceIDHeader, traceID)
 
 	return metadata.NewOutgoingContext(ctx, md)
 }

@@ -40,14 +40,14 @@ type TestEnvironment struct {
 // Все настройки (порты, креды, имя образа) заданы в коде константами этого пакета,
 // а не читаются из .env-файлов — тестовое окружение не зависит от deploy/compose.
 func Setup(ctx context.Context) *TestEnvironment {
-	logger.Info(ctx, "🚀 Подготовка тестового окружения...")
+	logger.Info("🚀 Подготовка тестового окружения...")
 
 	// Шаг 1: Создаём общую Docker-сеть
 	generatedNetwork, err := network.NewNetwork(ctx, projectName)
 	if err != nil {
-		logger.Fatal(ctx, "не удалось создать общую сеть", zap.Error(err))
+		logger.Fatal("не удалось создать общую сеть", zap.Error(err))
 	}
-	logger.Info(ctx, "✅ Сеть успешно создана")
+	logger.Info("✅ Сеть успешно создана")
 
 	// Шаг 2: Запускаем контейнер с Postgres.
 	// Алиас сети (postgresHostValue) — это DNS-имя, по которому приложение внутри
@@ -63,9 +63,9 @@ func Setup(ctx context.Context) *TestEnvironment {
 	)
 	if err != nil {
 		cleanup(ctx, &TestEnvironment{Network: generatedNetwork})
-		logger.Fatal(ctx, "не удалось запустить контейнер Postgres", zap.Error(err))
+		logger.Fatal("не удалось запустить контейнер Postgres", zap.Error(err))
 	}
-	logger.Info(ctx, "✅ Контейнер Postgres успешно запущен")
+	logger.Info("✅ Контейнер Postgres успешно запущен")
 
 	// Шаг 3: Запускаем контейнер с Redis.
 	generatedRedis, err := redis.NewContainer(ctx,
@@ -78,9 +78,9 @@ func Setup(ctx context.Context) *TestEnvironment {
 	)
 	if err != nil {
 		cleanup(ctx, &TestEnvironment{Network: generatedNetwork, Postgres: generatedPostgres})
-		logger.Fatal(ctx, "не удалось запустить контейнер Redis", zap.Error(err))
+		logger.Fatal("не удалось запустить контейнер Redis", zap.Error(err))
 	}
-	logger.Info(ctx, "✅ Контейнер Redis успешно запущен")
+	logger.Info("✅ Контейнер Redis успешно запущен")
 
 	// Шаг 4: Запускаем контейнер с приложением.
 	// POSTGRES_PORT/REDIS_PORT — это порты *внутри* Docker-сети (testcontainers.PostgresPort,
@@ -121,11 +121,11 @@ func Setup(ctx context.Context) *TestEnvironment {
 	)
 	if err != nil {
 		cleanup(ctx, &TestEnvironment{Network: generatedNetwork, Postgres: generatedPostgres, Redis: generatedRedis})
-		logger.Fatal(ctx, "не удалось запустить контейнер приложения", zap.Error(err))
+		logger.Fatal("не удалось запустить контейнер приложения", zap.Error(err))
 	}
-	logger.Info(ctx, "✅ Контейнер приложения успешно запущен")
+	logger.Info("✅ Контейнер приложения успешно запущен")
 
-	logger.Info(ctx, "🎉 Тестовое окружение готово")
+	logger.Info("🎉 Тестовое окружение готово")
 	return &TestEnvironment{
 		Network:  generatedNetwork,
 		Postgres: generatedPostgres,

@@ -3,12 +3,12 @@ package app
 import (
 	"context"
 
+	"go.uber.org/zap/zapcore"
 	"golang.org/x/sync/errgroup"
 
 	"github.com/Reensef/go-microservices-course/assembly/internal/config"
 	"github.com/Reensef/go-microservices-course/assembly/internal/metric"
 	closer "github.com/Reensef/go-microservices-course/platform/pkg/closer"
-	"go.uber.org/zap/zapcore"
 	"github.com/Reensef/go-microservices-course/platform/pkg/logger"
 )
 
@@ -28,7 +28,7 @@ func New(ctx context.Context) (*App, error) {
 }
 
 func (a *App) Run(ctx context.Context) error {
-	logger.Info(ctx, "🚀 assembly service started")
+	logger.Info("🚀 assembly service started")
 
 	eg, egCtx := errgroup.WithContext(ctx)
 
@@ -63,15 +63,13 @@ func (a *App) initDI(_ context.Context) error {
 }
 
 func (a *App) initLogger(_ context.Context) error {
-	return logger.Init(
-		[]zapcore.Core{
-			logger.NewStdoutCore(logger.StdoutCoreConfig{
-				Level:  config.AppConfig().Logger.Level(),
-				AsJSON: config.AppConfig().Logger.AsJson(),
-			}),
-		},
-		logger.DefaultZapOpts()...,
-	)
+	var level zapcore.Level
+	_ = level.UnmarshalText([]byte(config.AppConfig().Logger.Level()))
+	opts := []logger.Option{logger.WithJSON(config.AppConfig().Logger.AsJson())}
+	if endpoint := config.AppConfig().Logger.OTLPEndpoint(); endpoint != "" {
+		opts = append(opts, logger.WithOTLP(endpoint, "assembly-service", "dev"))
+	}
+	return logger.Init(level, opts...)
 }
 
 func (a *App) initCloser(_ context.Context) error {

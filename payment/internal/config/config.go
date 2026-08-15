@@ -14,6 +14,7 @@ type config struct {
 	Logger         LoggerConfig
 	PaymentService PaymentServiceConfig
 	IAMClient      IAMClientConfig
+	Tracing        TracingConfig
 }
 
 func Load(envFile string) error {
@@ -39,10 +40,16 @@ func Load(envFile string) error {
 		return err
 	}
 
+	tracingCfg, err := env.NewTracingConfig()
+	if err != nil {
+		return err
+	}
+
 	appConfig = &config{
 		Logger:         loggerCfg,
 		PaymentService: paymentService,
 		IAMClient:      iamClient,
+		Tracing:        tracingCfg,
 	}
 
 	return nil
