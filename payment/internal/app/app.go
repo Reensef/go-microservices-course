@@ -71,7 +71,11 @@ func (a *App) initLogger(_ context.Context) error {
 	_ = level.UnmarshalText([]byte(config.AppConfig().Logger.Level()))
 	opts := []logger.Option{logger.WithJSON(config.AppConfig().Logger.AsJson())}
 	if config.AppConfig().Logger.EnableOTLP() {
-		opts = append(opts, logger.WithOTLP(config.AppConfig().Logger.OTLPEndpoint(), "payment-service", "dev"))
+		opts = append(opts, logger.WithOTLP(
+			config.AppConfig().Logger.OTLPEndpoint(),
+			config.AppConfig().Service.Name(),
+			config.AppConfig().Service.Environment(),
+		))
 	}
 	err := logger.Init(level, opts...)
 	if err != nil {
@@ -87,13 +91,16 @@ func (a *App) initLogger(_ context.Context) error {
 
 func (a *App) initTracing(ctx context.Context) error {
 	cfg := config.AppConfig().Tracing
-	if err := tracer.Init(ctx,
+	service := config.AppConfig().Service
+
+	err := tracer.Init(ctx,
 		cfg.CollectorEndpoint(),
-		cfg.ServiceName(),
-		cfg.Environment(),
+		service.Name(),
+		service.Environment(),
 		tracer.WithServiceVersion(cfg.ServiceVersion()),
 		tracer.WithInsecure(),
-	); err != nil {
+	)
+	if err != nil {
 		return err
 	}
 

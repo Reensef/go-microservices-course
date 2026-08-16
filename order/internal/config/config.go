@@ -27,6 +27,7 @@ type config struct {
 	Postgres PostgresConfig
 	Metrics  MetricsConfig
 	Tracing  TracingConfig
+	Service  ServiceConfig
 }
 
 func Load(envFile string) error {
@@ -97,6 +98,11 @@ func Load(envFile string) error {
 		return err
 	}
 
+	serviceCfg, err := env.NewServiceConfig()
+	if err != nil {
+		return err
+	}
+
 	appConfig = &config{
 		Logger:          loggerCfg,
 		OrderService:    orderService,
@@ -110,6 +116,7 @@ func Load(envFile string) error {
 		ShipConsumer:    shipConsumerCfg,
 		Metrics:         metricsCfg,
 		Tracing:         tracingCfg,
+		Service:         serviceCfg,
 	}
 
 	return nil

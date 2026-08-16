@@ -27,3 +27,8 @@ type ShipProducerConfig interface {
 type MetricsConfig interface {
 	OTLPEndpoint() string
 }
+
+type ServiceConfig interface {
+	Name() string
+	Environment() string
+}

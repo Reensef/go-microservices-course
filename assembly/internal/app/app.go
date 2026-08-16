@@ -67,7 +67,11 @@ func (a *App) initLogger(_ context.Context) error {
 	_ = level.UnmarshalText([]byte(config.AppConfig().Logger.Level()))
 	opts := []logger.Option{logger.WithJSON(config.AppConfig().Logger.AsJson())}
 	if config.AppConfig().Logger.EnableOTLP() {
-		opts = append(opts, logger.WithOTLP(config.AppConfig().Logger.OTLPEndpoint(), "assembly-service", "dev"))
+		opts = append(opts, logger.WithOTLP(
+			config.AppConfig().Logger.OTLPEndpoint(),
+			config.AppConfig().Service.Name(),
+			config.AppConfig().Service.Environment(),
+		))
 	}
 	err := logger.Init(level, opts...)
 	if err != nil {
@@ -87,7 +91,7 @@ func (a *App) initCloser(_ context.Context) error {
 }
 
 func (a *App) initMetrics(ctx context.Context) error {
-	meterProvider, err := metric.Init(ctx, config.AppConfig().Metrics.OTLPEndpoint())
+	meterProvider, err := metric.Init(ctx, config.AppConfig().Metrics.OTLPEndpoint(), config.AppConfig().Service.Name())
 	if err != nil {
 		return err
 	}

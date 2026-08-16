@@ -85,8 +85,8 @@ func (a *App) initLogger(_ context.Context) error {
 	if config.AppConfig().Logger.EnableOTLP() {
 		opts = append(opts, logger.WithOTLP(
 			config.AppConfig().Logger.OTLPEndpoint(),
-			"order-service",
-			"dev",
+			config.AppConfig().Service.Name(),
+			config.AppConfig().Service.Environment(),
 		))
 	}
 	err := logger.Init(level, opts...)
@@ -103,13 +103,16 @@ func (a *App) initLogger(_ context.Context) error {
 
 func (a *App) initTracing(ctx context.Context) error {
 	cfg := config.AppConfig().Tracing
-	if err := tracer.Init(ctx,
+	service := config.AppConfig().Service
+
+	err := tracer.Init(ctx,
 		cfg.CollectorEndpoint(),
-		cfg.ServiceName(),
-		cfg.Environment(),
+		service.Name(),
+		service.Environment(),
 		tracer.WithServiceVersion(cfg.ServiceVersion()),
 		tracer.WithInsecure(),
-	); err != nil {
+	)
+	if err != nil {
 		return err
 	}
 
@@ -119,7 +122,7 @@ func (a *App) initTracing(ctx context.Context) error {
 }
 
 func (a *App) initMetrics(ctx context.Context) error {
-	meterProvider, err := metric.Init(ctx, config.AppConfig().Metrics.OTLPEndpoint())
+	meterProvider, err := metric.Init(ctx, config.AppConfig().Metrics.OTLPEndpoint(), config.AppConfig().Service.Name())
 	if err != nil {
 		return err
 	}

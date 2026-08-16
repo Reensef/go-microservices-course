@@ -18,6 +18,7 @@ type config struct {
 	Redis       RedisConfig
 	Session     SessionConfig
 	Tracing     TracingConfig
+	Service     ServiceConfig
 }
 
 func Load(envFile string) error {
@@ -63,6 +64,11 @@ func Load(envFile string) error {
 		return err
 	}
 
+	serviceCfg, err := env.NewServiceConfig()
+	if err != nil {
+		return err
+	}
+
 	appConfig = &config{
 		Logger:      loggerCfg,
 		IamService:  iamServiceCfg,
@@ -71,6 +77,7 @@ func Load(envFile string) error {
 		Redis:       redisCfg,
 		Session:     sessionCfg,
 		Tracing:     tracingCfg,
+		Service:     serviceCfg,
 	}
 
 	return nil

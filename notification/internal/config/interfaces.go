@@ -24,3 +24,8 @@ type TelegramConfig interface {
 	BotToken() string
 	ChatID() int64
 }
+
+type ServiceConfig interface {
+	Name() string
+	Environment() string
+}

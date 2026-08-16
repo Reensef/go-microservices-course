@@ -88,7 +88,11 @@ func (a *App) initLogger(_ context.Context) error {
 	}
 
 	if config.AppConfig().Logger.EnableOTLP() {
-		opts = append(opts, logger.WithOTLP(config.AppConfig().Logger.OTLPEndpoint(), "notification-service", "dev"))
+		opts = append(opts, logger.WithOTLP(
+			config.AppConfig().Logger.OTLPEndpoint(),
+			config.AppConfig().Service.Name(),
+			config.AppConfig().Service.Environment(),
+		))
 	}
 
 	err = logger.Init(level, opts...)

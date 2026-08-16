@@ -14,10 +14,7 @@ import (
 	"google.golang.org/grpc/credentials/insecure"
 )
 
-const (
-	namespace   = "assembly"
-	serviceName = "assembly-service"
-)
+const namespace = "assembly"
 
 type metrics struct {
 	ordersReceivedCounter     metric.Int64Counter
@@ -27,7 +24,7 @@ type metrics struct {
 
 var global *metrics
 
-func Init(ctx context.Context, endpoint string) (*sdkmetric.MeterProvider, error) {
+func Init(ctx context.Context, endpoint, serviceName string) (*sdkmetric.MeterProvider, error) {
 	exporter, err := otlpmetricgrpc.New(
 		ctx,
 		otlpmetricgrpc.WithEndpoint(endpoint),
@@ -59,15 +56,16 @@ func Init(ctx context.Context, endpoint string) (*sdkmetric.MeterProvider, error
 
 	otel.SetMeterProvider(meterProvider)
 
-	if err = initInstruments(); err != nil {
+	err = initInstruments(serviceName)
+	if err != nil {
 		return nil, err
 	}
 
 	return meterProvider, nil
 }
 
-func initInstruments() error {
-	m := otel.Meter(serviceName)
+func initInstruments(name string) error {
+	m := otel.Meter(name)
 
 	ordersReceived, err := m.Int64Counter(
 		namespace+"_orders_received_total",

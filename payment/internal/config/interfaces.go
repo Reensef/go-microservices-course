@@ -17,7 +17,10 @@ type IAMClientConfig interface {
 
 type TracingConfig interface {
 	CollectorEndpoint() string
-	ServiceName() string
-	Environment() string
 	ServiceVersion() string
+}
+
+type ServiceConfig interface {
+	Name() string
+	Environment() string
 }
