@@ -9,6 +9,7 @@ import (
 	"github.com/Reensef/go-microservices-course/iam/internal/config"
 	"github.com/Reensef/go-microservices-course/platform/pkg/closer"
 	"github.com/Reensef/go-microservices-course/platform/pkg/logger"
+	"github.com/Reensef/go-microservices-course/platform/pkg/tracer"
 )
 
 type App struct {
@@ -34,6 +35,7 @@ func (a *App) initDeps(ctx context.Context) error {
 	inits := []func(context.Context) error{
 		a.initDI,
 		a.initLogger,
+		a.initTracing,
 		a.applyMigrations,
 		a.initCloser,
 	}
@@ -61,6 +63,23 @@ func (a *App) initLogger(_ context.Context) error {
 		opts = append(opts, logger.WithOTLP(config.AppConfig().Logger.OTLPEndpoint(), "iam-service", "dev"))
 	}
 	return logger.Init(level, opts...)
+}
+
+func (a *App) initTracing(ctx context.Context) error {
+	cfg := config.AppConfig().Tracing
+	if err := tracer.Init(ctx,
+		cfg.CollectorEndpoint(),
+		cfg.ServiceName(),
+		cfg.Environment(),
+		tracer.WithServiceVersion(cfg.ServiceVersion()),
+		tracer.WithInsecure(),
+	); err != nil {
+		return err
+	}
+
+	closer.AddNamed("tracer", tracer.Shutdown)
+
+	return nil
 }
 
 func (a *App) applyMigrations(ctx context.Context) error {

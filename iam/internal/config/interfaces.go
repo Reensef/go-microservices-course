@@ -9,6 +9,13 @@ type LoggerConfig interface {
 	OTLPEndpoint() string
 }
 
+type TracingConfig interface {
+	CollectorEndpoint() string
+	ServiceName() string
+	Environment() string
+	ServiceVersion() string
+}
+
 type IamServiceConfig interface {
 	Address() string
 }

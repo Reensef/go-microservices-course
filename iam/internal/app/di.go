@@ -24,6 +24,7 @@ import (
 	"github.com/Reensef/go-microservices-course/platform/pkg/closer"
 	"github.com/Reensef/go-microservices-course/platform/pkg/grpc/health"
 	"github.com/Reensef/go-microservices-course/platform/pkg/sqlmigrator"
+	"github.com/Reensef/go-microservices-course/platform/pkg/tracer"
 	iamV1 "github.com/Reensef/go-microservices-course/shared/pkg/proto/iam/v1"
 )
 
@@ -103,7 +104,10 @@ func (d *diContainer) SessionRepository(ctx context.Context) repository.SessionR
 
 func (d *diContainer) GrpcServer(ctx context.Context) *grpc.Server {
 	if d.grpcServer == nil {
-		grpcServer := grpc.NewServer(grpc.Creds(insecure.NewCredentials()))
+		grpcServer := grpc.NewServer(
+			grpc.Creds(insecure.NewCredentials()),
+			grpc.ChainUnaryInterceptor(tracer.UnaryServerInterceptor()),
+		)
 
 		reflection.Register(grpcServer)
 
