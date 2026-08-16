@@ -282,6 +282,7 @@ func (d *diContainer) IAMGrpc(ctx context.Context) iamGrpc.AuthServiceClient {
 		conn, err := grpc.NewClient(
 			config.AppConfig().IAMClient.Address(),
 			grpc.WithTransportCredentials(insecure.NewCredentials()),
+			grpc.WithUnaryInterceptor(tracer.UnaryClientInterceptor()),
 		)
 		if err != nil {
 			panic(fmt.Sprintf("failed to connect to iam service: %v\n", err))
