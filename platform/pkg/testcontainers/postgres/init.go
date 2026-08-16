@@ -8,6 +8,8 @@ import (
 	"github.com/pkg/errors"
 	"github.com/testcontainers/testcontainers-go"
 	"github.com/testcontainers/testcontainers-go/wait"
+
+	tc "github.com/Reensef/go-microservices-course/platform/pkg/testcontainers"
 )
 
 const (
@@ -36,7 +38,7 @@ func startPostgresContainer(ctx context.Context, cfg *Config) (testcontainers.Co
 		// после временного запуска для initdb, второй раз — когда сервер готов
 		// принимать внешние соединения. Ждём именно второе вхождение.
 		WaitingFor:         wait.ForLog("database system is ready to accept connections").WithOccurrence(2).WithStartupTimeout(postgresStartupTimeout),
-		HostConfigModifier: defaultHostConfig(),
+		HostConfigModifier: tc.DefaultHostConfig(),
 	}
 
 	container, err := testcontainers.GenericContainer(ctx, testcontainers.GenericContainerRequest{
@@ -51,17 +53,7 @@ func startPostgresContainer(ctx context.Context, cfg *Config) (testcontainers.Co
 }
 
 func getContainerHostPort(ctx context.Context, container testcontainers.Container) (string, string, error) {
-	host, err := container.Host(ctx)
-	if err != nil {
-		return "", "", errors.Errorf("failed to get container host: %v", err)
-	}
-
-	port, err := container.MappedPort(ctx, postgresPort+"/tcp")
-	if err != nil {
-		return "", "", errors.Errorf("failed to get mapped port: %v", err)
-	}
-
-	return host, port.Port(), nil
+	return tc.GetContainerHostPort(ctx, container, postgresPort+"/tcp")
 }
 
 func buildPostgresURI(cfg *Config) string {

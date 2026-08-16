@@ -1,14 +1,12 @@
 package redis
 
 import (
-	"github.com/docker/docker/api/types/container"
 	"go.uber.org/zap"
+
+	tc "github.com/Reensef/go-microservices-course/platform/pkg/testcontainers"
 )
 
-type Logger interface {
-	Info(msg string, fields ...zap.Field)
-	Error(msg string, fields ...zap.Field)
-}
+type Logger = tc.Logger
 
 type Config struct {
 	NetworkName    string
@@ -35,10 +33,4 @@ func buildConfig(opts ...Option) *Config {
 	}
 
 	return cfg
-}
-
-func defaultHostConfig() func(hc *container.HostConfig) {
-	return func(hc *container.HostConfig) {
-		hc.AutoRemove = true
-	}
 }
