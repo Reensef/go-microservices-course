@@ -3,7 +3,6 @@ package v1
 import (
 	"context"
 	"errors"
-	"log"
 
 	"go.uber.org/zap"
 	"google.golang.org/grpc/codes"
@@ -20,7 +19,7 @@ func (a *api) Login(
 ) (*iamV1.LoginResponse, error) {
 	session, err := a.service.Login(ctx, req.GetLogin(), req.GetPassword())
 	if err != nil {
-		log.Printf("api: error logging in: %s", err.Error())
+		logger.Error("api: error logging in", zap.Error(err))
 
 		switch {
 		case errors.Is(err, model.ErrInvalidCredentials):
