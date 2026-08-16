@@ -212,7 +212,10 @@ func (d *diContainer) InventoryGrpc(ctx context.Context) inventoryGrpc.Inventory
 		conn, err := grpc.NewClient(
 			config.AppConfig().InventoryClient.Address(),
 			grpc.WithTransportCredentials(insecure.NewCredentials()),
-			grpc.WithUnaryInterceptor(grpcClients.UnaryClientInterceptor()),
+			grpc.WithChainUnaryInterceptor(
+				tracer.UnaryClientInterceptor(),
+				grpcClients.UnaryClientInterceptor(),
+			),
 		)
 		if err != nil {
 			panic(fmt.Sprintf("failed to connect to inventory service: %v\n", err))
