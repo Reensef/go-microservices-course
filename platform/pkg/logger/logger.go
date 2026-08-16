@@ -64,12 +64,10 @@ func WithOTLP(endpoint, serviceName, environment string) Option {
 
 // Init инициализирует глобальный логгер
 func Init(level zapcore.Level, opts ...Option) error {
-	cfg := &initConfig{}
+	cfg := &initConfig{level: level}
 	for _, opt := range opts {
 		opt(cfg)
 	}
-
-	cfg.level = level
 
 	initOnce.Do(func() {
 		stdoutCore := newStdoutCore(cfg)
