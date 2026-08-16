@@ -43,7 +43,7 @@ func (p *producer) ProduceOrderPaid(ctx context.Context, event model.OrderPaidEv
 
 	payload, err := proto.Marshal(msg)
 	if err != nil {
-		logger.Error(ctx, "failed to marshal OrderPaid", zap.Error(err))
+		logger.Error("failed to marshal OrderPaid", zap.Error(err))
 		return err
 	}
 

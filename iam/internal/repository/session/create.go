@@ -16,7 +16,7 @@ func (r *repository) Create(
 	ctx context.Context,
 	userUuid string,
 	ttl time.Duration,
-) (*model.Session, error) {
+) (model.Session, error) {
 	now := time.Now().UTC()
 
 	session := repoModel.Session{
@@ -29,13 +29,12 @@ func (r *repository) Create(
 
 	data, err := json.Marshal(session)
 	if err != nil {
-		return nil, err
+		return model.Session{}, err
 	}
 
 	if err := r.client.Set(ctx, key(session.Uuid), data, ttl).Err(); err != nil {
-		return nil, err
+		return model.Session{}, err
 	}
 
-	result := repoConverter.ToModelSession(session)
-	return &result, nil
+	return repoConverter.ToModelSession(session), nil
 }

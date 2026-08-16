@@ -7,6 +7,8 @@ import (
 	"github.com/pkg/errors"
 	"github.com/testcontainers/testcontainers-go"
 	"github.com/testcontainers/testcontainers-go/wait"
+
+	tc "github.com/Reensef/go-microservices-course/platform/pkg/testcontainers"
 )
 
 func startMongoContainer(ctx context.Context, cfg *Config) (testcontainers.Container, error) {
@@ -22,7 +24,7 @@ func startMongoContainer(ctx context.Context, cfg *Config) (testcontainers.Conta
 			mongoEnvPasswordKey: cfg.Password,
 		},
 		WaitingFor:         wait.ForListeningPort(mongoPort + "/tcp").WithStartupTimeout(mongoStartupTimeout),
-		HostConfigModifier: defaultHostConfig(),
+		HostConfigModifier: tc.DefaultHostConfig(),
 	}
 
 	container, err := testcontainers.GenericContainer(ctx, testcontainers.GenericContainerRequest{
@@ -37,17 +39,7 @@ func startMongoContainer(ctx context.Context, cfg *Config) (testcontainers.Conta
 }
 
 func getContainerHostPort(ctx context.Context, container testcontainers.Container) (string, string, error) {
-	host, err := container.Host(ctx)
-	if err != nil {
-		return "", "", errors.Errorf("failed to get container host: %v", err)
-	}
-
-	port, err := container.MappedPort(ctx, mongoPort+"/tcp")
-	if err != nil {
-		return "", "", errors.Errorf("failed to get mapped port: %v", err)
-	}
-
-	return host, port.Port(), nil
+	return tc.GetContainerHostPort(ctx, container, mongoPort+"/tcp")
 }
 
 func buildMongoURI(cfg *Config) string {

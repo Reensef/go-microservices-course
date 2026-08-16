@@ -10,6 +10,7 @@ import (
 
 	. "github.com/onsi/ginkgo/v2"
 	. "github.com/onsi/gomega"
+	"go.uber.org/zap/zapcore"
 
 	"github.com/Reensef/go-microservices-course/iam/internal/tests/e2e/environment"
 	"github.com/Reensef/go-microservices-course/platform/pkg/logger"
@@ -30,19 +31,22 @@ func TestIntegration(t *testing.T) {
 }
 
 var _ = BeforeSuite(func() {
-	err := logger.Init("debug", true)
+	err := logger.Init(
+		zapcore.DebugLevel,
+		logger.WithJSON(true),
+	)
 	if err != nil {
 		panic(fmt.Sprintf("не удалось инициализировать логгер: %v", err))
 	}
 
 	suiteCtx, suiteCancel = context.WithTimeout(context.Background(), testsTimeout)
 
-	logger.Info(suiteCtx, "Запуск тестового окружения...")
+	logger.Info("Запуск тестового окружения...")
 	env = environment.Setup(suiteCtx)
 })
 
 var _ = AfterSuite(func() {
-	logger.Info(context.Background(), "Завершение набора тестов")
+	logger.Info("Завершение набора тестов")
 	if env != nil {
 		environment.Teardown(suiteCtx, env)
 	}

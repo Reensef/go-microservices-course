@@ -4,9 +4,11 @@ import (
 	"context"
 	"errors"
 	"fmt"
-	"log"
+
+	"go.uber.org/zap"
 
 	"github.com/Reensef/go-microservices-course/order/internal/model"
+	"github.com/Reensef/go-microservices-course/platform/pkg/logger"
 	orderApi "github.com/Reensef/go-microservices-course/shared/pkg/openapi/order/v1"
 )
 
@@ -46,7 +48,7 @@ func (a *handler) CancelOrder(
 				Message: fmt.Sprintf("order with UUID '%s' already paid", params.OrderUUID),
 			}, nil
 		default:
-			log.Printf("api: error cancelling order: %s", err)
+			logger.Error("api: error cancelling order", zap.Error(err))
 
 			return &orderApi.InternalServerError{
 				Code:    500,

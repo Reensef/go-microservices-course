@@ -16,7 +16,7 @@ import (
 func (r *repository) GetCredentialsByLogin(
 	ctx context.Context,
 	login string,
-) (*model.User, string, error) {
+) (model.User, string, error) {
 	builderSelect := sq.Select("uuid", "email", "password_hash", "notification_methods", "created_at", "updated_at").
 		PlaceholderFormat(sq.Dollar).
 		From("users").
@@ -24,7 +24,7 @@ func (r *repository) GetCredentialsByLogin(
 
 	query, args, err := builderSelect.ToSql()
 	if err != nil {
-		return nil, "", err
+		return model.User{}, "", err
 	}
 
 	var (
@@ -37,16 +37,15 @@ func (r *repository) GetCredentialsByLogin(
 	err = row.Scan(&user.Uuid, &user.Info.Email, &passwordHash, &notificationMethods, &user.CreatedAt, &user.UpdatedAt)
 	if err != nil {
 		if errors.Is(err, pgx.ErrNoRows) {
-			return nil, "", model.ErrUserNotFound
+			return model.User{}, "", model.ErrUserNotFound
 		}
 
-		return nil, "", err
+		return model.User{}, "", err
 	}
 
 	if err := json.Unmarshal(notificationMethods, &user.Info.NotificationMethods); err != nil {
-		return nil, "", err
+		return model.User{}, "", err
 	}
 
-	result := repoConverter.ToModelUser(user)
-	return &result, passwordHash, nil
+	return repoConverter.ToModelUser(user), passwordHash, nil
 }

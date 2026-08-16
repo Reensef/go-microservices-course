@@ -12,18 +12,18 @@ type UserRepository interface {
 		ctx context.Context,
 		info *model.UserRegistrationInfo,
 		passwordHash string,
-	) (*model.User, error)
+	) (model.User, error)
 
 	GetByUUID(
 		ctx context.Context,
 		userUuid string,
-	) (*model.User, error)
+	) (model.User, error)
 
 	// GetCredentialsByLogin возвращает пользователя вместе с хешем пароля для проверки при входе
 	GetCredentialsByLogin(
 		ctx context.Context,
 		login string,
-	) (*model.User, string, error)
+	) (model.User, string, error)
 }
 
 type SessionRepository interface {
@@ -31,10 +31,10 @@ type SessionRepository interface {
 		ctx context.Context,
 		userUuid string,
 		ttl time.Duration,
-	) (*model.Session, error)
+	) (model.Session, error)
 
 	GetByUUID(
 		ctx context.Context,
 		sessionUuid string,
-	) (*model.Session, error)
+	) (model.Session, error)
 }

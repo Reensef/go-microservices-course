@@ -38,11 +38,11 @@ func NewConsumer(
 }
 
 func (c *consumer) RunConsumer(ctx context.Context) error {
-	logger.Info(ctx, "Starting ship consumer service")
+	logger.Info("Starting ship consumer service")
 
 	err := c.Consume(ctx, c.shipHandler)
 	if err != nil {
-		logger.Error(ctx, "consume from ship topic error", zap.Error(err))
+		logger.Error("consume from ship topic error", zap.Error(err))
 		return err
 	}
 
@@ -65,7 +65,7 @@ func (c *consumer) Consume(ctx context.Context, handler kafka.MessageHandler) er
 			return ctx.Err()
 		}
 
-		logger.Info(ctx, "Kafka consumer group rebalancing...")
+		logger.Info("Kafka consumer group rebalancing...")
 	}
 }
 
@@ -79,11 +79,11 @@ func (c *consumer) Close() error {
 func (c *consumer) shipHandler(ctx context.Context, msg kafka.Message) error {
 	event, err := c.shipDecode(msg.Value)
 	if err != nil {
-		logger.Error(ctx, "Failed to decode UFORecorded", zap.Error(err))
+		logger.Error("Failed to decode UFORecorded", zap.Error(err))
 		return err
 	}
 
-	logger.Info(ctx, "Processing message",
+	logger.Info("Processing message",
 		zap.String("topic", msg.Topic),
 		zap.Any("partition", msg.Partition),
 		zap.Any("offset", msg.Offset),

@@ -39,24 +39,22 @@ func (_m *MockUserRepository) EXPECT() *MockUserRepository_Expecter {
 }
 
 // Create provides a mock function for the type MockUserRepository
-func (_mock *MockUserRepository) Create(ctx context.Context, info *model.UserRegistrationInfo, passwordHash string) (*model.User, error) {
+func (_mock *MockUserRepository) Create(ctx context.Context, info *model.UserRegistrationInfo, passwordHash string) (model.User, error) {
 	ret := _mock.Called(ctx, info, passwordHash)
 
 	if len(ret) == 0 {
 		panic("no return value specified for Create")
 	}
 
-	var r0 *model.User
+	var r0 model.User
 	var r1 error
-	if returnFunc, ok := ret.Get(0).(func(context.Context, *model.UserRegistrationInfo, string) (*model.User, error)); ok {
+	if returnFunc, ok := ret.Get(0).(func(context.Context, *model.UserRegistrationInfo, string) (model.User, error)); ok {
 		return returnFunc(ctx, info, passwordHash)
 	}
-	if returnFunc, ok := ret.Get(0).(func(context.Context, *model.UserRegistrationInfo, string) *model.User); ok {
+	if returnFunc, ok := ret.Get(0).(func(context.Context, *model.UserRegistrationInfo, string) model.User); ok {
 		r0 = returnFunc(ctx, info, passwordHash)
 	} else {
-		if ret.Get(0) != nil {
-			r0 = ret.Get(0).(*model.User)
-		}
+		r0 = ret.Get(0).(model.User)
 	}
 	if returnFunc, ok := ret.Get(1).(func(context.Context, *model.UserRegistrationInfo, string) error); ok {
 		r1 = returnFunc(ctx, info, passwordHash)
@@ -102,35 +100,33 @@ func (_c *MockUserRepository_Create_Call) Run(run func(ctx context.Context, info
 	return _c
 }
 
-func (_c *MockUserRepository_Create_Call) Return(user *model.User, err error) *MockUserRepository_Create_Call {
+func (_c *MockUserRepository_Create_Call) Return(user model.User, err error) *MockUserRepository_Create_Call {
 	_c.Call.Return(user, err)
 	return _c
 }
 
-func (_c *MockUserRepository_Create_Call) RunAndReturn(run func(ctx context.Context, info *model.UserRegistrationInfo, passwordHash string) (*model.User, error)) *MockUserRepository_Create_Call {
+func (_c *MockUserRepository_Create_Call) RunAndReturn(run func(ctx context.Context, info *model.UserRegistrationInfo, passwordHash string) (model.User, error)) *MockUserRepository_Create_Call {
 	_c.Call.Return(run)
 	return _c
 }
 
 // GetByUUID provides a mock function for the type MockUserRepository
-func (_mock *MockUserRepository) GetByUUID(ctx context.Context, userUuid string) (*model.User, error) {
+func (_mock *MockUserRepository) GetByUUID(ctx context.Context, userUuid string) (model.User, error) {
 	ret := _mock.Called(ctx, userUuid)
 
 	if len(ret) == 0 {
 		panic("no return value specified for GetByUUID")
 	}
 
-	var r0 *model.User
+	var r0 model.User
 	var r1 error
-	if returnFunc, ok := ret.Get(0).(func(context.Context, string) (*model.User, error)); ok {
+	if returnFunc, ok := ret.Get(0).(func(context.Context, string) (model.User, error)); ok {
 		return returnFunc(ctx, userUuid)
 	}
-	if returnFunc, ok := ret.Get(0).(func(context.Context, string) *model.User); ok {
+	if returnFunc, ok := ret.Get(0).(func(context.Context, string) model.User); ok {
 		r0 = returnFunc(ctx, userUuid)
 	} else {
-		if ret.Get(0) != nil {
-			r0 = ret.Get(0).(*model.User)
-		}
+		r0 = ret.Get(0).(model.User)
 	}
 	if returnFunc, ok := ret.Get(1).(func(context.Context, string) error); ok {
 		r1 = returnFunc(ctx, userUuid)
@@ -170,36 +166,34 @@ func (_c *MockUserRepository_GetByUUID_Call) Run(run func(ctx context.Context, u
 	return _c
 }
 
-func (_c *MockUserRepository_GetByUUID_Call) Return(user *model.User, err error) *MockUserRepository_GetByUUID_Call {
+func (_c *MockUserRepository_GetByUUID_Call) Return(user model.User, err error) *MockUserRepository_GetByUUID_Call {
 	_c.Call.Return(user, err)
 	return _c
 }
 
-func (_c *MockUserRepository_GetByUUID_Call) RunAndReturn(run func(ctx context.Context, userUuid string) (*model.User, error)) *MockUserRepository_GetByUUID_Call {
+func (_c *MockUserRepository_GetByUUID_Call) RunAndReturn(run func(ctx context.Context, userUuid string) (model.User, error)) *MockUserRepository_GetByUUID_Call {
 	_c.Call.Return(run)
 	return _c
 }
 
 // GetCredentialsByLogin provides a mock function for the type MockUserRepository
-func (_mock *MockUserRepository) GetCredentialsByLogin(ctx context.Context, login string) (*model.User, string, error) {
+func (_mock *MockUserRepository) GetCredentialsByLogin(ctx context.Context, login string) (model.User, string, error) {
 	ret := _mock.Called(ctx, login)
 
 	if len(ret) == 0 {
 		panic("no return value specified for GetCredentialsByLogin")
 	}
 
-	var r0 *model.User
+	var r0 model.User
 	var r1 string
 	var r2 error
-	if returnFunc, ok := ret.Get(0).(func(context.Context, string) (*model.User, string, error)); ok {
+	if returnFunc, ok := ret.Get(0).(func(context.Context, string) (model.User, string, error)); ok {
 		return returnFunc(ctx, login)
 	}
-	if returnFunc, ok := ret.Get(0).(func(context.Context, string) *model.User); ok {
+	if returnFunc, ok := ret.Get(0).(func(context.Context, string) model.User); ok {
 		r0 = returnFunc(ctx, login)
 	} else {
-		if ret.Get(0) != nil {
-			r0 = ret.Get(0).(*model.User)
-		}
+		r0 = ret.Get(0).(model.User)
 	}
 	if returnFunc, ok := ret.Get(1).(func(context.Context, string) string); ok {
 		r1 = returnFunc(ctx, login)
@@ -244,12 +238,12 @@ func (_c *MockUserRepository_GetCredentialsByLogin_Call) Run(run func(ctx contex
 	return _c
 }
 
-func (_c *MockUserRepository_GetCredentialsByLogin_Call) Return(user *model.User, s string, err error) *MockUserRepository_GetCredentialsByLogin_Call {
+func (_c *MockUserRepository_GetCredentialsByLogin_Call) Return(user model.User, s string, err error) *MockUserRepository_GetCredentialsByLogin_Call {
 	_c.Call.Return(user, s, err)
 	return _c
 }
 
-func (_c *MockUserRepository_GetCredentialsByLogin_Call) RunAndReturn(run func(ctx context.Context, login string) (*model.User, string, error)) *MockUserRepository_GetCredentialsByLogin_Call {
+func (_c *MockUserRepository_GetCredentialsByLogin_Call) RunAndReturn(run func(ctx context.Context, login string) (model.User, string, error)) *MockUserRepository_GetCredentialsByLogin_Call {
 	_c.Call.Return(run)
 	return _c
 }

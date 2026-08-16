@@ -1,0 +1,46 @@
+services:
+  xray: # Исходящий прокси для сервисов, которым нужен доступ к заблокированным API
+    build:
+      # Контекст должен быть корнем проекта, поэтому поднимаемся на три уровня
+      context: ./../../..
+      dockerfile: deploy/docker/xray/Dockerfile
+      platforms:
+        - linux/amd64
+
+    image: xray-proxy:v0.0.1
+    container_name: xray
+
+    env_file:
+      - ./.env
+
+    restart: unless-stopped
+
+    # Прокси считается живым, только если через него реально открывается внешний API
+    healthcheck:
+      test:
+        [
+          "CMD",
+          "curl",
+          "-fsS",
+          "--max-time",
+          "10",
+          "-o",
+          "/dev/null",
+          "-x",
+          "http://127.0.0.1:10809",
+          "https://api.telegram.org",
+        ]
+      interval: 30s
+      timeout: 15s
+      retries: 3
+      start_period: 20s
+
+    networks:
+      - common
+
+    # ports НЕ публикуем: прокси слушает 0.0.0.0 внутри сетевого namespace
+    # контейнера, поэтому доступен только сервисам в сети common и не виден с хоста
+
+networks:
+  common:
+    external: true

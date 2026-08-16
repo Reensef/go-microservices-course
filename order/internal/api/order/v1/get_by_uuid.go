@@ -4,10 +4,12 @@ import (
 	"context"
 	"errors"
 	"fmt"
-	"log"
+
+	"go.uber.org/zap"
 
 	"github.com/Reensef/go-microservices-course/order/internal/api/order/v1/converter"
 	"github.com/Reensef/go-microservices-course/order/internal/model"
+	"github.com/Reensef/go-microservices-course/platform/pkg/logger"
 	orderApi "github.com/Reensef/go-microservices-course/shared/pkg/openapi/order/v1"
 )
 
@@ -25,8 +27,6 @@ func (a *handler) GetOrderByUUID(
 
 	order, err := a.orderService.GetOrderByUUID(ctx, params.OrderUUID)
 	if err != nil {
-		log.Printf("api: error getting order by UUID: %s", err)
-
 		switch {
 		case errors.Is(err, model.ErrOrderNotFound):
 			return &orderApi.NotFoundError{
@@ -39,6 +39,8 @@ func (a *handler) GetOrderByUUID(
 				Message: "order must be UUID format",
 			}, nil
 		default:
+			logger.Error("api: error getting order by UUID", zap.Error(err))
+
 			return &orderApi.InternalServerError{
 				Code:    500,
 				Message: "internal server error",

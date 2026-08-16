@@ -17,6 +17,8 @@ type config struct {
 	SqlMigrator SqlMigratorConfig
 	Redis       RedisConfig
 	Session     SessionConfig
+	Tracing     TracingConfig
+	Service     ServiceConfig
 }
 
 func Load(envFile string) error {
@@ -57,6 +59,16 @@ func Load(envFile string) error {
 		return err
 	}
 
+	tracingCfg, err := env.NewTracingConfig()
+	if err != nil {
+		return err
+	}
+
+	serviceCfg, err := env.NewServiceConfig()
+	if err != nil {
+		return err
+	}
+
 	appConfig = &config{
 		Logger:      loggerCfg,
 		IamService:  iamServiceCfg,
@@ -64,6 +76,8 @@ func Load(envFile string) error {
 		SqlMigrator: sqlMigratorCfg,
 		Redis:       redisCfg,
 		Session:     sessionCfg,
+		Tracing:     tracingCfg,
+		Service:     serviceCfg,
 	}
 
 	return nil

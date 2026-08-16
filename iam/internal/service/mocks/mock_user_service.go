@@ -39,24 +39,22 @@ func (_m *MockUserService) EXPECT() *MockUserService_Expecter {
 }
 
 // GetUser provides a mock function for the type MockUserService
-func (_mock *MockUserService) GetUser(ctx context.Context, userUuid string) (*model.User, error) {
+func (_mock *MockUserService) GetUser(ctx context.Context, userUuid string) (model.User, error) {
 	ret := _mock.Called(ctx, userUuid)
 
 	if len(ret) == 0 {
 		panic("no return value specified for GetUser")
 	}
 
-	var r0 *model.User
+	var r0 model.User
 	var r1 error
-	if returnFunc, ok := ret.Get(0).(func(context.Context, string) (*model.User, error)); ok {
+	if returnFunc, ok := ret.Get(0).(func(context.Context, string) (model.User, error)); ok {
 		return returnFunc(ctx, userUuid)
 	}
-	if returnFunc, ok := ret.Get(0).(func(context.Context, string) *model.User); ok {
+	if returnFunc, ok := ret.Get(0).(func(context.Context, string) model.User); ok {
 		r0 = returnFunc(ctx, userUuid)
 	} else {
-		if ret.Get(0) != nil {
-			r0 = ret.Get(0).(*model.User)
-		}
+		r0 = ret.Get(0).(model.User)
 	}
 	if returnFunc, ok := ret.Get(1).(func(context.Context, string) error); ok {
 		r1 = returnFunc(ctx, userUuid)
@@ -96,35 +94,33 @@ func (_c *MockUserService_GetUser_Call) Run(run func(ctx context.Context, userUu
 	return _c
 }
 
-func (_c *MockUserService_GetUser_Call) Return(user *model.User, err error) *MockUserService_GetUser_Call {
+func (_c *MockUserService_GetUser_Call) Return(user model.User, err error) *MockUserService_GetUser_Call {
 	_c.Call.Return(user, err)
 	return _c
 }
 
-func (_c *MockUserService_GetUser_Call) RunAndReturn(run func(ctx context.Context, userUuid string) (*model.User, error)) *MockUserService_GetUser_Call {
+func (_c *MockUserService_GetUser_Call) RunAndReturn(run func(ctx context.Context, userUuid string) (model.User, error)) *MockUserService_GetUser_Call {
 	_c.Call.Return(run)
 	return _c
 }
 
 // Register provides a mock function for the type MockUserService
-func (_mock *MockUserService) Register(ctx context.Context, info *model.UserRegistrationInfo) (*model.User, error) {
+func (_mock *MockUserService) Register(ctx context.Context, info *model.UserRegistrationInfo) (model.User, error) {
 	ret := _mock.Called(ctx, info)
 
 	if len(ret) == 0 {
 		panic("no return value specified for Register")
 	}
 
-	var r0 *model.User
+	var r0 model.User
 	var r1 error
-	if returnFunc, ok := ret.Get(0).(func(context.Context, *model.UserRegistrationInfo) (*model.User, error)); ok {
+	if returnFunc, ok := ret.Get(0).(func(context.Context, *model.UserRegistrationInfo) (model.User, error)); ok {
 		return returnFunc(ctx, info)
 	}
-	if returnFunc, ok := ret.Get(0).(func(context.Context, *model.UserRegistrationInfo) *model.User); ok {
+	if returnFunc, ok := ret.Get(0).(func(context.Context, *model.UserRegistrationInfo) model.User); ok {
 		r0 = returnFunc(ctx, info)
 	} else {
-		if ret.Get(0) != nil {
-			r0 = ret.Get(0).(*model.User)
-		}
+		r0 = ret.Get(0).(model.User)
 	}
 	if returnFunc, ok := ret.Get(1).(func(context.Context, *model.UserRegistrationInfo) error); ok {
 		r1 = returnFunc(ctx, info)
@@ -164,12 +160,12 @@ func (_c *MockUserService_Register_Call) Run(run func(ctx context.Context, info 
 	return _c
 }
 
-func (_c *MockUserService_Register_Call) Return(user *model.User, err error) *MockUserService_Register_Call {
+func (_c *MockUserService_Register_Call) Return(user model.User, err error) *MockUserService_Register_Call {
 	_c.Call.Return(user, err)
 	return _c
 }
 
-func (_c *MockUserService_Register_Call) RunAndReturn(run func(ctx context.Context, info *model.UserRegistrationInfo) (*model.User, error)) *MockUserService_Register_Call {
+func (_c *MockUserService_Register_Call) RunAndReturn(run func(ctx context.Context, info *model.UserRegistrationInfo) (model.User, error)) *MockUserService_Register_Call {
 	_c.Call.Return(run)
 	return _c
 }

@@ -13,60 +13,60 @@ import (
 // teardownTestEnvironment — освобождает все ресурсы тестового окружения
 func teardownTestEnvironment(ctx context.Context, env *TestEnvironment) {
 	log := logger.Logger()
-	log.Info(ctx, "🧹 Очистка тестового окружения...")
+	log.Info("🧹 Очистка тестового окружения...")
 
 	cleanupTestEnvironment(ctx, env)
 
-	log.Info(ctx, "✅ Тестовое окружение успешно очищено")
+	log.Info("✅ Тестовое окружение успешно очищено")
 }
 
 // cleanupTestEnvironment — вспомогательная функция для освобождения ресурсов
 func cleanupTestEnvironment(ctx context.Context, env *TestEnvironment) {
 	if env.App != nil {
 		if err := env.App.Terminate(ctx); err != nil {
-			logger.Error(ctx, "не удалось остановить контейнер приложения", zap.Error(err))
+			logger.Error("не удалось остановить контейнер приложения", zap.Error(err))
 		} else {
-			logger.Info(ctx, "🛑 Контейнер приложения остановлен")
+			logger.Info("🛑 Контейнер приложения остановлен")
 		}
 	}
 
 	if env.Mongo != nil {
 		if err := env.Mongo.Terminate(ctx); err != nil {
-			logger.Error(ctx, "не удалось остановить контейнер MongoDB", zap.Error(err))
+			logger.Error("не удалось остановить контейнер MongoDB", zap.Error(err))
 		} else {
-			logger.Info(ctx, "🛑 Контейнер MongoDB остановлен")
+			logger.Info("🛑 Контейнер MongoDB остановлен")
 		}
 	}
 
 	if env.IamApp != nil {
 		if err := env.IamApp.Terminate(ctx); err != nil {
-			logger.Error(ctx, "не удалось остановить контейнер приложения iam", zap.Error(err))
+			logger.Error("не удалось остановить контейнер приложения iam", zap.Error(err))
 		} else {
-			logger.Info(ctx, "🛑 Контейнер приложения iam остановлен")
+			logger.Info("🛑 Контейнер приложения iam остановлен")
 		}
 	}
 
 	if env.IamRedis != nil {
 		if err := env.IamRedis.Terminate(ctx); err != nil {
-			logger.Error(ctx, "не удалось остановить контейнер Redis для iam", zap.Error(err))
+			logger.Error("не удалось остановить контейнер Redis для iam", zap.Error(err))
 		} else {
-			logger.Info(ctx, "🛑 Контейнер Redis для iam остановлен")
+			logger.Info("🛑 Контейнер Redis для iam остановлен")
 		}
 	}
 
 	if env.IamPostgres != nil {
 		if err := env.IamPostgres.Terminate(ctx); err != nil {
-			logger.Error(ctx, "не удалось остановить контейнер Postgres для iam", zap.Error(err))
+			logger.Error("не удалось остановить контейнер Postgres для iam", zap.Error(err))
 		} else {
-			logger.Info(ctx, "🛑 Контейнер Postgres для iam остановлен")
+			logger.Info("🛑 Контейнер Postgres для iam остановлен")
 		}
 	}
 
 	if env.Network != nil {
 		if err := env.Network.Remove(ctx); err != nil {
-			logger.Error(ctx, "не удалось удалить сеть", zap.Error(err))
+			logger.Error("не удалось удалить сеть", zap.Error(err))
 		} else {
-			logger.Info(ctx, "🛑 Сеть удалена")
+			logger.Info("🛑 Сеть удалена")
 		}
 	}
 }

@@ -30,18 +30,23 @@ func NewDiContainer() *diContainer {
 	return &diContainer{}
 }
 
-func (d *diContainer) NotificationConsumer(ctx context.Context) events.Consumer {
+func (d *diContainer) NotificationConsumer(ctx context.Context) (events.Consumer, error) {
 	if d.notificationConsumer == nil {
+		svc, err := d.NotificationService(ctx)
+		if err != nil {
+			return nil, err
+		}
+
 		consumer, err := notificationConsumer.NewConsumer(
 			config.AppConfig().Kafka.Brokers(),
 			config.AppConfig().NotificationConsumer.GroupID(),
 			config.AppConfig().NotificationConsumer.OrderPaidTopic(),
 			config.AppConfig().NotificationConsumer.ShipAssembledTopic(),
 			config.AppConfig().NotificationConsumer.Config(),
-			d.NotificationService(ctx),
+			svc,
 		)
 		if err != nil {
-			panic(fmt.Sprintf("failed to create notification consumer: %s\n", err.Error()))
+			return nil, fmt.Errorf("failed to create notification consumer: %w", err)
 		}
 
 		closer.AddNamed("Kafka consumer group", func(ctx context.Context) error {
@@ -51,26 +56,36 @@ func (d *diContainer) NotificationConsumer(ctx context.Context) events.Consumer 
 		d.notificationConsumer = consumer
 	}
 
-	return d.notificationConsumer
+	return d.notificationConsumer, nil
 }
 
-func (d *diContainer) NotificationService(ctx context.Context) service.NotificationService {
+func (d *diContainer) NotificationService(ctx context.Context) (service.NotificationService, error) {
 	if d.notificationService == nil {
+		client, err := d.TelegramClient(ctx)
+		if err != nil {
+			return nil, err
+		}
+
 		d.notificationService = notificationService.New(
-			d.TelegramClient(ctx),
+			client,
 			config.AppConfig().Telegram.ChatID(),
 		)
 	}
 
-	return d.notificationService
+	return d.notificationService, nil
 }
 
-func (d *diContainer) TelegramClient(ctx context.Context) telegramClient.Client {
+func (d *diContainer) TelegramClient(ctx context.Context) (telegramClient.Client, error) {
 	if d.telegramClient == nil {
-		d.telegramClient = telegramBotClient.New(d.TelegramBot(ctx))
+		bot, err := d.TelegramBot(ctx)
+		if err != nil {
+			return nil, err
+		}
+
+		d.telegramClient = telegramBotClient.New(bot)
 	}
 
-	return d.telegramClient
+	return d.telegramClient, nil
 }
 
 func (d *diContainer) TelegramHandler(_ context.Context) *telegramApi.Handler {
@@ -81,11 +96,11 @@ func (d *diContainer) TelegramHandler(_ context.Context) *telegramApi.Handler {
 	return d.telegramHandler
 }
 
-func (d *diContainer) TelegramBot(ctx context.Context) *tgbot.Bot {
+func (d *diContainer) TelegramBot(ctx context.Context) (*tgbot.Bot, error) {
 	if d.telegramBot == nil {
 		b, err := tgbot.New(config.AppConfig().Telegram.BotToken())
 		if err != nil {
-			panic(fmt.Sprintf("failed to create telegram bot: %s\n", err.Error()))
+			return nil, fmt.Errorf("failed to create telegram bot: %w", err)
 		}
 
 		d.TelegramHandler(ctx).RegisterHandlers(b)
@@ -93,5 +108,5 @@ func (d *diContainer) TelegramBot(ctx context.Context) *tgbot.Bot {
 		d.telegramBot = b
 	}
 
-	return d.telegramBot
+	return d.telegramBot, nil
 }

@@ -15,6 +15,7 @@ WORKDIR /app
 COPY go.work go.work.sum ./
 
 # Копируем go.mod и go.sum всех зависимых модулей — нужно для кэширования go mod download
+COPY apitest/go.mod apitest/go.sum ./apitest/
 COPY platform/go.mod platform/go.sum ./platform/
 COPY shared/go.mod shared/go.sum ./shared/
 COPY inventory/go.mod inventory/go.sum ./inventory/

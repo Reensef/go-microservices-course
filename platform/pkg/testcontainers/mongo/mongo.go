@@ -35,7 +35,7 @@ func NewContainer(ctx context.Context, opts ...Option) (*Container, error) {
 	defer func() {
 		if !success {
 			if err = container.Terminate(ctx); err != nil {
-				cfg.Logger.Error(ctx, "failed to terminate mongo container", zap.Error(err))
+				cfg.Logger.Error("failed to terminate mongo container", zap.Error(err))
 			}
 		}
 	}()
@@ -52,7 +52,7 @@ func NewContainer(ctx context.Context, opts ...Option) (*Container, error) {
 		return nil, err
 	}
 
-	cfg.Logger.Info(ctx, "Mongo container started", zap.String("uri", uri))
+	cfg.Logger.Info("Mongo container started", zap.String("uri", uri))
 	success = true
 
 	return &Container{
@@ -72,14 +72,14 @@ func (c *Container) Config() *Config {
 
 func (c *Container) Terminate(ctx context.Context) error {
 	if err := c.client.Disconnect(ctx); err != nil {
-		c.cfg.Logger.Error(ctx, "failed to disconnect mongo client", zap.Error(err))
+		c.cfg.Logger.Error("failed to disconnect mongo client", zap.Error(err))
 	}
 
 	if err := c.container.Terminate(ctx); err != nil {
-		c.cfg.Logger.Error(ctx, "failed to terminate mongo container", zap.Error(err))
+		c.cfg.Logger.Error("failed to terminate mongo container", zap.Error(err))
 	}
 
-	c.cfg.Logger.Info(ctx, "Mongo container terminated")
+	c.cfg.Logger.Info("Mongo container terminated")
 
 	return nil
 }

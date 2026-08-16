@@ -27,7 +27,7 @@ func NewContainer(ctx context.Context, opts ...Option) (*Container, error) {
 	defer func() {
 		if !success {
 			if err = container.Terminate(ctx); err != nil {
-				cfg.Logger.Error(ctx, "failed to terminate redis container", zap.Error(err))
+				cfg.Logger.Error("failed to terminate redis container", zap.Error(err))
 			}
 		}
 	}()
@@ -44,7 +44,7 @@ func NewContainer(ctx context.Context, opts ...Option) (*Container, error) {
 		return nil, err
 	}
 
-	cfg.Logger.Info(ctx, "Redis container started", zap.String("addr", addr))
+	cfg.Logger.Info("Redis container started", zap.String("addr", addr))
 	success = true
 
 	return &Container{
@@ -64,15 +64,15 @@ func (c *Container) Config() *Config {
 
 func (c *Container) Terminate(ctx context.Context) error {
 	if err := c.client.Close(); err != nil {
-		c.cfg.Logger.Error(ctx, "failed to close redis client", zap.Error(err))
+		c.cfg.Logger.Error("failed to close redis client", zap.Error(err))
 	}
 
 	if err := c.container.Terminate(ctx); err != nil {
-		c.cfg.Logger.Error(ctx, "failed to terminate redis container", zap.Error(err))
+		c.cfg.Logger.Error("failed to terminate redis container", zap.Error(err))
 		return err
 	}
 
-	c.cfg.Logger.Info(ctx, "Redis container terminated")
+	c.cfg.Logger.Info("Redis container terminated")
 
 	return nil
 }

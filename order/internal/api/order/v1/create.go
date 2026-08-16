@@ -3,9 +3,11 @@ package v1
 import (
 	"context"
 	"errors"
-	"log"
+
+	"go.uber.org/zap"
 
 	"github.com/Reensef/go-microservices-course/order/internal/model"
+	"github.com/Reensef/go-microservices-course/platform/pkg/logger"
 	orderApi "github.com/Reensef/go-microservices-course/shared/pkg/openapi/order/v1"
 )
 
@@ -47,7 +49,7 @@ func (a *handler) CreateOrder(
 				Message: "part ID must be ObjectID format",
 			}, nil
 		default:
-			log.Printf("api: error creating order: %s", err)
+			logger.Error("api: error creating order", zap.Error(err))
 
 			return &orderApi.InternalServerError{
 				Code:    500,

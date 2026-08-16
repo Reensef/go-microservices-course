@@ -4,9 +4,12 @@ import (
 	"context"
 	"fmt"
 
+	"go.uber.org/zap/zapcore"
+
 	"github.com/Reensef/go-microservices-course/inventory/internal/config"
 	"github.com/Reensef/go-microservices-course/platform/pkg/closer"
 	"github.com/Reensef/go-microservices-course/platform/pkg/logger"
+	"github.com/Reensef/go-microservices-course/platform/pkg/tracer"
 )
 
 type App struct {
@@ -32,6 +35,7 @@ func (a *App) initDeps(ctx context.Context) error {
 	inits := []func(context.Context) error{
 		a.initDI,
 		a.initLogger,
+		a.initTracing,
 		a.initCloser,
 	}
 
@@ -50,11 +54,49 @@ func (a *App) initDI(_ context.Context) error {
 	return nil
 }
 
-func (a *App) initLogger(_ context.Context) error {
-	return logger.Init(
-		config.AppConfig().Logger.Level(),
-		config.AppConfig().Logger.AsJson(),
+func (a *App) initLogger(ctx context.Context) error {
+	var level zapcore.Level
+	err := level.UnmarshalText([]byte(config.AppConfig().Logger.Level()))
+	if err != nil {
+		return err
+	}
+
+	opts := []logger.Option{logger.WithJSON(config.AppConfig().Logger.AsJson())}
+	if config.AppConfig().Logger.EnableOTLP() {
+		opts = append(opts, logger.WithOTLP(
+			config.AppConfig().Logger.OTLPEndpoint(),
+			config.AppConfig().Service.Name(),
+			config.AppConfig().Service.Environment(),
+		))
+	}
+	err = logger.Init(ctx, level, opts...)
+	if err != nil {
+		return err
+	}
+
+	closer.AddNamed("Logger OTLP", logger.Close)
+
+	return nil
+}
+
+func (a *App) initTracing(ctx context.Context) error {
+	cfg := config.AppConfig().Tracing
+	service := config.AppConfig().Service
+
+	err := tracer.Init(ctx,
+		cfg.CollectorEndpoint(),
+		service.Name(),
+		service.Environment(),
+		tracer.WithServiceVersion(cfg.ServiceVersion()),
+		tracer.WithInsecure(),
 	)
+	if err != nil {
+		return err
+	}
+
+	closer.AddNamed("tracer", tracer.Shutdown)
+
+	return nil
 }
 
 func (a *App) initCloser(_ context.Context) error {
@@ -63,7 +105,7 @@ func (a *App) initCloser(_ context.Context) error {
 }
 
 func (a *App) runGRPCServer(ctx context.Context) error {
-	logger.Info(ctx, fmt.Sprintf(
+	logger.Info(fmt.Sprintf(
 		"🚀 gRPC InventoryService server listening on %s",
 		a.di.InventoryListener(ctx).Addr(),
 	))

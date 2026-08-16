@@ -35,6 +35,6 @@ func (h *Handler) HandleStart(ctx context.Context, b *tgbot.Bot, update *models.
 		Text:   startMessage,
 	})
 	if err != nil {
-		logger.Error(ctx, "failed to send /start reply", zap.Error(err))
+		logger.Error("failed to send /start reply", zap.Error(err))
 	}
 }

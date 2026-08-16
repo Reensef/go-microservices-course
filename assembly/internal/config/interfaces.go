@@ -5,6 +5,8 @@ import "github.com/IBM/sarama"
 type LoggerConfig interface {
 	Level() string
 	AsJson() bool
+	EnableOTLP() bool
+	OTLPEndpoint() string
 }
 
 type KafkaConfig interface {
@@ -20,4 +22,13 @@ type OrderConsumerConfig interface {
 type ShipProducerConfig interface {
 	Topic() string
 	Config() *sarama.Config
+}
+
+type MetricsConfig interface {
+	OTLPEndpoint() string
+}
+
+type ServiceConfig interface {
+	Name() string
+	Environment() string
 }

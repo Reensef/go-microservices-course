@@ -39,24 +39,22 @@ func (_m *MockAuthService) EXPECT() *MockAuthService_Expecter {
 }
 
 // Login provides a mock function for the type MockAuthService
-func (_mock *MockAuthService) Login(ctx context.Context, login string, password string) (*model.Session, error) {
+func (_mock *MockAuthService) Login(ctx context.Context, login string, password string) (model.Session, error) {
 	ret := _mock.Called(ctx, login, password)
 
 	if len(ret) == 0 {
 		panic("no return value specified for Login")
 	}
 
-	var r0 *model.Session
+	var r0 model.Session
 	var r1 error
-	if returnFunc, ok := ret.Get(0).(func(context.Context, string, string) (*model.Session, error)); ok {
+	if returnFunc, ok := ret.Get(0).(func(context.Context, string, string) (model.Session, error)); ok {
 		return returnFunc(ctx, login, password)
 	}
-	if returnFunc, ok := ret.Get(0).(func(context.Context, string, string) *model.Session); ok {
+	if returnFunc, ok := ret.Get(0).(func(context.Context, string, string) model.Session); ok {
 		r0 = returnFunc(ctx, login, password)
 	} else {
-		if ret.Get(0) != nil {
-			r0 = ret.Get(0).(*model.Session)
-		}
+		r0 = ret.Get(0).(model.Session)
 	}
 	if returnFunc, ok := ret.Get(1).(func(context.Context, string, string) error); ok {
 		r1 = returnFunc(ctx, login, password)
@@ -102,43 +100,39 @@ func (_c *MockAuthService_Login_Call) Run(run func(ctx context.Context, login st
 	return _c
 }
 
-func (_c *MockAuthService_Login_Call) Return(session *model.Session, err error) *MockAuthService_Login_Call {
+func (_c *MockAuthService_Login_Call) Return(session model.Session, err error) *MockAuthService_Login_Call {
 	_c.Call.Return(session, err)
 	return _c
 }
 
-func (_c *MockAuthService_Login_Call) RunAndReturn(run func(ctx context.Context, login string, password string) (*model.Session, error)) *MockAuthService_Login_Call {
+func (_c *MockAuthService_Login_Call) RunAndReturn(run func(ctx context.Context, login string, password string) (model.Session, error)) *MockAuthService_Login_Call {
 	_c.Call.Return(run)
 	return _c
 }
 
 // Whoami provides a mock function for the type MockAuthService
-func (_mock *MockAuthService) Whoami(ctx context.Context, sessionUuid string) (*model.Session, *model.User, error) {
+func (_mock *MockAuthService) Whoami(ctx context.Context, sessionUuid string) (model.Session, model.User, error) {
 	ret := _mock.Called(ctx, sessionUuid)
 
 	if len(ret) == 0 {
 		panic("no return value specified for Whoami")
 	}
 
-	var r0 *model.Session
-	var r1 *model.User
+	var r0 model.Session
+	var r1 model.User
 	var r2 error
-	if returnFunc, ok := ret.Get(0).(func(context.Context, string) (*model.Session, *model.User, error)); ok {
+	if returnFunc, ok := ret.Get(0).(func(context.Context, string) (model.Session, model.User, error)); ok {
 		return returnFunc(ctx, sessionUuid)
 	}
-	if returnFunc, ok := ret.Get(0).(func(context.Context, string) *model.Session); ok {
+	if returnFunc, ok := ret.Get(0).(func(context.Context, string) model.Session); ok {
 		r0 = returnFunc(ctx, sessionUuid)
 	} else {
-		if ret.Get(0) != nil {
-			r0 = ret.Get(0).(*model.Session)
-		}
+		r0 = ret.Get(0).(model.Session)
 	}
-	if returnFunc, ok := ret.Get(1).(func(context.Context, string) *model.User); ok {
+	if returnFunc, ok := ret.Get(1).(func(context.Context, string) model.User); ok {
 		r1 = returnFunc(ctx, sessionUuid)
 	} else {
-		if ret.Get(1) != nil {
-			r1 = ret.Get(1).(*model.User)
-		}
+		r1 = ret.Get(1).(model.User)
 	}
 	if returnFunc, ok := ret.Get(2).(func(context.Context, string) error); ok {
 		r2 = returnFunc(ctx, sessionUuid)
@@ -178,12 +172,12 @@ func (_c *MockAuthService_Whoami_Call) Run(run func(ctx context.Context, session
 	return _c
 }
 
-func (_c *MockAuthService_Whoami_Call) Return(session *model.Session, user *model.User, err error) *MockAuthService_Whoami_Call {
+func (_c *MockAuthService_Whoami_Call) Return(session model.Session, user model.User, err error) *MockAuthService_Whoami_Call {
 	_c.Call.Return(session, user, err)
 	return _c
 }
 
-func (_c *MockAuthService_Whoami_Call) RunAndReturn(run func(ctx context.Context, sessionUuid string) (*model.Session, *model.User, error)) *MockAuthService_Whoami_Call {
+func (_c *MockAuthService_Whoami_Call) RunAndReturn(run func(ctx context.Context, sessionUuid string) (model.Session, model.User, error)) *MockAuthService_Whoami_Call {
 	_c.Call.Return(run)
 	return _c
 }

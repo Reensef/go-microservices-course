@@ -1,18 +1,12 @@
 package mongo
 
 import (
-	"context"
-
-	"github.com/docker/docker/api/types/container"
 	"go.uber.org/zap"
 
-	"github.com/Reensef/go-microservices-course/platform/pkg/logger"
+	tc "github.com/Reensef/go-microservices-course/platform/pkg/testcontainers"
 )
 
-type Logger interface {
-	Info(ctx context.Context, msg string, fields ...zap.Field)
-	Error(ctx context.Context, msg string, fields ...zap.Field)
-}
+type Logger = tc.Logger
 
 type Config struct {
 	NetworkName    string
@@ -38,7 +32,7 @@ func buildConfig(opts ...Option) *Config {
 		Username:      "root",
 		Password:      "root",
 		AuthDB:        "admin",
-		Logger:        &logger.DummyLogger{},
+		Logger:        zap.NewNop(),
 	}
 
 	for _, opt := range opts {
@@ -46,10 +40,4 @@ func buildConfig(opts ...Option) *Config {
 	}
 
 	return cfg
-}
-
-func defaultHostConfig() func(hc *container.HostConfig) {
-	return func(hc *container.HostConfig) {
-		hc.AutoRemove = true
-	}
 }

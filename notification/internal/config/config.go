@@ -17,6 +17,7 @@ type config struct {
 	NotificationConsumer NotificationConsumerConfig
 
 	Telegram TelegramConfig
+	Service  ServiceConfig
 }
 
 func Load(envFile string) error {
@@ -47,11 +48,17 @@ func Load(envFile string) error {
 		return err
 	}
 
+	serviceCfg, err := env.NewServiceConfig()
+	if err != nil {
+		return err
+	}
+
 	appConfig = &config{
 		Logger:               loggerCfg,
 		Kafka:                kafkaCfg,
 		NotificationConsumer: notificationConsumerCfg,
 		Telegram:             telegramCfg,
+		Service:              serviceCfg,
 	}
 
 	return nil

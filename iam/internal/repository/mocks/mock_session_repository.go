@@ -40,24 +40,22 @@ func (_m *MockSessionRepository) EXPECT() *MockSessionRepository_Expecter {
 }
 
 // Create provides a mock function for the type MockSessionRepository
-func (_mock *MockSessionRepository) Create(ctx context.Context, userUuid string, ttl time.Duration) (*model.Session, error) {
+func (_mock *MockSessionRepository) Create(ctx context.Context, userUuid string, ttl time.Duration) (model.Session, error) {
 	ret := _mock.Called(ctx, userUuid, ttl)
 
 	if len(ret) == 0 {
 		panic("no return value specified for Create")
 	}
 
-	var r0 *model.Session
+	var r0 model.Session
 	var r1 error
-	if returnFunc, ok := ret.Get(0).(func(context.Context, string, time.Duration) (*model.Session, error)); ok {
+	if returnFunc, ok := ret.Get(0).(func(context.Context, string, time.Duration) (model.Session, error)); ok {
 		return returnFunc(ctx, userUuid, ttl)
 	}
-	if returnFunc, ok := ret.Get(0).(func(context.Context, string, time.Duration) *model.Session); ok {
+	if returnFunc, ok := ret.Get(0).(func(context.Context, string, time.Duration) model.Session); ok {
 		r0 = returnFunc(ctx, userUuid, ttl)
 	} else {
-		if ret.Get(0) != nil {
-			r0 = ret.Get(0).(*model.Session)
-		}
+		r0 = ret.Get(0).(model.Session)
 	}
 	if returnFunc, ok := ret.Get(1).(func(context.Context, string, time.Duration) error); ok {
 		r1 = returnFunc(ctx, userUuid, ttl)
@@ -103,35 +101,33 @@ func (_c *MockSessionRepository_Create_Call) Run(run func(ctx context.Context, u
 	return _c
 }
 
-func (_c *MockSessionRepository_Create_Call) Return(session *model.Session, err error) *MockSessionRepository_Create_Call {
+func (_c *MockSessionRepository_Create_Call) Return(session model.Session, err error) *MockSessionRepository_Create_Call {
 	_c.Call.Return(session, err)
 	return _c
 }
 
-func (_c *MockSessionRepository_Create_Call) RunAndReturn(run func(ctx context.Context, userUuid string, ttl time.Duration) (*model.Session, error)) *MockSessionRepository_Create_Call {
+func (_c *MockSessionRepository_Create_Call) RunAndReturn(run func(ctx context.Context, userUuid string, ttl time.Duration) (model.Session, error)) *MockSessionRepository_Create_Call {
 	_c.Call.Return(run)
 	return _c
 }
 
 // GetByUUID provides a mock function for the type MockSessionRepository
-func (_mock *MockSessionRepository) GetByUUID(ctx context.Context, sessionUuid string) (*model.Session, error) {
+func (_mock *MockSessionRepository) GetByUUID(ctx context.Context, sessionUuid string) (model.Session, error) {
 	ret := _mock.Called(ctx, sessionUuid)
 
 	if len(ret) == 0 {
 		panic("no return value specified for GetByUUID")
 	}
 
-	var r0 *model.Session
+	var r0 model.Session
 	var r1 error
-	if returnFunc, ok := ret.Get(0).(func(context.Context, string) (*model.Session, error)); ok {
+	if returnFunc, ok := ret.Get(0).(func(context.Context, string) (model.Session, error)); ok {
 		return returnFunc(ctx, sessionUuid)
 	}
-	if returnFunc, ok := ret.Get(0).(func(context.Context, string) *model.Session); ok {
+	if returnFunc, ok := ret.Get(0).(func(context.Context, string) model.Session); ok {
 		r0 = returnFunc(ctx, sessionUuid)
 	} else {
-		if ret.Get(0) != nil {
-			r0 = ret.Get(0).(*model.Session)
-		}
+		r0 = ret.Get(0).(model.Session)
 	}
 	if returnFunc, ok := ret.Get(1).(func(context.Context, string) error); ok {
 		r1 = returnFunc(ctx, sessionUuid)
@@ -171,12 +167,12 @@ func (_c *MockSessionRepository_GetByUUID_Call) Run(run func(ctx context.Context
 	return _c
 }
 
-func (_c *MockSessionRepository_GetByUUID_Call) Return(session *model.Session, err error) *MockSessionRepository_GetByUUID_Call {
+func (_c *MockSessionRepository_GetByUUID_Call) Return(session model.Session, err error) *MockSessionRepository_GetByUUID_Call {
 	_c.Call.Return(session, err)
 	return _c
 }
 
-func (_c *MockSessionRepository_GetByUUID_Call) RunAndReturn(run func(ctx context.Context, sessionUuid string) (*model.Session, error)) *MockSessionRepository_GetByUUID_Call {
+func (_c *MockSessionRepository_GetByUUID_Call) RunAndReturn(run func(ctx context.Context, sessionUuid string) (model.Session, error)) *MockSessionRepository_GetByUUID_Call {
 	_c.Call.Return(run)
 	return _c
 }

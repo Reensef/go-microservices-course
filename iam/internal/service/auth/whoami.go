@@ -11,19 +11,19 @@ import (
 func (s *service) Whoami(
 	ctx context.Context,
 	sessionUuid string,
-) (*model.Session, *model.User, error) {
+) (model.Session, model.User, error) {
 	if uuid.Validate(sessionUuid) != nil {
-		return nil, nil, model.ErrSessionUuidInvalidFormat
+		return model.Session{}, model.User{}, model.ErrSessionUuidInvalidFormat
 	}
 
 	session, err := s.sessionRepo.GetByUUID(ctx, sessionUuid)
 	if err != nil {
-		return nil, nil, err
+		return model.Session{}, model.User{}, err
 	}
 
 	user, err := s.userRepo.GetByUUID(ctx, session.UserUuid)
 	if err != nil {
-		return nil, nil, err
+		return model.Session{}, model.User{}, err
 	}
 
 	return session, user, nil

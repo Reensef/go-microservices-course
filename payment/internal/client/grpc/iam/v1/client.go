@@ -2,17 +2,14 @@ package v1
 
 import (
 	grpcClients "github.com/Reensef/go-microservices-course/payment/internal/client/grpc"
+	converter "github.com/Reensef/go-microservices-course/payment/internal/client/grpc/iam/v1/converter"
+	"github.com/Reensef/go-microservices-course/payment/internal/model"
+	"github.com/Reensef/go-microservices-course/platform/pkg/grpc/iamclient"
 	iamGrpc "github.com/Reensef/go-microservices-course/shared/pkg/proto/iam/v1"
 )
 
-var _ grpcClients.IAMClient = (*iamClient)(nil)
+var _ grpcClients.IAMClient = (*iamclient.Client[model.User])(nil)
 
-type iamClient struct {
-	service iamGrpc.AuthServiceClient
-}
-
-func New(service iamGrpc.AuthServiceClient) *iamClient {
-	return &iamClient{
-		service: service,
-	}
+func New(service iamGrpc.AuthServiceClient) *iamclient.Client[model.User] {
+	return iamclient.New(service, converter.ToModelUser, model.ErrInvalidSession)
 }

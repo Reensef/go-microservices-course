@@ -6,6 +6,7 @@ import (
 
 	"github.com/google/uuid"
 
+	"github.com/Reensef/go-microservices-course/assembly/internal/metric"
 	"github.com/Reensef/go-microservices-course/assembly/internal/model"
 )
 
@@ -32,8 +33,12 @@ func (s *service) AssembleShip(
 		BuildDuration: buildDuration,
 	})
 	if err != nil {
+		metric.IncOrdersProcessed(ctx, "error")
+		metric.ObserveAssemblyDuration(ctx, "error", buildDuration.Seconds())
 		return err
 	}
 
+	metric.IncOrdersProcessed(ctx, "success")
+	metric.ObserveAssemblyDuration(ctx, "success", buildDuration.Seconds())
 	return nil
 }

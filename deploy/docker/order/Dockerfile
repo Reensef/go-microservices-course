@@ -17,6 +17,7 @@ COPY go.work go.work.sum ./
 # Копируем go.mod и go.sum ВСЕХ модулей, перечисленных в go.work use() —
 # go mod download в режиме workspace резолвит граф целиком, поэтому go.mod
 # каждого модуля из go.work должен быть доступен, даже если order его не импортирует.
+COPY apitest/go.mod apitest/go.sum ./apitest/
 COPY platform/go.mod platform/go.sum ./platform/
 COPY shared/go.mod shared/go.sum ./shared/
 COPY inventory/go.mod inventory/go.sum ./inventory/

@@ -19,10 +19,10 @@ func (r *repository) Create(
 	ctx context.Context,
 	info *model.UserRegistrationInfo,
 	passwordHash string,
-) (*model.User, error) {
+) (model.User, error) {
 	notificationMethods, err := json.Marshal(repoConverter.ToRepoNotificationMethods(info.Info.NotificationMethods))
 	if err != nil {
-		return nil, err
+		return model.User{}, err
 	}
 
 	builderInsert := sq.Insert("users").
@@ -33,7 +33,7 @@ func (r *repository) Create(
 
 	query, args, err := builderInsert.ToSql()
 	if err != nil {
-		return nil, err
+		return model.User{}, err
 	}
 
 	user := repoModel.User{
@@ -48,12 +48,11 @@ func (r *repository) Create(
 	if err != nil {
 		var pgErr *pgconn.PgError
 		if errors.As(err, &pgErr) && pgErr.Code == uniqueViolationCode {
-			return nil, model.ErrUserAlreadyExists
+			return model.User{}, model.ErrUserAlreadyExists
 		}
 
-		return nil, err
+		return model.User{}, err
 	}
 
-	result := repoConverter.ToModelUser(user)
-	return &result, nil
+	return repoConverter.ToModelUser(user), nil
 }

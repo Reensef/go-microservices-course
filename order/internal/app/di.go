@@ -27,6 +27,7 @@ import (
 	orderService "github.com/Reensef/go-microservices-course/order/internal/service/order"
 	closer "github.com/Reensef/go-microservices-course/platform/pkg/closer"
 	"github.com/Reensef/go-microservices-course/platform/pkg/sqlmigrator"
+	"github.com/Reensef/go-microservices-course/platform/pkg/tracer"
 	orderApi "github.com/Reensef/go-microservices-course/shared/pkg/openapi/order/v1"
 	iamGrpc "github.com/Reensef/go-microservices-course/shared/pkg/proto/iam/v1"
 	inventoryGrpc "github.com/Reensef/go-microservices-course/shared/pkg/proto/inventory/v1"
@@ -211,7 +212,10 @@ func (d *diContainer) InventoryGrpc(ctx context.Context) inventoryGrpc.Inventory
 		conn, err := grpc.NewClient(
 			config.AppConfig().InventoryClient.Address(),
 			grpc.WithTransportCredentials(insecure.NewCredentials()),
-			grpc.WithUnaryInterceptor(grpcClients.UnaryClientInterceptor()),
+			grpc.WithChainUnaryInterceptor(
+				tracer.UnaryClientInterceptor(),
+				grpcClients.UnaryClientInterceptor(),
+			),
 		)
 		if err != nil {
 			panic(fmt.Sprintf("failed to connect to inventory service: %v\n", err))
@@ -243,7 +247,10 @@ func (d *diContainer) PaymentGrpc(ctx context.Context) paymentGrpc.PaymentServic
 		conn, err := grpc.NewClient(
 			config.AppConfig().PaymentClient.Address(),
 			grpc.WithTransportCredentials(insecure.NewCredentials()),
-			grpc.WithUnaryInterceptor(grpcClients.UnaryClientInterceptor()),
+			grpc.WithChainUnaryInterceptor(
+				tracer.UnaryClientInterceptor(),
+				grpcClients.UnaryClientInterceptor(),
+			),
 		)
 		if err != nil {
 			panic(fmt.Sprintf("failed to connect to payment service: %v\n", err))
@@ -275,6 +282,7 @@ func (d *diContainer) IAMGrpc(ctx context.Context) iamGrpc.AuthServiceClient {
 		conn, err := grpc.NewClient(
 			config.AppConfig().IAMClient.Address(),
 			grpc.WithTransportCredentials(insecure.NewCredentials()),
+			grpc.WithUnaryInterceptor(tracer.UnaryClientInterceptor()),
 		)
 		if err != nil {
 			panic(fmt.Sprintf("failed to connect to iam service: %v\n", err))

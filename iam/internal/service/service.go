@@ -11,22 +11,22 @@ type AuthService interface {
 		ctx context.Context,
 		login string,
 		password string,
-	) (*model.Session, error)
+	) (model.Session, error)
 
 	Whoami(
 		ctx context.Context,
 		sessionUuid string,
-	) (*model.Session, *model.User, error)
+	) (model.Session, model.User, error)
 }
 
 type UserService interface {
 	Register(
 		ctx context.Context,
 		info *model.UserRegistrationInfo,
-	) (*model.User, error)
+	) (model.User, error)
 
 	GetUser(
 		ctx context.Context,
 		userUuid string,
-	) (*model.User, error)
+	) (model.User, error)
 }

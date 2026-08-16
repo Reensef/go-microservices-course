@@ -5,6 +5,18 @@ import "time"
 type LoggerConfig interface {
 	Level() string
 	AsJson() bool
+	EnableOTLP() bool
+	OTLPEndpoint() string
+}
+
+type TracingConfig interface {
+	CollectorEndpoint() string
+	ServiceVersion() string
+}
+
+type ServiceConfig interface {
+	Name() string
+	Environment() string
 }
 
 type IamServiceConfig interface {

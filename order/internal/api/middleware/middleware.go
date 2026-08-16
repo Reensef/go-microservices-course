@@ -3,12 +3,14 @@ package middleware
 import (
 	"encoding/json"
 	"errors"
-	"log"
 	"net/http"
 	"strings"
 
+	"go.uber.org/zap"
+
 	grpcClients "github.com/Reensef/go-microservices-course/order/internal/client/grpc"
 	"github.com/Reensef/go-microservices-course/order/internal/model"
+	"github.com/Reensef/go-microservices-course/platform/pkg/logger"
 )
 
 const bearerPrefix = "Bearer "
@@ -22,7 +24,7 @@ func writeError(w http.ResponseWriter, status int, message string) {
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(status)
 	if err := json.NewEncoder(w).Encode(errorBody{Code: status, Message: message}); err != nil {
-		log.Printf("middleware: failed to write error response: %s", err)
+		logger.Error("middleware: failed to write error response", zap.Error(err))
 	}
 }
 

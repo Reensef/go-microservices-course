@@ -79,6 +79,50 @@ func (_c *MockLoggerConfig_AsJson_Call) RunAndReturn(run func() bool) *MockLogge
 	return _c
 }
 
+// EnableOTLP provides a mock function for the type MockLoggerConfig
+func (_mock *MockLoggerConfig) EnableOTLP() bool {
+	ret := _mock.Called()
+
+	if len(ret) == 0 {
+		panic("no return value specified for EnableOTLP")
+	}
+
+	var r0 bool
+	if returnFunc, ok := ret.Get(0).(func() bool); ok {
+		r0 = returnFunc()
+	} else {
+		r0 = ret.Get(0).(bool)
+	}
+	return r0
+}
+
+// MockLoggerConfig_EnableOTLP_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'EnableOTLP'
+type MockLoggerConfig_EnableOTLP_Call struct {
+	*mock.Call
+}
+
+// EnableOTLP is a helper method to define mock.On call
+func (_e *MockLoggerConfig_Expecter) EnableOTLP() *MockLoggerConfig_EnableOTLP_Call {
+	return &MockLoggerConfig_EnableOTLP_Call{Call: _e.mock.On("EnableOTLP")}
+}
+
+func (_c *MockLoggerConfig_EnableOTLP_Call) Run(run func()) *MockLoggerConfig_EnableOTLP_Call {
+	_c.Call.Run(func(args mock.Arguments) {
+		run()
+	})
+	return _c
+}
+
+func (_c *MockLoggerConfig_EnableOTLP_Call) Return(b bool) *MockLoggerConfig_EnableOTLP_Call {
+	_c.Call.Return(b)
+	return _c
+}
+
+func (_c *MockLoggerConfig_EnableOTLP_Call) RunAndReturn(run func() bool) *MockLoggerConfig_EnableOTLP_Call {
+	_c.Call.Return(run)
+	return _c
+}
+
 // Level provides a mock function for the type MockLoggerConfig
 func (_mock *MockLoggerConfig) Level() string {
 	ret := _mock.Called()
@@ -119,6 +163,50 @@ func (_c *MockLoggerConfig_Level_Call) Return(s string) *MockLoggerConfig_Level_
 }
 
 func (_c *MockLoggerConfig_Level_Call) RunAndReturn(run func() string) *MockLoggerConfig_Level_Call {
+	_c.Call.Return(run)
+	return _c
+}
+
+// OTLPEndpoint provides a mock function for the type MockLoggerConfig
+func (_mock *MockLoggerConfig) OTLPEndpoint() string {
+	ret := _mock.Called()
+
+	if len(ret) == 0 {
+		panic("no return value specified for OTLPEndpoint")
+	}
+
+	var r0 string
+	if returnFunc, ok := ret.Get(0).(func() string); ok {
+		r0 = returnFunc()
+	} else {
+		r0 = ret.Get(0).(string)
+	}
+	return r0
+}
+
+// MockLoggerConfig_OTLPEndpoint_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'OTLPEndpoint'
+type MockLoggerConfig_OTLPEndpoint_Call struct {
+	*mock.Call
+}
+
+// OTLPEndpoint is a helper method to define mock.On call
+func (_e *MockLoggerConfig_Expecter) OTLPEndpoint() *MockLoggerConfig_OTLPEndpoint_Call {
+	return &MockLoggerConfig_OTLPEndpoint_Call{Call: _e.mock.On("OTLPEndpoint")}
+}
+
+func (_c *MockLoggerConfig_OTLPEndpoint_Call) Run(run func()) *MockLoggerConfig_OTLPEndpoint_Call {
+	_c.Call.Run(func(args mock.Arguments) {
+		run()
+	})
+	return _c
+}
+
+func (_c *MockLoggerConfig_OTLPEndpoint_Call) Return(s string) *MockLoggerConfig_OTLPEndpoint_Call {
+	_c.Call.Return(s)
+	return _c
+}
+
+func (_c *MockLoggerConfig_OTLPEndpoint_Call) RunAndReturn(run func() string) *MockLoggerConfig_OTLPEndpoint_Call {
 	_c.Call.Return(run)
 	return _c
 }
