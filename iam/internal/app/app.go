@@ -62,7 +62,16 @@ func (a *App) initLogger(_ context.Context) error {
 	if config.AppConfig().Logger.EnableOTLP() {
 		opts = append(opts, logger.WithOTLP(config.AppConfig().Logger.OTLPEndpoint(), "iam-service", "dev"))
 	}
-	return logger.Init(level, opts...)
+	err := logger.Init(level, opts...)
+	if err != nil {
+		return err
+	}
+
+	closer.AddNamed("Logger OTLP", func(ctx context.Context) error {
+		return logger.Close(ctx)
+	})
+
+	return nil
 }
 
 func (a *App) initTracing(ctx context.Context) error {
@@ -88,9 +97,6 @@ func (a *App) applyMigrations(ctx context.Context) error {
 
 func (a *App) initCloser(_ context.Context) error {
 	closer.SetLogger(logger.Logger())
-	closer.AddNamed("Logger OTLP", func(ctx context.Context) error {
-		return logger.Close(ctx)
-	})
 	return nil
 }
 
