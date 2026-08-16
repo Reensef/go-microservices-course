@@ -69,6 +69,9 @@ func (a *App) applyMigrations(ctx context.Context) error {
 
 func (a *App) initCloser(_ context.Context) error {
 	closer.SetLogger(logger.Logger())
+	closer.AddNamed("Logger OTLP", func(ctx context.Context) error {
+		return logger.Close(ctx)
+	})
 	return nil
 }
 
