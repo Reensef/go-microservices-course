@@ -32,6 +32,6 @@ func (a *api) GetUser(
 	}
 
 	return &iamV1.GetUserResponse{
-		User: converter.ToProtoUser(*user),
+		User: converter.ToProtoUser(user),
 	}, nil
 }

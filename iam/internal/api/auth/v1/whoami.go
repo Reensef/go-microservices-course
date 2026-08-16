@@ -34,7 +34,7 @@ func (a *api) Whoami(
 	}
 
 	return &iamV1.WhoamiResponse{
-		Session: converter.ToProtoSession(*session),
-		User:    converter.ToProtoUser(*user),
+		Session: converter.ToProtoSession(session),
+		User:    converter.ToProtoUser(user),
 	}, nil
 }

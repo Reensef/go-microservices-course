@@ -10,10 +10,10 @@ import (
 func (s *service) Register(
 	ctx context.Context,
 	info *model.UserRegistrationInfo,
-) (*model.User, error) {
+) (model.User, error) {
 	passwordHash, err := hash.Hash(info.Password)
 	if err != nil {
-		return nil, err
+		return model.User{}, err
 	}
 
 	return s.userRepo.Create(ctx, info, passwordHash)

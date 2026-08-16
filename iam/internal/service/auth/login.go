@@ -12,22 +12,22 @@ func (s *service) Login(
 	ctx context.Context,
 	login string,
 	password string,
-) (*model.Session, error) {
+) (model.Session, error) {
 	user, passwordHash, err := s.userRepo.GetCredentialsByLogin(ctx, login)
 	if err != nil {
 		if errors.Is(err, model.ErrUserNotFound) {
-			return nil, model.ErrInvalidCredentials
+			return model.Session{}, model.ErrInvalidCredentials
 		}
 
-		return nil, err
+		return model.Session{}, err
 	}
 
 	ok, err := hash.Verify(password, passwordHash)
 	if err != nil {
-		return nil, err
+		return model.Session{}, err
 	}
 	if !ok {
-		return nil, model.ErrInvalidCredentials
+		return model.Session{}, model.ErrInvalidCredentials
 	}
 
 	return s.sessionRepo.Create(ctx, user.Uuid, s.sessionTTL)

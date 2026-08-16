@@ -16,7 +16,7 @@ import (
 func (r *repository) GetByUUID(
 	ctx context.Context,
 	userUuid string,
-) (*model.User, error) {
+) (model.User, error) {
 	builderSelect := sq.Select("login", "email", "notification_methods", "created_at", "updated_at").
 		PlaceholderFormat(sq.Dollar).
 		From("users").
@@ -24,7 +24,7 @@ func (r *repository) GetByUUID(
 
 	query, args, err := builderSelect.ToSql()
 	if err != nil {
-		return nil, err
+		return model.User{}, err
 	}
 
 	var notificationMethods []byte
@@ -34,16 +34,15 @@ func (r *repository) GetByUUID(
 	err = row.Scan(&user.Info.Login, &user.Info.Email, &notificationMethods, &user.CreatedAt, &user.UpdatedAt)
 	if err != nil {
 		if errors.Is(err, pgx.ErrNoRows) {
-			return nil, model.ErrUserNotFound
+			return model.User{}, model.ErrUserNotFound
 		}
 
-		return nil, err
+		return model.User{}, err
 	}
 
 	if err := json.Unmarshal(notificationMethods, &user.Info.NotificationMethods); err != nil {
-		return nil, err
+		return model.User{}, err
 	}
 
-	result := repoConverter.ToModelUser(user)
-	return &result, nil
+	return repoConverter.ToModelUser(user), nil
 }

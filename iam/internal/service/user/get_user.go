@@ -11,9 +11,9 @@ import (
 func (s *service) GetUser(
 	ctx context.Context,
 	userUuid string,
-) (*model.User, error) {
+) (model.User, error) {
 	if uuid.Validate(userUuid) != nil {
-		return nil, model.ErrUserUuidInvalidFormat
+		return model.User{}, model.ErrUserUuidInvalidFormat
 	}
 
 	return s.userRepo.GetByUUID(ctx, userUuid)
