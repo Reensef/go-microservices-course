@@ -7,6 +7,7 @@ import (
 type loggerEnvConfig struct {
 	Level        string `env:"LOGGER_LEVEL,required"`
 	AsJson       bool   `env:"LOGGER_AS_JSON,required"`
+	EnableOTLP   bool   `env:"LOGGER_ENABLE_OTLP"`
 	OTLPEndpoint string `env:"LOGGER_OTLP_ENDPOINT"`
 }
 
@@ -29,6 +30,10 @@ func (cfg *loggerConfig) Level() string {
 
 func (cfg *loggerConfig) AsJson() bool {
 	return cfg.raw.AsJson
+}
+
+func (cfg *loggerConfig) EnableOTLP() bool {
+	return cfg.raw.EnableOTLP
 }
 
 func (cfg *loggerConfig) OTLPEndpoint() string {

@@ -57,8 +57,8 @@ func (a *App) initLogger(_ context.Context) error {
 	var level zapcore.Level
 	_ = level.UnmarshalText([]byte(config.AppConfig().Logger.Level()))
 	opts := []logger.Option{logger.WithJSON(config.AppConfig().Logger.AsJson())}
-	if endpoint := config.AppConfig().Logger.OTLPEndpoint(); endpoint != "" {
-		opts = append(opts, logger.WithOTLP(endpoint, "iam-service", "dev"))
+	if config.AppConfig().Logger.EnableOTLP() {
+		opts = append(opts, logger.WithOTLP(config.AppConfig().Logger.OTLPEndpoint(), "iam-service", "dev"))
 	}
 	return logger.Init(level, opts...)
 }
