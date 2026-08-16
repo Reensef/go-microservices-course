@@ -3,9 +3,8 @@ package app
 import (
 	"context"
 
-	"golang.org/x/sync/errgroup"
-
 	"go.uber.org/zap/zapcore"
+	"golang.org/x/sync/errgroup"
 
 	"github.com/Reensef/go-microservices-course/notification/internal/config"
 	closer "github.com/Reensef/go-microservices-course/platform/pkg/closer"
@@ -76,7 +75,7 @@ func (a *App) initDI(_ context.Context) error {
 	return nil
 }
 
-func (a *App) initLogger(_ context.Context) error {
+func (a *App) initLogger(ctx context.Context) error {
 	var level zapcore.Level
 	err := level.UnmarshalText([]byte(config.AppConfig().Logger.Level()))
 	if err != nil {
@@ -95,14 +94,12 @@ func (a *App) initLogger(_ context.Context) error {
 		))
 	}
 
-	err = logger.Init(level, opts...)
+	err = logger.Init(ctx, level, opts...)
 	if err != nil {
 		return err
 	}
 
-	closer.AddNamed("Logger OTLP", func(ctx context.Context) error {
-		return logger.Close(ctx)
-	})
+	closer.AddNamed("Logger OTLP", logger.Close)
 
 	return nil
 }

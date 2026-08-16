@@ -23,7 +23,10 @@ var global *metrics
 
 func init() {
 	// no-op instruments until Init is called — prevents nil panics in tests.
-	_ = initInstruments("")
+	err := initInstruments("")
+	if err != nil {
+		panic(err)
+	}
 }
 
 func Init(ctx context.Context, endpoint, serviceName string) (*sdkmetric.MeterProvider, error) {

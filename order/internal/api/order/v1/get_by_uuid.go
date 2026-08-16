@@ -9,8 +9,8 @@ import (
 
 	"github.com/Reensef/go-microservices-course/order/internal/api/order/v1/converter"
 	"github.com/Reensef/go-microservices-course/order/internal/model"
-	orderApi "github.com/Reensef/go-microservices-course/shared/pkg/openapi/order/v1"
 	"github.com/Reensef/go-microservices-course/platform/pkg/logger"
+	orderApi "github.com/Reensef/go-microservices-course/shared/pkg/openapi/order/v1"
 )
 
 func (a *handler) GetOrderByUUID(

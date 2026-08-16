@@ -20,7 +20,7 @@ type errorBody struct {
 	Message string `json:"message"`
 }
 
-func writeError(w http.ResponseWriter, r *http.Request, status int, message string) {
+func writeError(w http.ResponseWriter, status int, message string) {
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(status)
 	if err := json.NewEncoder(w).Encode(errorBody{Code: status, Message: message}); err != nil {
@@ -33,24 +33,24 @@ func NewAuthMiddleware(iamClient grpcClients.IAMClient) func(http.Handler) http.
 		return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 			header := r.Header.Get("Authorization")
 			if !strings.HasPrefix(header, bearerPrefix) {
-				writeError(w, r, http.StatusUnauthorized, "unauthorized")
+				writeError(w, http.StatusUnauthorized, "unauthorized")
 				return
 			}
 
 			token := strings.TrimPrefix(header, bearerPrefix)
 			if token == "" {
-				writeError(w, r, http.StatusUnauthorized, "unauthorized")
+				writeError(w, http.StatusUnauthorized, "unauthorized")
 				return
 			}
 
 			user, err := iamClient.Whoami(r.Context(), token)
 			if err != nil {
 				if errors.Is(err, model.ErrInvalidSession) {
-					writeError(w, r, http.StatusUnauthorized, "unauthorized")
+					writeError(w, http.StatusUnauthorized, "unauthorized")
 					return
 				}
 
-				writeError(w, r, http.StatusInternalServerError, "internal server error")
+				writeError(w, http.StatusInternalServerError, "internal server error")
 				return
 			}
 

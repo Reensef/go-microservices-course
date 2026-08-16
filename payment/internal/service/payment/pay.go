@@ -14,7 +14,7 @@ func (s *service) Pay(
 	orderUuid, userUuid string,
 	paymentMethod model.PaymentMethod,
 ) (*string, error) {
-	ctx, span := tracer.StartSpan(ctx, "payment.pay")
+	_, span := tracer.StartSpan(ctx, "payment.pay")
 	defer span.End()
 
 	if uuid.Validate(orderUuid) != nil {

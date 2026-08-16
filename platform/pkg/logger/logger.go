@@ -7,13 +7,11 @@ import (
 
 	"go.opentelemetry.io/otel/attribute"
 	"go.opentelemetry.io/otel/exporters/otlp/otlplog/otlploggrpc"
-	otelLog "go.opentelemetry.io/otel/log"
 	otelLogSdk "go.opentelemetry.io/otel/sdk/log"
 	"go.opentelemetry.io/otel/sdk/resource"
 	"go.uber.org/zap"
 	"go.uber.org/zap/zapcore"
 )
-
 
 var (
 	globalLogger *logger
@@ -63,7 +61,7 @@ func WithOTLP(endpoint, serviceName, environment string) Option {
 }
 
 // Init инициализирует глобальный логгер
-func Init(level zapcore.Level, opts ...Option) error {
+func Init(ctx context.Context, level zapcore.Level, opts ...Option) error {
 	cfg := &initConfig{level: level}
 	for _, opt := range opts {
 		opt(cfg)
@@ -75,7 +73,7 @@ func Init(level zapcore.Level, opts ...Option) error {
 
 		var otlpErr error
 		if cfg.otlpEndpoint != "" {
-			otlpCore, err := newOTLPCore(cfg)
+			otlpCore, err := newOTLPCore(ctx, cfg)
 			if err != nil {
 				otlpErr = err
 			} else {
@@ -115,9 +113,7 @@ func newStdoutCore(cfg *initConfig) zapcore.Core {
 	return zapcore.NewCore(encoder, zapcore.AddSync(os.Stdout), dynamicLevel)
 }
 
-func newOTLPCore(cfg *initConfig) (*simpleOTLPCore, error) {
-	ctx := context.Background()
-
+func newOTLPCore(ctx context.Context, cfg *initConfig) (*simpleOTLPCore, error) {
 	exporter, err := otlploggrpc.New(ctx,
 		otlploggrpc.WithEndpoint(cfg.otlpEndpoint),
 		otlploggrpc.WithInsecure(),
@@ -142,7 +138,7 @@ func newOTLPCore(cfg *initConfig) (*simpleOTLPCore, error) {
 	)
 	otelProvider = provider
 
-	var otlpLogger otelLog.Logger = provider.Logger("app")
+	otlpLogger := provider.Logger("app")
 	return newSimpleOTLPCore(otlpLogger, dynamicLevel), nil
 }
 

@@ -66,9 +66,13 @@ func (a *App) initDI(_ context.Context) error {
 	return nil
 }
 
-func (a *App) initLogger(_ context.Context) error {
+func (a *App) initLogger(ctx context.Context) error {
 	var level zapcore.Level
-	_ = level.UnmarshalText([]byte(config.AppConfig().Logger.Level()))
+	err := level.UnmarshalText([]byte(config.AppConfig().Logger.Level()))
+	if err != nil {
+		return err
+	}
+
 	opts := []logger.Option{logger.WithJSON(config.AppConfig().Logger.AsJson())}
 	if config.AppConfig().Logger.EnableOTLP() {
 		opts = append(opts, logger.WithOTLP(
@@ -77,14 +81,12 @@ func (a *App) initLogger(_ context.Context) error {
 			config.AppConfig().Service.Environment(),
 		))
 	}
-	err := logger.Init(level, opts...)
+	err = logger.Init(ctx, level, opts...)
 	if err != nil {
 		return err
 	}
 
-	closer.AddNamed("Logger OTLP", func(ctx context.Context) error {
-		return logger.Close(ctx)
-	})
+	closer.AddNamed("Logger OTLP", logger.Close)
 
 	return nil
 }
@@ -156,7 +158,7 @@ func (a *App) initGRPCServer(ctx context.Context) error {
 	return nil
 }
 
-func (a *App) runGRPCServer(ctx context.Context) error {
+func (a *App) runGRPCServer(_ context.Context) error {
 	logger.Info(fmt.Sprintf(
 		"🚀 gRPC PaymentService server listening on %s",
 		config.AppConfig().PaymentService.Address(),

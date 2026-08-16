@@ -6,8 +6,11 @@ import (
 	"go.opentelemetry.io/otel"
 	"go.opentelemetry.io/otel/codes"
 	"go.opentelemetry.io/otel/trace"
+	"go.uber.org/zap"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/metadata"
+
+	"github.com/Reensef/go-microservices-course/platform/pkg/logger"
 )
 
 const TraceIDHeader = "x-trace-id"
@@ -76,7 +79,10 @@ func setTraceIDHeader(ctx context.Context) {
 		return
 	}
 
-	_ = grpc.SetHeader(ctx, metadata.Pairs(TraceIDHeader, traceID))
+	err := grpc.SetHeader(ctx, metadata.Pairs(TraceIDHeader, traceID))
+	if err != nil {
+		logger.Warn("failed to set trace id header", zap.Error(err))
+	}
 }
 
 func extractOutgoingMetadata(ctx context.Context) metadata.MD {

@@ -10,7 +10,6 @@ import (
 
 	. "github.com/onsi/ginkgo/v2"
 	. "github.com/onsi/gomega"
-
 	"go.uber.org/zap/zapcore"
 
 	"github.com/Reensef/go-microservices-course/platform/pkg/logger"

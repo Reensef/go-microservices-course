@@ -54,7 +54,9 @@ func (c *simpleOTLPCore) Write(entry zapcore.Entry, fields []zapcore.Field) erro
 	severity := mapZapToOtelSeverity(entry.Level)
 	record := makeBaseRecord(entry, severity)
 
-	allFields := append(c.fields, fields...)
+	allFields := make([]zapcore.Field, 0, len(c.fields)+len(fields))
+	allFields = append(allFields, c.fields...)
+	allFields = append(allFields, fields...)
 	if len(allFields) > 0 {
 		if attrs := encodeFieldsToAttrs(allFields); len(attrs) > 0 {
 			record.AddAttributes(attrs...)
