@@ -31,7 +31,7 @@ func UnaryServerInterceptor() grpc.UnaryServerInterceptor {
 		)
 		defer span.End()
 
-		ctx = addTraceIDToResponse(ctx)
+		setTraceIDHeader(ctx)
 
 		resp, err := handler(ctx, req)
 		if err != nil {
@@ -69,16 +69,14 @@ func UnaryClientInterceptor() grpc.UnaryClientInterceptor {
 	}
 }
 
-func addTraceIDToResponse(ctx context.Context) context.Context {
+// setTraceIDHeader отправляет trace ID клиенту в заголовке ответа gRPC.
+func setTraceIDHeader(ctx context.Context) {
 	traceID := TraceIDFromContext(ctx)
 	if traceID == "" {
-		return ctx
+		return
 	}
 
-	md := extractOutgoingMetadata(ctx)
-	md.Set(TraceIDHeader, traceID)
-
-	return metadata.NewOutgoingContext(ctx, md)
+	_ = grpc.SetHeader(ctx, metadata.Pairs(TraceIDHeader, traceID))
 }
 
 func extractOutgoingMetadata(ctx context.Context) metadata.MD {
