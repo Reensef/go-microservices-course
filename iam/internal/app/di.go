@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"net"
 
+	authv3 "github.com/envoyproxy/go-control-plane/envoy/service/auth/v3"
 	"github.com/jackc/pgx/v5/pgxpool"
 	"github.com/jackc/pgx/v5/stdlib"
 	"github.com/redis/go-redis/v9"
@@ -13,6 +14,7 @@ import (
 	"google.golang.org/grpc/reflection"
 
 	authApi "github.com/Reensef/go-microservices-course/iam/internal/api/auth/v1"
+	authzApi "github.com/Reensef/go-microservices-course/iam/internal/api/authz/v1"
 	userApi "github.com/Reensef/go-microservices-course/iam/internal/api/user/v1"
 	"github.com/Reensef/go-microservices-course/iam/internal/config"
 	repository "github.com/Reensef/go-microservices-course/iam/internal/repository"
@@ -29,8 +31,9 @@ import (
 )
 
 type diContainer struct {
-	authApi iamV1.AuthServiceServer
-	userApi iamV1.UserServiceServer
+	authApi  iamV1.AuthServiceServer
+	userApi  iamV1.UserServiceServer
+	authzApi authv3.AuthorizationServer
 
 	grpcServer *grpc.Server
 	listener   net.Listener
@@ -64,6 +67,14 @@ func (d *diContainer) UserApi(ctx context.Context) iamV1.UserServiceServer {
 	}
 
 	return d.userApi
+}
+
+func (d *diContainer) AuthzApi(ctx context.Context) authv3.AuthorizationServer {
+	if d.authzApi == nil {
+		d.authzApi = authzApi.New(d.AuthService(ctx))
+	}
+
+	return d.authzApi
 }
 
 func (d *diContainer) AuthService(ctx context.Context) service.AuthService {
@@ -116,6 +127,7 @@ func (d *diContainer) GrpcServer(ctx context.Context) *grpc.Server {
 
 		iamV1.RegisterAuthServiceServer(grpcServer, d.AuthApi(ctx))
 		iamV1.RegisterUserServiceServer(grpcServer, d.UserApi(ctx))
+		authv3.RegisterAuthorizationServer(grpcServer, d.AuthzApi(ctx))
 
 		d.grpcServer = grpcServer
 	}
