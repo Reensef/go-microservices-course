@@ -49,9 +49,9 @@ func (s *Server) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 			break
 		}
 		switch elem[0] {
-		case '/': // Prefix: "/api/v1/orders"
+		case '/': // Prefix: "/order/v1/orders"
 
-			if l := len("/api/v1/orders"); len(elem) >= l && elem[0:l] == "/api/v1/orders" {
+			if l := len("/order/v1/orders"); len(elem) >= l && elem[0:l] == "/order/v1/orders" {
 				elem = elem[l:]
 			} else {
 				break
@@ -240,9 +240,9 @@ func (s *Server) FindPath(method string, u *url.URL) (r Route, _ bool) {
 			break
 		}
 		switch elem[0] {
-		case '/': // Prefix: "/api/v1/orders"
+		case '/': // Prefix: "/order/v1/orders"
 
-			if l := len("/api/v1/orders"); len(elem) >= l && elem[0:l] == "/api/v1/orders" {
+			if l := len("/order/v1/orders"); len(elem) >= l && elem[0:l] == "/order/v1/orders" {
 				elem = elem[l:]
 			} else {
 				break
@@ -254,7 +254,7 @@ func (s *Server) FindPath(method string, u *url.URL) (r Route, _ bool) {
 					r.name = CreateOrderOperation
 					r.summary = "Создание нового заказа"
 					r.operationID = "CreateOrder"
-					r.pathPattern = "/api/v1/orders"
+					r.pathPattern = "/order/v1/orders"
 					r.args = args
 					r.count = 0
 					return r, true
@@ -286,7 +286,7 @@ func (s *Server) FindPath(method string, u *url.URL) (r Route, _ bool) {
 						r.name = GetOrderByUUIDOperation
 						r.summary = "Получение информации о заказе"
 						r.operationID = "GetOrderByUUID"
-						r.pathPattern = "/api/v1/orders/{order_uuid}"
+						r.pathPattern = "/order/v1/orders/{order_uuid}"
 						r.args = args
 						r.count = 1
 						return r, true
@@ -322,7 +322,7 @@ func (s *Server) FindPath(method string, u *url.URL) (r Route, _ bool) {
 								r.name = CancelOrderOperation
 								r.summary = "Отмена заказа"
 								r.operationID = "CancelOrder"
-								r.pathPattern = "/api/v1/orders/{order_uuid}/cancel"
+								r.pathPattern = "/order/v1/orders/{order_uuid}/cancel"
 								r.args = args
 								r.count = 1
 								return r, true
@@ -346,7 +346,7 @@ func (s *Server) FindPath(method string, u *url.URL) (r Route, _ bool) {
 								r.name = PayOrderOperation
 								r.summary = "Оплата заказа"
 								r.operationID = "PayOrder"
-								r.pathPattern = "/api/v1/orders/{order_uuid}/pay"
+								r.pathPattern = "/order/v1/orders/{order_uuid}/pay"
 								r.args = args
 								r.count = 1
 								return r, true

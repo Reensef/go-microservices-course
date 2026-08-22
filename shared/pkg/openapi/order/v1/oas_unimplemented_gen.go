@@ -17,7 +17,7 @@ var _ Handler = UnimplementedHandler{}
 //
 // Отмена заказа.
 //
-// POST /api/v1/orders/{order_uuid}/cancel
+// POST /order/v1/orders/{order_uuid}/cancel
 func (UnimplementedHandler) CancelOrder(ctx context.Context, params CancelOrderParams) (r CancelOrderRes, _ error) {
 	return r, ht.ErrNotImplemented
 }
@@ -26,7 +26,7 @@ func (UnimplementedHandler) CancelOrder(ctx context.Context, params CancelOrderP
 //
 // Создание нового заказа.
 //
-// POST /api/v1/orders
+// POST /order/v1/orders
 func (UnimplementedHandler) CreateOrder(ctx context.Context, req *CreateOrderRequest) (r CreateOrderRes, _ error) {
 	return r, ht.ErrNotImplemented
 }
@@ -35,7 +35,7 @@ func (UnimplementedHandler) CreateOrder(ctx context.Context, req *CreateOrderReq
 //
 // Получение информации о заказе.
 //
-// GET /api/v1/orders/{order_uuid}
+// GET /order/v1/orders/{order_uuid}
 func (UnimplementedHandler) GetOrderByUUID(ctx context.Context, params GetOrderByUUIDParams) (r GetOrderByUUIDRes, _ error) {
 	return r, ht.ErrNotImplemented
 }
@@ -44,7 +44,7 @@ func (UnimplementedHandler) GetOrderByUUID(ctx context.Context, params GetOrderB
 //
 // Оплата заказа.
 //
-// POST /api/v1/orders/{order_uuid}/pay
+// POST /order/v1/orders/{order_uuid}/pay
 func (UnimplementedHandler) PayOrder(ctx context.Context, req *PayOrderRequest, params PayOrderParams) (r PayOrderRes, _ error) {
 	return r, ht.ErrNotImplemented
 }

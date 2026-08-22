@@ -32,25 +32,25 @@ type Invoker interface {
 	//
 	// Отмена заказа.
 	//
-	// POST /api/v1/orders/{order_uuid}/cancel
+	// POST /order/v1/orders/{order_uuid}/cancel
 	CancelOrder(ctx context.Context, params CancelOrderParams) (CancelOrderRes, error)
 	// CreateOrder invokes CreateOrder operation.
 	//
 	// Создание нового заказа.
 	//
-	// POST /api/v1/orders
+	// POST /order/v1/orders
 	CreateOrder(ctx context.Context, request *CreateOrderRequest) (CreateOrderRes, error)
 	// GetOrderByUUID invokes GetOrderByUUID operation.
 	//
 	// Получение информации о заказе.
 	//
-	// GET /api/v1/orders/{order_uuid}
+	// GET /order/v1/orders/{order_uuid}
 	GetOrderByUUID(ctx context.Context, params GetOrderByUUIDParams) (GetOrderByUUIDRes, error)
 	// PayOrder invokes PayOrder operation.
 	//
 	// Оплата заказа.
 	//
-	// POST /api/v1/orders/{order_uuid}/pay
+	// POST /order/v1/orders/{order_uuid}/pay
 	PayOrder(ctx context.Context, request *PayOrderRequest, params PayOrderParams) (PayOrderRes, error)
 }
 
@@ -105,7 +105,7 @@ func (c *Client) requestURL(ctx context.Context) *url.URL {
 //
 // Отмена заказа.
 //
-// POST /api/v1/orders/{order_uuid}/cancel
+// POST /order/v1/orders/{order_uuid}/cancel
 func (c *Client) CancelOrder(ctx context.Context, params CancelOrderParams) (CancelOrderRes, error) {
 	res, err := c.sendCancelOrder(ctx, params)
 	return res, err
@@ -115,7 +115,7 @@ func (c *Client) sendCancelOrder(ctx context.Context, params CancelOrderParams) 
 	otelAttrs := []attribute.KeyValue{
 		otelogen.OperationID("CancelOrder"),
 		semconv.HTTPRequestMethodKey.String("POST"),
-		semconv.HTTPRouteKey.String("/api/v1/orders/{order_uuid}/cancel"),
+		semconv.HTTPRouteKey.String("/order/v1/orders/{order_uuid}/cancel"),
 	}
 
 	// Run stopwatch.
@@ -148,7 +148,7 @@ func (c *Client) sendCancelOrder(ctx context.Context, params CancelOrderParams) 
 	stage = "BuildURL"
 	u := uri.Clone(c.requestURL(ctx))
 	var pathParts [3]string
-	pathParts[0] = "/api/v1/orders/"
+	pathParts[0] = "/order/v1/orders/"
 	{
 		// Encode "order_uuid" parameter.
 		e := uri.NewPathEncoder(uri.PathEncoderConfig{
@@ -196,7 +196,7 @@ func (c *Client) sendCancelOrder(ctx context.Context, params CancelOrderParams) 
 //
 // Создание нового заказа.
 //
-// POST /api/v1/orders
+// POST /order/v1/orders
 func (c *Client) CreateOrder(ctx context.Context, request *CreateOrderRequest) (CreateOrderRes, error) {
 	res, err := c.sendCreateOrder(ctx, request)
 	return res, err
@@ -206,7 +206,7 @@ func (c *Client) sendCreateOrder(ctx context.Context, request *CreateOrderReques
 	otelAttrs := []attribute.KeyValue{
 		otelogen.OperationID("CreateOrder"),
 		semconv.HTTPRequestMethodKey.String("POST"),
-		semconv.HTTPRouteKey.String("/api/v1/orders"),
+		semconv.HTTPRouteKey.String("/order/v1/orders"),
 	}
 
 	// Run stopwatch.
@@ -239,7 +239,7 @@ func (c *Client) sendCreateOrder(ctx context.Context, request *CreateOrderReques
 	stage = "BuildURL"
 	u := uri.Clone(c.requestURL(ctx))
 	var pathParts [1]string
-	pathParts[0] = "/api/v1/orders"
+	pathParts[0] = "/order/v1/orders"
 	uri.AddPathParts(u, pathParts[:]...)
 
 	stage = "EncodeRequest"
@@ -271,7 +271,7 @@ func (c *Client) sendCreateOrder(ctx context.Context, request *CreateOrderReques
 //
 // Получение информации о заказе.
 //
-// GET /api/v1/orders/{order_uuid}
+// GET /order/v1/orders/{order_uuid}
 func (c *Client) GetOrderByUUID(ctx context.Context, params GetOrderByUUIDParams) (GetOrderByUUIDRes, error) {
 	res, err := c.sendGetOrderByUUID(ctx, params)
 	return res, err
@@ -281,7 +281,7 @@ func (c *Client) sendGetOrderByUUID(ctx context.Context, params GetOrderByUUIDPa
 	otelAttrs := []attribute.KeyValue{
 		otelogen.OperationID("GetOrderByUUID"),
 		semconv.HTTPRequestMethodKey.String("GET"),
-		semconv.HTTPRouteKey.String("/api/v1/orders/{order_uuid}"),
+		semconv.HTTPRouteKey.String("/order/v1/orders/{order_uuid}"),
 	}
 
 	// Run stopwatch.
@@ -314,7 +314,7 @@ func (c *Client) sendGetOrderByUUID(ctx context.Context, params GetOrderByUUIDPa
 	stage = "BuildURL"
 	u := uri.Clone(c.requestURL(ctx))
 	var pathParts [2]string
-	pathParts[0] = "/api/v1/orders/"
+	pathParts[0] = "/order/v1/orders/"
 	{
 		// Encode "order_uuid" parameter.
 		e := uri.NewPathEncoder(uri.PathEncoderConfig{
@@ -361,7 +361,7 @@ func (c *Client) sendGetOrderByUUID(ctx context.Context, params GetOrderByUUIDPa
 //
 // Оплата заказа.
 //
-// POST /api/v1/orders/{order_uuid}/pay
+// POST /order/v1/orders/{order_uuid}/pay
 func (c *Client) PayOrder(ctx context.Context, request *PayOrderRequest, params PayOrderParams) (PayOrderRes, error) {
 	res, err := c.sendPayOrder(ctx, request, params)
 	return res, err
@@ -371,7 +371,7 @@ func (c *Client) sendPayOrder(ctx context.Context, request *PayOrderRequest, par
 	otelAttrs := []attribute.KeyValue{
 		otelogen.OperationID("PayOrder"),
 		semconv.HTTPRequestMethodKey.String("POST"),
-		semconv.HTTPRouteKey.String("/api/v1/orders/{order_uuid}/pay"),
+		semconv.HTTPRouteKey.String("/order/v1/orders/{order_uuid}/pay"),
 	}
 
 	// Run stopwatch.
@@ -404,7 +404,7 @@ func (c *Client) sendPayOrder(ctx context.Context, request *PayOrderRequest, par
 	stage = "BuildURL"
 	u := uri.Clone(c.requestURL(ctx))
 	var pathParts [3]string
-	pathParts[0] = "/api/v1/orders/"
+	pathParts[0] = "/order/v1/orders/"
 	{
 		// Encode "order_uuid" parameter.
 		e := uri.NewPathEncoder(uri.PathEncoderConfig{
