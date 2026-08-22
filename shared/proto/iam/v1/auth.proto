@@ -2,6 +2,7 @@ syntax = "proto3";
 
 package iam.v1;
 
+import "google/api/annotations.proto";
 import "google/protobuf/timestamp.proto";
 import "iam/v1/common.proto";
 import "validate/validate.proto";
@@ -11,7 +12,12 @@ option go_package = "github.com/Reensef/go-microservices-course/shared/pkg/proto
 // Cервис для аутентификации пользователей
 service AuthService {
     // Метод для входа пользователя по логину и паролю
-    rpc Login(LoginRequest) returns (LoginResponse);
+    rpc Login(LoginRequest) returns (LoginResponse) {
+        option (google.api.http) = {
+            post: "/iam/v1/sessions"
+            body: "*"
+        };
+    }
 
     // Метод для получения информации о текущей сессии
     rpc Whoami(WhoamiRequest) returns (WhoamiResponse);
