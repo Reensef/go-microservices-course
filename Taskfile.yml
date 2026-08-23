@@ -417,7 +417,7 @@ tasks:
     desc: Генерация Go-кода из .proto
     dir: shared/proto
     cmds:
-      - '{{.BUF}} generate'
+      - '{{.BUF}} generate --exclude-path vendor'
 
   proto:lint:
     deps: [ install-buf, proto:install-plugins ]
@@ -425,6 +425,14 @@ tasks:
     dir: shared/proto
     cmds:
       - '{{.BUF}} lint'
+
+  proto:descriptor:
+    deps: [ install-buf, proto:install-plugins ]
+    desc: "Собирает FileDescriptorSet для Envoy grpc_json_transcoder"
+    dir: shared/proto
+    cmds:
+      - mkdir -p {{.ROOT_DIR}}/deploy/envoy
+      - '{{.BUF}} build -o {{.ROOT_DIR}}/deploy/envoy/gateway.binpb --path iam/v1 --path inventory/v1'
 
   redocly-cli:install:
     desc: Установить локально Redocly CLI
@@ -480,6 +488,7 @@ tasks:
     desc: "Генерация всех proto и OpenAPI деклараций"
     cmds:
       - task: proto:gen
+      - task: proto:descriptor
       - task: ogen:gen
 
   deps:update:

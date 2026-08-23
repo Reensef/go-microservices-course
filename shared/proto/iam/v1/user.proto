@@ -2,9 +2,9 @@ syntax = "proto3";
 
 package iam.v1;
 
-import "google/api/annotations.proto";
+import "vendor/google/api/annotations.proto";
 import "iam/v1/common.proto";
-import "validate/validate.proto";
+import "vendor/validate/validate.proto";
 
 option go_package = "github.com/Reensef/go-microservices-course/shared/pkg/proto/iam/v1;iam_v1";
 

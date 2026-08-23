@@ -2,9 +2,9 @@ syntax = "proto3";
 
 package inventory.v1;
 
-import "google/api/annotations.proto";
+import "vendor/google/api/annotations.proto";
 import "google/protobuf/timestamp.proto";
-import "validate/validate.proto";
+import "vendor/validate/validate.proto";
 
 option go_package = "github.com/Reensef/go-microservices-course/shared/pkg/proto/inventory/v1;inventory_v1";
 

@@ -10,6 +10,4 @@ lint:
       - RPC_RESPONSE_STANDARD_NAME
       - RPC_REQUEST_RESPONSE_UNIQUE
   ignore:
-    - validate/validate.proto
-    - google/api/http.proto
-    - google/api/annotations.proto
+    - vendor
