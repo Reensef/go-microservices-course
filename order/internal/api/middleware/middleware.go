@@ -2,18 +2,13 @@ package middleware
 
 import (
 	"encoding/json"
-	"errors"
 	"net/http"
-	"strings"
 
 	"go.uber.org/zap"
 
-	grpcClients "github.com/Reensef/go-microservices-course/order/internal/client/grpc"
 	"github.com/Reensef/go-microservices-course/order/internal/model"
 	"github.com/Reensef/go-microservices-course/platform/pkg/logger"
 )
-
-const bearerPrefix = "Bearer "
 
 type errorBody struct {
 	Code    int    `json:"code"`
@@ -28,33 +23,16 @@ func writeError(w http.ResponseWriter, status int, message string) {
 	}
 }
 
-func NewAuthMiddleware(iamClient grpcClients.IAMClient) func(http.Handler) http.Handler {
+func NewAuthMiddleware() func(http.Handler) http.Handler {
 	return func(next http.Handler) http.Handler {
 		return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-			header := r.Header.Get("Authorization")
-			if !strings.HasPrefix(header, bearerPrefix) {
+			userID := r.Header.Get("x-user-id")
+			if userID == "" {
 				writeError(w, http.StatusUnauthorized, "unauthorized")
 				return
 			}
 
-			token := strings.TrimPrefix(header, bearerPrefix)
-			if token == "" {
-				writeError(w, http.StatusUnauthorized, "unauthorized")
-				return
-			}
-
-			user, err := iamClient.Whoami(r.Context(), token)
-			if err != nil {
-				if errors.Is(err, model.ErrInvalidSession) {
-					writeError(w, http.StatusUnauthorized, "unauthorized")
-					return
-				}
-
-				writeError(w, http.StatusInternalServerError, "internal server error")
-				return
-			}
-
-			ctx := model.WithUser(r.Context(), user)
+			ctx := model.WithUser(r.Context(), model.User{Uuid: userID})
 			next.ServeHTTP(w, r.WithContext(ctx))
 		})
 	}
