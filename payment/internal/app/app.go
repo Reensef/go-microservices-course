@@ -11,7 +11,6 @@ import (
 	"google.golang.org/grpc/credentials/insecure"
 	"google.golang.org/grpc/reflection"
 
-	"github.com/Reensef/go-microservices-course/payment/internal/api/interceptor"
 	"github.com/Reensef/go-microservices-course/payment/internal/config"
 	"github.com/Reensef/go-microservices-course/platform/pkg/closer"
 	"github.com/Reensef/go-microservices-course/platform/pkg/grpc/health"
@@ -140,7 +139,6 @@ func (a *App) initGRPCServer(ctx context.Context) error {
 		grpc.Creds(insecure.NewCredentials()),
 		grpc.ChainUnaryInterceptor(
 			tracer.UnaryServerInterceptor(),
-			interceptor.NewAuthInterceptor(a.diContainer.IAMClient(ctx)),
 		),
 	)
 	closer.AddNamed("gRPC server", func(ctx context.Context) error {

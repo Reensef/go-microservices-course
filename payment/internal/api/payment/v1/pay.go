@@ -20,17 +20,6 @@ func (a *api) PayOrder(
 	req *paymentV1.PayOrderRequest,
 ) (*paymentV1.PayOrderResponse, error) {
 	userUuid := req.GetUserUuid()
-	authenticatedUser, ok := model.UserFromContext(ctx)
-	if !ok {
-		return nil, status.Errorf(codes.Internal, "internal server error")
-	}
-
-	if authenticatedUser.Uuid != userUuid {
-		return nil, status.Errorf(
-			codes.PermissionDenied, "authenticated user does not match user_uuid in request",
-		)
-	}
-
 	paymentMethod := converter.ToModelPaymentMethod(req.GetPaymentMethod())
 	orderUuid := req.GetOrderUuid()
 

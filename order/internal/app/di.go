@@ -214,7 +214,6 @@ func (d *diContainer) InventoryGrpc(ctx context.Context) inventoryGrpc.Inventory
 			grpc.WithTransportCredentials(insecure.NewCredentials()),
 			grpc.WithChainUnaryInterceptor(
 				tracer.UnaryClientInterceptor(),
-				grpcClients.UnaryClientInterceptor(),
 			),
 		)
 		if err != nil {
@@ -249,7 +248,6 @@ func (d *diContainer) PaymentGrpc(ctx context.Context) paymentGrpc.PaymentServic
 			grpc.WithTransportCredentials(insecure.NewCredentials()),
 			grpc.WithChainUnaryInterceptor(
 				tracer.UnaryClientInterceptor(),
-				grpcClients.UnaryClientInterceptor(),
 			),
 		)
 		if err != nil {

@@ -54,7 +54,7 @@ func NewAuthMiddleware(iamClient grpcClients.IAMClient) func(http.Handler) http.
 				return
 			}
 
-			ctx := model.WithToken(model.WithUser(r.Context(), user), token)
+			ctx := model.WithUser(r.Context(), user)
 			next.ServeHTTP(w, r.WithContext(ctx))
 		})
 	}

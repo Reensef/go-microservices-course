@@ -91,7 +91,6 @@ func TestMiddleware_success(t *testing.T) {
 	iamClient.EXPECT().Whoami(mock.Anything, token).Return(user, nil).Once()
 
 	var gotUser model.User
-	var gotToken string
 	var ok bool
 
 	req := httptest.NewRequest(http.MethodGet, "/", nil)
@@ -100,12 +99,10 @@ func TestMiddleware_success(t *testing.T) {
 
 	mw(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		gotUser, ok = model.UserFromContext(r.Context())
-		gotToken, _ = model.TokenFromContext(r.Context())
 		w.WriteHeader(http.StatusOK)
 	})).ServeHTTP(rec, req)
 
 	assert.Equal(t, http.StatusOK, rec.Code)
 	assert.True(t, ok)
 	assert.Equal(t, user, gotUser)
-	assert.Equal(t, token, gotToken)
 }
