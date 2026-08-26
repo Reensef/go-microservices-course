@@ -235,6 +235,19 @@ tasks:
     cmds:
       - docker compose down --volumes
 
+  compose:envoy:up:
+    desc: Поднять Envoy-гейтвей
+    deps: [ proto:descriptor ]
+    dir: deploy/compose/envoy
+    cmds:
+      - docker compose up --detach
+
+  compose:envoy:down:
+    desc: Остановить и удалить Envoy-гейтвей
+    dir: deploy/compose/envoy
+    cmds:
+      - docker compose down
+
   compose:infra:up:
     desc: Поднять общую инфраструктуру - сеть, PostgreSQL, MongoDB, Kafka, Redis, OTel
     cmds:
@@ -256,7 +269,7 @@ tasks:
       - task compose:network:down
 
   compose:all:up:
-    desc: Собрать и поднять все сервисы (iam, inventory, payment, order, assembly, notification)
+    desc: Собрать и поднять все сервисы (iam, inventory, payment, order, assembly, notification) и Envoy-гейтвей
     deps:
       - compose:iam:up
       - compose:inventory:up
@@ -264,9 +277,10 @@ tasks:
       - compose:order:up
       - compose:assembly:up
       - compose:notification:up
+      - compose:envoy:up
 
   compose:all:down:
-    desc: Остановить и удалить все сервисы (iam, inventory, payment, order, assembly, notification)
+    desc: Остановить и удалить все сервисы (iam, inventory, payment, order, assembly, notification) и Envoy-гейтвей
     deps:
       - compose:iam:down
       - compose:inventory:down
@@ -274,6 +288,7 @@ tasks:
       - compose:order:down
       - compose:assembly:down
       - compose:notification:down
+      - compose:envoy:down
 
   assembly:run:
     desc: "Запускает assembly сервис"
