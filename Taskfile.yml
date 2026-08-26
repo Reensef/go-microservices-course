@@ -654,15 +654,14 @@ tasks:
     desc: "🧪 Пользовательские сценарии против уже поднятого dev-стека (apitest)"
     summary: |
       Прогоняет сквозные пользовательские сценарии из ./apitest/scenarios через
-      реальные gRPC/HTTP-клиенты (без grpcurl/curl/grep) — против уже
-      поднятого docker-compose стека (iam, inventory, order, payment).
+      реальные HTTP-клиенты (без grpcurl/curl/grep) — против уже поднятого
+      docker-compose стека (iam, inventory, order, payment) и Envoy-гейтвея.
 
       Сам ничего не поднимает и не останавливает — предварительно нужно
-      поднять сервисы, например через compose:*:up.
+      поднять сервисы (compose:*:up) и гейтвей (compose:envoy:up).
 
-      Адреса по умолчанию: localhost:50051-50054 (iam/inventory/payment —
-      gRPC) и localhost:50052 (order — HTTP); переопределяются через
-      APITEST_*_ADDR / APITEST_ORDER_BASE_URL, см. apitest/internal/env.
+      Адрес по умолчанию: http://localhost:8080 (Envoy); переопределяется
+      через APITEST_GATEWAY_BASE_URL, см. apitest/internal/env.
     cmds:
       # -count=1 отключает кэш: результат зависит от состояния поднятого стека,
       # а его Go в ключ кэша не закладывает и переиспользовал бы старый вердикт
