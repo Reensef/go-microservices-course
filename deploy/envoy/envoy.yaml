@@ -1,0 +1,200 @@
+# Встроенный admin/debug HTTP-интерфейс Envoy: статистика, дамп конфига, health.
+admin:
+  address:
+    socket_address:
+      address: 0.0.0.0
+      port_value: 9901
+
+# Конфиг задан статически, а не получен от динамического xDS control plane.
+static_resources:
+  # Listener занимает сокет и принимает соединения.
+  listeners:
+    - name: gateway_listener
+      address:
+        socket_address:
+          address: 0.0.0.0
+          port_value: 8080
+
+      # filter chain — упорядоченный конвейер сетевых фильтров для принятых соединений.
+      filter_chains:
+        - filters:
+            # HCM: сетевой фильтр, разбирающий сырой TCP как HTTP и запускающий роутинг и http_filters.
+            - name: envoy.filters.network.http_connection_manager
+              typed_config:
+                "@type": type.googleapis.com/envoy.extensions.filters.network.http_connection_manager.v3.HttpConnectionManager
+                stat_prefix: gateway
+
+                # Таблица маршрутов; virtual_host выбирается сопоставлением заголовка Host с domains.
+                route_config:
+                  name: gateway_routes
+                  virtual_hosts:
+                    - name: gateway
+                      domains: ["*"]
+
+                      # Матчатся сверху вниз; typed_per_filter_config переопределяет http_filter для конкретного роута.
+                      routes:
+                        - match:
+                            path: "/healthz"
+                          # direct_response: Envoy отвечает сам, не обращаясь к апстриму.
+                          direct_response:
+                            status: 200
+                          typed_per_filter_config:
+                            # ExtAuthzPerRoute — собственный тип переопределения ext_authz; у фильтров без своего типа — generic FilterConfig.
+                            envoy.filters.http.ext_authz:
+                              "@type": type.googleapis.com/envoy.extensions.filters.http.ext_authz.v3.ExtAuthzPerRoute
+                              disabled: true
+
+                        - match:
+                            path: "/iam/v1/sessions"
+                          route:
+                            cluster: iam_service
+                          typed_per_filter_config:
+                            envoy.filters.http.ext_authz:
+                              "@type": type.googleapis.com/envoy.extensions.filters.http.ext_authz.v3.ExtAuthzPerRoute
+                              disabled: true
+
+                        - match:
+                            path: "/iam/v1/users"
+                          route:
+                            cluster: iam_service
+                          typed_per_filter_config:
+                            envoy.filters.http.ext_authz:
+                              "@type": type.googleapis.com/envoy.extensions.filters.http.ext_authz.v3.ExtAuthzPerRoute
+                              disabled: true
+
+                        - match:
+                            prefix: "/order/v1/"
+                          route:
+                            cluster: order_service
+
+                        - match:
+                            prefix: "/inventory/v1/"
+                          route:
+                            cluster: inventory_service
+
+                        - match:
+                            prefix: "/"
+                          direct_response:
+                            status: 404
+                          typed_per_filter_config:
+                            envoy.filters.http.ext_authz:
+                              "@type": type.googleapis.com/envoy.extensions.filters.http.ext_authz.v3.ExtAuthzPerRoute
+                              disabled: true
+
+                # HTTP-фильтры выполняются в перечисленном порядке; терминальный фильтр должен идти последним.
+                http_filters:
+                  # ext_authz: спрашивает у внешнего gRPC/HTTP-сервиса разрешение на каждый запрос.
+                  - name: envoy.filters.http.ext_authz
+                    typed_config:
+                      "@type": type.googleapis.com/envoy.extensions.filters.http.ext_authz.v3.ExtAuthz
+                      transport_api_version: V3
+                      # false = fail closed: отклонять запросы, если authz-сервис ошибается или недоступен.
+                      failure_mode_allow: false
+                      grpc_service:
+                        envoy_grpc:
+                          cluster_name: iam_service
+                        timeout: 2s
+                      # Заголовки клиента, копируемые в запрос на авторизацию; остальные не отправляются.
+                      allowed_headers:
+                        patterns:
+                          - exact: "authorization"
+
+                  # Транслирует REST/JSON в gRPC и обратно, на основе proto-аннотаций google.api.http.
+                  - name: envoy.filters.http.grpc_json_transcoder
+                    typed_config:
+                      "@type": type.googleapis.com/envoy.extensions.filters.http.grpc_json_transcoder.v3.GrpcJsonTranscoder
+                      # Скомпилированный FileDescriptorSet, из которого транскодер берёт описание методов и HTTP-биндингов.
+                      proto_descriptor: "/etc/envoy/gateway.binpb"
+                      # gRPC-сервисы, которые обслуживает транскодер; всё остальное проходит без транскодинга.
+                      services:
+                        - iam.v1.AuthService
+                        - iam.v1.UserService
+                        - inventory.v1.InventoryService
+                      # Использовать роут, выбранный по исходному запросу, а не переопределять его по транскодированному пути.
+                      match_incoming_request_route: true
+                      print_options:
+                        # Отдавать JSON с именами полей как в proto (snake_case), а не lowerCamelCase.
+                        preserve_proto_field_names: true
+                      # Игнорировать нераспознанные query-параметры вместо отказа в обработке запроса.
+                      ignore_unknown_query_parameters: true
+
+                  # Терминальный фильтр; выполняет непосредственно проксирование в апстрим-кластер.
+                  - name: envoy.filters.http.router
+                    typed_config:
+                      "@type": type.googleapis.com/envoy.extensions.filters.http.router.v3.Router
+
+  # Кластер — именованная группа апстрим-эндпоинтов, между которыми Envoy распределяет нагрузку.
+  clusters:
+    - name: iam_service
+      # STRICT_DNS: периодически переразрешать DNS-имя и использовать каждый полученный адрес как эндпоинт.
+      type: STRICT_DNS
+      lb_policy: ROUND_ROBIN
+      # Принудительно HTTP/2 без TLS (h2c) до апстрима — так требует gRPC.
+      typed_extension_protocol_options:
+        envoy.extensions.upstreams.http.v3.HttpProtocolOptions:
+          "@type": type.googleapis.com/envoy.extensions.upstreams.http.v3.HttpProtocolOptions
+          explicit_http_config:
+            http2_protocol_options: {}
+      # Активная проверка здоровья: Envoy сам опрашивает эндпоинты и перестаёт слать трафик на нездоровые.
+      health_checks:
+        - timeout: 1s
+          interval: 5s
+          unhealthy_threshold: 2
+          healthy_threshold: 2
+          # Опрашивает стандартный RPC grpc.health.v1.Health/Check.
+          grpc_health_check: {}
+      # Список эндпоинтов кластера; при STRICT_DNS адрес — это имя, разрешаемое во время работы.
+      load_assignment:
+        cluster_name: iam_service
+        endpoints:
+          - lb_endpoints:
+              - endpoint:
+                  address:
+                    socket_address:
+                      address: iam
+                      port_value: 50054
+
+    - name: inventory_service
+      type: STRICT_DNS
+      lb_policy: ROUND_ROBIN
+      typed_extension_protocol_options:
+        envoy.extensions.upstreams.http.v3.HttpProtocolOptions:
+          "@type": type.googleapis.com/envoy.extensions.upstreams.http.v3.HttpProtocolOptions
+          explicit_http_config:
+            http2_protocol_options: {}
+      health_checks:
+        - timeout: 1s
+          interval: 5s
+          unhealthy_threshold: 2
+          healthy_threshold: 2
+          grpc_health_check: {}
+      load_assignment:
+        cluster_name: inventory_service
+        endpoints:
+          - lb_endpoints:
+              - endpoint:
+                  address:
+                    socket_address:
+                      address: inventory
+                      port_value: 50051
+
+    - name: order_service
+      type: STRICT_DNS
+      lb_policy: ROUND_ROBIN
+      health_checks:
+        - timeout: 1s
+          interval: 5s
+          unhealthy_threshold: 2
+          healthy_threshold: 2
+          # Обычный HTTP GET-пробник: другой протокол, чем grpc_health_check.
+          http_health_check:
+            path: "/health"
+      load_assignment:
+        cluster_name: order_service
+        endpoints:
+          - lb_endpoints:
+              - endpoint:
+                  address:
+                    socket_address:
+                      address: order
+                      port_value: 50052

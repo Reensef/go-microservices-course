@@ -151,9 +151,15 @@ func (a *App) initOrderRouter(ctx context.Context) error {
 	a.orderRouter.Use(middleware.Logger)
 	a.orderRouter.Use(middleware.Recoverer)
 	a.orderRouter.Use(middleware.Timeout(10 * time.Second))
-	a.orderRouter.Use(a.diContainer.AuthMiddleware(ctx))
 
-	a.orderRouter.Mount("/", a.diContainer.OrderApi(ctx))
+	a.orderRouter.Get("/health", func(w http.ResponseWriter, _ *http.Request) {
+		w.WriteHeader(http.StatusOK)
+	})
+
+	a.orderRouter.Group(func(r chi.Router) {
+		r.Use(a.diContainer.AuthMiddleware(ctx))
+		r.Mount("/", a.diContainer.OrderApi(ctx))
+	})
 
 	return nil
 }
