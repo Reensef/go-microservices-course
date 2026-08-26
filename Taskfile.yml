@@ -431,8 +431,8 @@ tasks:
     desc: "Собирает FileDescriptorSet для Envoy grpc_json_transcoder"
     dir: shared/proto
     cmds:
-      - mkdir -p {{.ROOT_DIR}}/deploy/envoy
-      - '{{.BUF}} build -o {{.ROOT_DIR}}/deploy/envoy/gateway.binpb --path iam/v1 --path inventory/v1'
+      - mkdir -p {{.ROOT_DIR}}/deploy/compose/envoy
+      - '{{.BUF}} build -o {{.ROOT_DIR}}/deploy/compose/envoy/gateway.binpb --path iam/v1 --path inventory/v1'
 
   redocly-cli:install:
     desc: Установить локально Redocly CLI

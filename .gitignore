@@ -23,7 +23,7 @@
 node_modules
 /shared/api/bundles/
 /coverage/
-/deploy/envoy/gateway.binpb
+/deploy/compose/envoy/gateway.binpb
 
 # Environment files
 .env
