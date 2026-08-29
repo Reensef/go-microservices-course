@@ -2,15 +2,21 @@ syntax = "proto3";
 
 package iam.v1;
 
+import "vendor/google/api/annotations.proto";
 import "iam/v1/common.proto";
-import "validate/validate.proto";
+import "vendor/validate/validate.proto";
 
 option go_package = "github.com/Reensef/go-microservices-course/shared/pkg/proto/iam/v1;iam_v1";
 
 // Cервис для управления пользователями
 service UserService {
     // Метод для регистрации нового пользователя
-    rpc Register(RegisterRequest) returns (RegisterResponse);
+    rpc Register(RegisterRequest) returns (RegisterResponse) {
+        option (google.api.http) = {
+            post: "/iam/v1/users"
+            body: "*"
+        };
+    }
 
     // Метод для получения пользователя по UUID
     rpc GetUser(GetUserRequest) returns (GetUserResponse);

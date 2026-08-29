@@ -2,18 +2,28 @@ syntax = "proto3";
 
 package inventory.v1;
 
+import "vendor/google/api/annotations.proto";
 import "google/protobuf/timestamp.proto";
-import "validate/validate.proto";
+import "vendor/validate/validate.proto";
 
 option go_package = "github.com/Reensef/go-microservices-course/shared/pkg/proto/inventory/v1;inventory_v1";
 
 // Cервис для хранения информации о деталях
 service InventoryService {
     // Метод для получения детали по UUID
-    rpc GetPart(GetPartRequest) returns (GetPartResponse);
+    rpc GetPart(GetPartRequest) returns (GetPartResponse) {
+        option (google.api.http) = {
+            get: "/inventory/v1/parts/{id}"
+        };
+    }
 
     // Метод для получения списка деталей с фильтрацией
-    rpc ListParts(ListPartsRequest) returns (ListPartsResponse);
+    rpc ListParts(ListPartsRequest) returns (ListPartsResponse) {
+        option (google.api.http) = {
+            post: "/inventory/v1/parts:search"
+            body: "filter"
+        };
+    }
 }
 
 // Запрос для метода GetPart

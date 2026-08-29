@@ -12,10 +12,7 @@ import (
 	"google.golang.org/grpc/credentials/insecure"
 	"google.golang.org/grpc/reflection"
 
-	"github.com/Reensef/go-microservices-course/inventory/internal/api/interceptor"
 	inventoryApi "github.com/Reensef/go-microservices-course/inventory/internal/api/inventory/v1"
-	grpcClients "github.com/Reensef/go-microservices-course/inventory/internal/client/grpc"
-	iamClient "github.com/Reensef/go-microservices-course/inventory/internal/client/grpc/iam/v1"
 	"github.com/Reensef/go-microservices-course/inventory/internal/config"
 	repository "github.com/Reensef/go-microservices-course/inventory/internal/repository"
 	partRepository "github.com/Reensef/go-microservices-course/inventory/internal/repository/part"
@@ -24,7 +21,6 @@ import (
 	"github.com/Reensef/go-microservices-course/platform/pkg/closer"
 	"github.com/Reensef/go-microservices-course/platform/pkg/grpc/health"
 	"github.com/Reensef/go-microservices-course/platform/pkg/tracer"
-	iamGrpc "github.com/Reensef/go-microservices-course/shared/pkg/proto/iam/v1"
 	inventoryProtoApi "github.com/Reensef/go-microservices-course/shared/pkg/proto/inventory/v1"
 )
 
@@ -38,9 +34,6 @@ type diContainer struct {
 	partRepository repository.PartRepository
 	mongoHandler   *mongo.Database
 	mongoClient    *mongo.Client
-
-	iamClient grpcClients.IAMClient
-	iamGrpc   iamGrpc.AuthServiceClient
 }
 
 func NewDiContainer() *diContainer {
@@ -69,7 +62,6 @@ func (d *diContainer) InventoryGrpcServer(ctx context.Context) *grpc.Server {
 			grpc.Creds(insecure.NewCredentials()),
 			grpc.ChainUnaryInterceptor(
 				tracer.UnaryServerInterceptor(),
-				interceptor.NewAuthInterceptor(d.IAMClient(ctx)),
 			),
 		)
 
@@ -148,36 +140,4 @@ func (d *diContainer) MongoClient(ctx context.Context) *mongo.Client {
 	}
 
 	return d.mongoClient
-}
-
-func (d *diContainer) IAMClient(ctx context.Context) grpcClients.IAMClient {
-	if d.iamClient == nil {
-		d.iamClient = iamClient.New(d.IAMGrpc(ctx))
-	}
-
-	return d.iamClient
-}
-
-func (d *diContainer) IAMGrpc(ctx context.Context) iamGrpc.AuthServiceClient {
-	if d.iamGrpc == nil {
-		conn, err := grpc.NewClient(
-			config.AppConfig().IAMClient.Address(),
-			grpc.WithTransportCredentials(insecure.NewCredentials()),
-			grpc.WithUnaryInterceptor(tracer.UnaryClientInterceptor()),
-		)
-		if err != nil {
-			panic(fmt.Sprintf("failed to connect to iam service: %v\n", err))
-		}
-
-		closer.AddNamed("IAM gRPC client", func(ctx context.Context) error {
-			if err := conn.Close(); err != nil {
-				return err
-			}
-			return nil
-		})
-
-		d.iamGrpc = iamGrpc.NewAuthServiceClient(conn)
-	}
-
-	return d.iamGrpc
 }

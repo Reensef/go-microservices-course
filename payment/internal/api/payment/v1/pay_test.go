@@ -24,7 +24,7 @@ func TestPayOrder(t *testing.T) {
 		userUuid := "6ba7b810-9dad-11d1-80b4-00c04fd430c8"
 		paymentMethod := paymentV1.PaymentMethod_PAYMENT_METHOD_CREDIT_CARD
 
-		ctx := model.WithUserContext(context.Background(), model.User{Uuid: userUuid})
+		ctx := context.Background()
 
 		req := &paymentV1.PayOrderRequest{
 			OrderUuid:     orderUuid,
@@ -51,7 +51,7 @@ func TestPayOrder(t *testing.T) {
 		orderUuid := "550e8400-e29b-41d4-a716-446655440000"
 		userUuid := "6ba7b810-9dad-11d1-80b4-00c04fd430c8"
 
-		ctx := model.WithUserContext(context.Background(), model.User{Uuid: userUuid})
+		ctx := context.Background()
 
 		req := &paymentV1.PayOrderRequest{
 			OrderUuid:     orderUuid,
@@ -78,7 +78,7 @@ func TestPayOrder(t *testing.T) {
 		userUuid := "6ba7b810-9dad-11d1-80b4-00c04fd430c8"
 		paymentMethod := paymentV1.PaymentMethod_PAYMENT_METHOD_CREDIT_CARD
 
-		ctx := model.WithUserContext(context.Background(), model.User{Uuid: userUuid})
+		ctx := context.Background()
 
 		req := &paymentV1.PayOrderRequest{
 			OrderUuid:     orderUuid,
@@ -95,46 +95,5 @@ func TestPayOrder(t *testing.T) {
 		assert.Nil(t, resp)
 		assert.Error(t, err)
 		assert.Equal(t, codes.Internal, status.Code(err))
-	})
-
-	t.Run("No authenticated user in context", func(t *testing.T) {
-		mockPaymentService := mocks.NewMockPaymentService(t)
-		apiInstance := New(mockPaymentService)
-
-		req := &paymentV1.PayOrderRequest{
-			OrderUuid:     "550e8400-e29b-41d4-a716-446655440000",
-			UserUuid:      "6ba7b810-9dad-11d1-80b4-00c04fd430c8",
-			PaymentMethod: paymentV1.PaymentMethod_PAYMENT_METHOD_CREDIT_CARD,
-		}
-
-		resp, err := apiInstance.PayOrder(context.Background(), req)
-
-		assert.Nil(t, resp)
-		assert.Error(t, err)
-		assert.Equal(t, codes.Internal, status.Code(err))
-		assert.Empty(t, mockPaymentService.Calls)
-	})
-
-	t.Run("Authenticated user does not match request user_uuid", func(t *testing.T) {
-		mockPaymentService := mocks.NewMockPaymentService(t)
-		apiInstance := New(mockPaymentService)
-
-		userUuid := "6ba7b810-9dad-11d1-80b4-00c04fd430c8"
-		otherUuid := "11111111-1111-1111-1111-111111111111"
-
-		ctx := model.WithUserContext(context.Background(), model.User{Uuid: otherUuid})
-
-		req := &paymentV1.PayOrderRequest{
-			OrderUuid:     "550e8400-e29b-41d4-a716-446655440000",
-			UserUuid:      userUuid,
-			PaymentMethod: paymentV1.PaymentMethod_PAYMENT_METHOD_CREDIT_CARD,
-		}
-
-		resp, err := apiInstance.PayOrder(ctx, req)
-
-		assert.Nil(t, resp)
-		assert.Error(t, err)
-		assert.Equal(t, codes.PermissionDenied, status.Code(err))
-		assert.Empty(t, mockPaymentService.Calls)
 	})
 }

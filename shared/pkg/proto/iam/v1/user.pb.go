@@ -8,6 +8,7 @@ package iam_v1
 
 import (
 	_ "github.com/envoyproxy/protoc-gen-validate/validate"
+	_ "google.golang.org/genproto/googleapis/api/annotations"
 	protoreflect "google.golang.org/protobuf/reflect/protoreflect"
 	protoimpl "google.golang.org/protobuf/runtime/protoimpl"
 	reflect "reflect"
@@ -259,7 +260,7 @@ var File_iam_v1_user_proto protoreflect.FileDescriptor
 
 const file_iam_v1_user_proto_rawDesc = "" +
 	"\n" +
-	"\x11iam/v1/user.proto\x12\x06iam.v1\x1a\x13iam/v1/common.proto\x1a\x17validate/validate.proto\"X\n" +
+	"\x11iam/v1/user.proto\x12\x06iam.v1\x1a#vendor/google/api/annotations.proto\x1a\x13iam/v1/common.proto\x1a\x1evendor/validate/validate.proto\"X\n" +
 	"\x14UserRegistrationInfo\x12$\n" +
 	"\x04info\x18\x01 \x01(\v2\x10.iam.v1.UserInfoR\x04info\x12\x1a\n" +
 	"\bpassword\x18\x02 \x01(\tR\bpassword\"C\n" +
@@ -270,9 +271,9 @@ const file_iam_v1_user_proto_rawDesc = "" +
 	"\x0eGetUserRequest\x12%\n" +
 	"\tuser_uuid\x18\x01 \x01(\tB\b\xfaB\x05r\x03\xb0\x01\x01R\buserUuid\"3\n" +
 	"\x0fGetUserResponse\x12 \n" +
-	"\x04user\x18\x01 \x01(\v2\f.iam.v1.UserR\x04user2\x88\x01\n" +
-	"\vUserService\x12=\n" +
-	"\bRegister\x12\x17.iam.v1.RegisterRequest\x1a\x18.iam.v1.RegisterResponse\x12:\n" +
+	"\x04user\x18\x01 \x01(\v2\f.iam.v1.UserR\x04user2\xa2\x01\n" +
+	"\vUserService\x12W\n" +
+	"\bRegister\x12\x17.iam.v1.RegisterRequest\x1a\x18.iam.v1.RegisterResponse\"\x18\x82\xd3\xe4\x93\x02\x12:\x01*\"\r/iam/v1/users\x12:\n" +
 	"\aGetUser\x12\x16.iam.v1.GetUserRequest\x1a\x17.iam.v1.GetUserResponseBKZIgithub.com/Reensef/go-microservices-course/shared/pkg/proto/iam/v1;iam_v1b\x06proto3"
 
 var (

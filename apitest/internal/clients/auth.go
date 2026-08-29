@@ -6,7 +6,6 @@ import (
 
 	"github.com/google/uuid"
 	"github.com/stretchr/testify/require"
-	"google.golang.org/grpc/metadata"
 
 	iamGrpc "github.com/Reensef/go-microservices-course/shared/pkg/proto/iam/v1"
 )
@@ -18,14 +17,10 @@ const (
 
 type sessionCtxKey struct{}
 
-// WithSession кладёт session_uuid в контекст сразу для обоих протоколов:
-// в исходящую gRPC-metadata (читают inventory/payment) и в само значение
-// контекста (читает bearerRoundTripper для HTTP-клиента order). Один и тот же
-// ctx можно передавать в любой из клиентов Clients.
+// WithSession кладёт session_uuid в контекст — bearerRoundTripper читает его
+// оттуда и подставляет в заголовок Authorization для всех HTTP-клиентов.
 func WithSession(ctx context.Context, sessionUUID string) context.Context {
-	ctx = context.WithValue(ctx, sessionCtxKey{}, sessionUUID)
-	ctx = metadata.AppendToOutgoingContext(ctx, "authorization", bearerPrefix+sessionUUID)
-	return ctx
+	return context.WithValue(ctx, sessionCtxKey{}, sessionUUID)
 }
 
 func sessionFromContext(ctx context.Context) (string, bool) {
@@ -41,7 +36,7 @@ func RegisterAndLogin(t *testing.T, ctx context.Context, c *Clients) (sessionUUI
 
 	login = "apitest-" + uuid.NewString()
 
-	_, err := c.IAMUser.Register(ctx, &iamGrpc.RegisterRequest{
+	_, err := c.IAM.Register(ctx, &iamGrpc.RegisterRequest{
 		Info: &iamGrpc.UserRegistrationInfo{
 			Info: &iamGrpc.UserInfo{
 				Login: login,
@@ -52,7 +47,7 @@ func RegisterAndLogin(t *testing.T, ctx context.Context, c *Clients) (sessionUUI
 	})
 	require.NoError(t, err, "register user")
 
-	loginResp, err := c.IAMAuth.Login(ctx, &iamGrpc.LoginRequest{
+	loginResp, err := c.IAM.Login(ctx, &iamGrpc.LoginRequest{
 		Login:    login,
 		Password: testPassword,
 	})

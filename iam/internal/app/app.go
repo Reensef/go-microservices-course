@@ -111,7 +111,7 @@ func (a *App) initCloser(_ context.Context) error {
 
 func (a *App) runGRPCServer(ctx context.Context) error {
 	logger.Info(fmt.Sprintf(
-		"🚀 gRPC IAM server (AuthService, UserService) listening on %s",
+		"🚀 gRPC IAM server (AuthService, UserService, Authorization) listening on %s",
 		a.di.Listener(ctx).Addr(),
 	))
 

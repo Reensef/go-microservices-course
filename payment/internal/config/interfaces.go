@@ -11,10 +11,6 @@ type PaymentServiceConfig interface {
 	Address() string
 }
 
-type IAMClientConfig interface {
-	Address() string
-}
-
 type TracingConfig interface {
 	CollectorEndpoint() string
 	ServiceVersion() string

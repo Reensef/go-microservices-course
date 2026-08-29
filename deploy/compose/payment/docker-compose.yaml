@@ -9,8 +9,6 @@ services:
 
     image: payment-service:v1.0.0
 
-    ports:
-      - "127.0.0.1:${GRPC_PORT}:${GRPC_PORT}"
     env_file:
       - ./.env
     restart: unless-stopped

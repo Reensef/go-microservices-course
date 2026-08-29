@@ -8,6 +8,7 @@ package iam_v1
 
 import (
 	_ "github.com/envoyproxy/protoc-gen-validate/validate"
+	_ "google.golang.org/genproto/googleapis/api/annotations"
 	protoreflect "google.golang.org/protobuf/reflect/protoreflect"
 	protoimpl "google.golang.org/protobuf/runtime/protoimpl"
 	timestamppb "google.golang.org/protobuf/types/known/timestamppb"
@@ -292,7 +293,7 @@ var File_iam_v1_auth_proto protoreflect.FileDescriptor
 
 const file_iam_v1_auth_proto_rawDesc = "" +
 	"\n" +
-	"\x11iam/v1/auth.proto\x12\x06iam.v1\x1a\x1fgoogle/protobuf/timestamp.proto\x1a\x13iam/v1/common.proto\x1a\x17validate/validate.proto\"\xce\x01\n" +
+	"\x11iam/v1/auth.proto\x12\x06iam.v1\x1a#vendor/google/api/annotations.proto\x1a\x1fgoogle/protobuf/timestamp.proto\x1a\x13iam/v1/common.proto\x1a\x1evendor/validate/validate.proto\"\xce\x01\n" +
 	"\aSession\x12\x12\n" +
 	"\x04uuid\x18\x01 \x01(\tR\x04uuid\x129\n" +
 	"\n" +
@@ -310,9 +311,9 @@ const file_iam_v1_auth_proto_rawDesc = "" +
 	"\fsession_uuid\x18\x01 \x01(\tB\b\xfaB\x05r\x03\xb0\x01\x01R\vsessionUuid\"]\n" +
 	"\x0eWhoamiResponse\x12)\n" +
 	"\asession\x18\x01 \x01(\v2\x0f.iam.v1.SessionR\asession\x12 \n" +
-	"\x04user\x18\x02 \x01(\v2\f.iam.v1.UserR\x04user2|\n" +
-	"\vAuthService\x124\n" +
-	"\x05Login\x12\x14.iam.v1.LoginRequest\x1a\x15.iam.v1.LoginResponse\x127\n" +
+	"\x04user\x18\x02 \x01(\v2\f.iam.v1.UserR\x04user2\x99\x01\n" +
+	"\vAuthService\x12Q\n" +
+	"\x05Login\x12\x14.iam.v1.LoginRequest\x1a\x15.iam.v1.LoginResponse\"\x1b\x82\xd3\xe4\x93\x02\x15:\x01*\"\x10/iam/v1/sessions\x127\n" +
 	"\x06Whoami\x12\x15.iam.v1.WhoamiRequest\x1a\x16.iam.v1.WhoamiResponseBKZIgithub.com/Reensef/go-microservices-course/shared/pkg/proto/iam/v1;iam_v1b\x06proto3"
 
 var (

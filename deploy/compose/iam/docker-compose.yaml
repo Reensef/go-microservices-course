@@ -9,8 +9,6 @@ services:
 
     image: iam-service:v1.0.0
 
-    ports:
-      - "127.0.0.1:${GRPC_PORT}:${GRPC_PORT}" # Публикуем только на localhost хоста; порт совпадает с тем, что слушает приложение
     env_file:
       - ./.env
 

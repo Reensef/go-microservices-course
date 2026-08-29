@@ -12,25 +12,25 @@ type Handler interface {
 	//
 	// Отмена заказа.
 	//
-	// POST /api/v1/orders/{order_uuid}/cancel
+	// POST /order/v1/orders/{order_uuid}/cancel
 	CancelOrder(ctx context.Context, params CancelOrderParams) (CancelOrderRes, error)
 	// CreateOrder implements CreateOrder operation.
 	//
 	// Создание нового заказа.
 	//
-	// POST /api/v1/orders
+	// POST /order/v1/orders
 	CreateOrder(ctx context.Context, req *CreateOrderRequest) (CreateOrderRes, error)
 	// GetOrderByUUID implements GetOrderByUUID operation.
 	//
 	// Получение информации о заказе.
 	//
-	// GET /api/v1/orders/{order_uuid}
+	// GET /order/v1/orders/{order_uuid}
 	GetOrderByUUID(ctx context.Context, params GetOrderByUUIDParams) (GetOrderByUUIDRes, error)
 	// PayOrder implements PayOrder operation.
 	//
 	// Оплата заказа.
 	//
-	// POST /api/v1/orders/{order_uuid}/pay
+	// POST /order/v1/orders/{order_uuid}/pay
 	PayOrder(ctx context.Context, req *PayOrderRequest, params PayOrderParams) (PayOrderRes, error)
 	// NewError creates *GenericErrorStatusCode from error returned by handler.
 	//

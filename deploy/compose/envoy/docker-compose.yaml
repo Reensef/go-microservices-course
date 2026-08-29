@@ -1,0 +1,20 @@
+services:
+  envoy:
+    image: envoyproxy/envoy:v1.34.0
+
+    volumes:
+      - ./envoy.yaml:/etc/envoy/envoy.yaml
+      - ./gateway.binpb:/etc/envoy/gateway.binpb
+
+    ports:
+      - "127.0.0.1:${GATEWAY_PORT}:8080"
+      - "127.0.0.1:${ADMIN_PORT}:9901"
+
+    restart: unless-stopped
+
+    networks:
+      - common
+
+networks:
+  common:
+    external: true

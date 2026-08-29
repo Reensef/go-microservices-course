@@ -2,7 +2,7 @@ syntax = "proto3";
 
 package payment.v1;
 
-import "validate/validate.proto";
+import "vendor/validate/validate.proto";
 
 option go_package = "github.com/Reensef/go-microservices-course/shared/pkg/proto/payment/v1;payment_v1";
 

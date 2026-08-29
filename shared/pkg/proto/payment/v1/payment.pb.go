@@ -189,7 +189,7 @@ var File_payment_v1_payment_proto protoreflect.FileDescriptor
 const file_payment_v1_payment_proto_rawDesc = "" +
 	"\n" +
 	"\x18payment/v1/payment.proto\x12\n" +
-	"payment.v1\x1a\x17validate/validate.proto\"\xa3\x01\n" +
+	"payment.v1\x1a\x1evendor/validate/validate.proto\"\xa3\x01\n" +
 	"\x0fPayOrderRequest\x12'\n" +
 	"\n" +
 	"order_uuid\x18\x01 \x01(\tB\b\xfaB\x05r\x03\xb0\x01\x01R\torderUuid\x12%\n" +
